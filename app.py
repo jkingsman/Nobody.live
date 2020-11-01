@@ -27,5 +27,12 @@ def get_stream():
     response['ttl'] = ttl
     return response
 
+@app.route('/stats')
+def get_stats():
+    streams = r.dbsize()
+    return jsonify(
+        streams=streams,
+    )
+
 if __name__ == "__main__":
     app.run()
