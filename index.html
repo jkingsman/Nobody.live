@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nobody.live | Lonely stream and streamers   with zero viewers</title>
+    <style>
+      body {
+        margin: 10px;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #131313;
+        color: #eeebff;
+      }
+
+      h1, p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="stream-title"></h1>
+    <p>Streamed by <i><a id="streamer-name" href=""></a></i></p>
+    <p>Zero viewers as of <span id="stream-confirmed-time"></span></p>
+    <hr>
+    <div id="twitch-embed"></div>
+    <hr>
+    <i>Stream already has viewers? Refresh the page to get another.</i>
+    <h2>What is this?</h2>
+    <p>
+      Many streamers are broadcasting to an empty room. This will find and start streaming one of those streams to you. Make a new friend! Many thanks to LonelyStreams and TwitchRoulette for inspiration, both now sadly (as of Nov 2020) seemingly defunct.
+    </p>
+
+    <script src="https://embed.twitch.tv/embed/v1.js"></script>
+    <script type="text/javascript">
+      async function getStream() {
+        fetch('/stream').then(response => response.json())
+        .then(stream => {
+          console.log('Got stream:', stream);
+
+          if (Object.keys(stream).length === 0) {
+            alert("Uh oh! There's been an issue retrieving a stream.")
+            return
+          }
+
+          document.getElementById('stream-title').innerText = stream.title || '[No Title]';
+          document.getElementById('streamer-name').innerText = stream.user_name;
+          document.getElementById('streamer-name').href = `https://www.twitch.tv/${stream.user_name}`;
+
+          const check_time = new Date(stream.fetched * 1000);
+          document.getElementById('stream-confirmed-time').innerText = `${check_time.toLocaleDateString()} ${check_time.toLocaleTimeString()}`;
+
+          new Twitch.Embed("twitch-embed", {
+            width: "100%",
+            height: 800,
+            channel: stream.user_name,
+            theme: 'dark'
+          });
+        }).catch((error) => {
+          console.error('Error:', error);
+        });
+      }
+
+      getStream();
+
+    </script>
+  </body>
+</html>

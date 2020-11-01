@@ -1,0 +1,3 @@
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y nginx supervisor redis-server python3-dev build-essential libssl-dev libffi-dev unattended-upgrades
