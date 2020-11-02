@@ -54,6 +54,36 @@
         padding: 10px;
       }
 
+      .grid-container {
+        display: grid;
+        grid-template-columns: 80% 20%;
+        grid-template-rows: 1fr;
+        gap: 0px 0px;
+        grid-template-areas:
+          "intro-text refresh";
+      }
+
+      .intro-text {
+        font-style: italic;
+        grid-area: intro-text;
+      }
+
+      .refresh {
+        grid-area: refresh;
+      }
+
+      .new-streamer-button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        width: 100%;
+      }
+
       #twitch-embed {
         margin-top: 10px;
       }
@@ -69,14 +99,24 @@
       .footer-text, .footer-text a {
         text-align: center;
         color: #4c4c4c;
+        float: right;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>streams with no viewers</h1>
-      <p><i>Thousands upon thousands of streamers are streaming to zero viewers. You are the only audience member of the below stream. Say hello!</i></p>
-      <p><i>Stream already has viewers? Refresh the page to get another.</i></p>
+      <div class="grid-container">
+        <div class="intro-text">
+          <p>Thousands upon thousands of streamers are streaming to zero viewers.
+          <p>You are the only audience member of the below stream. Say hello!</p>
+          <br>
+          <p>Stream already has viewers? Refresh the page to get another.</p>
+        </div>
+        <div class="refresh">
+          <button class="new-streamer-button" onClick="getStream();">Refresh Stream</button>
+        </div>
+      </div>
       <br>
       <hr>
       <div class="stream-container">
@@ -94,9 +134,17 @@
       </div>
     </div>
 
-
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript">
+      function renderDescriptions(stream) {
+        document.getElementById('stream-title').innerText = stream.title || '[No Title]';
+        document.getElementById('streamer-name').innerText = stream.user_name;
+        document.getElementById('streamer-name').href = `https://www.twitch.tv/${stream.user_name}`;
+
+        const check_time = new Date(stream.fetched * 1000);
+        document.getElementById('stream-confirmed-time').innerText = `${check_time.toLocaleDateString()} ${check_time.toLocaleTimeString()}`;
+      }
+
       async function getStream() {
         fetch('/stream').then(response => response.json())
         .then(stream => {
@@ -107,19 +155,15 @@
             return
           }
 
-          document.getElementById('stream-title').innerText = stream.title || '[No Title]';
-          document.getElementById('streamer-name').innerText = stream.user_name;
-          document.getElementById('streamer-name').href = `https://www.twitch.tv/${stream.user_name}`;
+          renderDescriptions(stream);
 
-          const check_time = new Date(stream.fetched * 1000);
-          document.getElementById('stream-confirmed-time').innerText = `${check_time.toLocaleDateString()} ${check_time.toLocaleTimeString()}`;
-
-          new Twitch.Embed("twitch-embed", {
-            width: "100%",
+          document.getElementById('twitch-embed').innerHTML = '';
+          new Twitch.Embed('twitch-embed', {
+            width: '100%',
             height: 416,
             channel: stream.user_name,
             theme: 'dark',
-            parent: ["nobody.live"]
+            parent: ['nobody.live']
           });
         }).catch((error) => {
           console.error('Error:', error);
