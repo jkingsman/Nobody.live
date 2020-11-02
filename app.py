@@ -18,7 +18,7 @@ def get_stream():
     key = r.randomkey()
 
     # if someone gets our stats key, try again
-    if key == 'stats':
+    while key == 'stats':
         key = r.randomkey()
 
     if not key:
