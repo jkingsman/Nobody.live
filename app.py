@@ -6,7 +6,7 @@ import datetime
 import redis
 
 from flask import Flask, jsonify, send_from_directory
-app = Flask(__name__, static_url_path='', static_folder='')
+app = Flask(__name__, static_url_path='', static_folder='static')
 r = redis.Redis(decode_responses=True)
 
 @app.route('/')

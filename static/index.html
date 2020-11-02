@@ -12,23 +12,64 @@
         color: #eeebff;
       }
 
-      h1, p {
+      a {
+        color: aquamarine;
+      }
+
+      h3, p {
         margin: 0;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .stream-container {
+        background-color: #202020;
+        padding: 10px;
+      }
+
+      #twitch-embed {
+        margin-top: 10px;
+      }
+
+      #footer {
+       position:fixed;
+       left:0px;
+       bottom:0px;
+       height:30px;
+       width:100%;
+      }
+
+      .footer-text, .footer-text a {
+        text-align: center;
+        color: #4c4c4c;
       }
     </style>
   </head>
   <body>
-    <h1 id="stream-title"></h1>
-    <p>Streamed by <i><a id="streamer-name" href=""></a></i></p>
-    <p>Zero viewers as of <span id="stream-confirmed-time"></span></p>
-    <hr>
-    <div id="twitch-embed"></div>
-    <hr>
-    <i>Stream already has viewers? Refresh the page to get another.</i>
-    <h2>What is this?</h2>
-    <p>
-      Many streamers are broadcasting to an empty room. This will find and start streaming one of those streams to you. Make a new friend! Many thanks to LonelyStreams and TwitchRoulette for inspiration, both now sadly (as of Nov 2020) seemingly defunct.
-    </p>
+    <div class="container">
+      <h1>streams with no viewers</h1>
+      <p><i>Thousands upon thousands of streamers are streaming to zero viewers. You are the only audience member of the below stream. Say hello!</i></p>
+      <p><i>Stream already has viewers? Refresh the page to get another.</i></p>
+      <br>
+      <hr>
+      <div class="stream-container">
+        <h3 id="stream-title"></h3>
+        <p>Streamed by <i><a id="streamer-name" href=""></a></i></p>
+        <p>Zero viewers as of <span id="stream-confirmed-time"></span></p>
+        <div id="twitch-embed"></div>
+      </div>
+    </div>
+    <div id="footer">
+      <div class="container">
+        <p class="footer-text">
+          Made with <a href="https://github.com/jkingsman/Nobody.live">open source</a> love by Jack Kingsman.
+        </p>
+      </div>
+    </div>
+
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript">
@@ -51,7 +92,7 @@
 
           new Twitch.Embed("twitch-embed", {
             width: "100%",
-            height: 800,
+            height: 600,
             channel: stream.user_name,
             theme: 'dark',
             parent: ["nobody.live"]
