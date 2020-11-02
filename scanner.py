@@ -21,6 +21,8 @@ if not CLIENT_ID or not CLIENT_SECRET:
 
 MAX_VIEWERS = 0  # number of viewers to be considered for inclusion
 REQUEST_LIMIT = 1000  # number of API requests to stop at before starting a new search
+MINIMUM_STREAMS_TO_GET = 50  # if REQUEST_LIMIT streams doesn't capture at least this many zero-
+                             # viewer streams, keep going
 SECONDS_BEFORE_RECORD_EXPIRATION = 180  # how many seconds a stream should stay in redis
 
 r = redis.Redis()
@@ -63,10 +65,10 @@ def populate_streamers():
         return []
 
     requests_sent = 1
-
+    streams_grabbed = 0
     # eat page after page of API results until we hit our request limit
     stream_list = get_stream_list_response(CLIENT_ID, token)
-    while requests_sent <= REQUEST_LIMIT:
+    while requests_sent <= REQUEST_LIMIT or streams_grabbed < MINIMUM_STREAMS_TO_GET:
         stream_list_data = stream_list.json()
         requests_sent += 1
 
@@ -75,13 +77,14 @@ def populate_streamers():
         # filter out streams with our desired count and inject into redis
         streams_found = list(filter(lambda stream: int(stream['viewer_count']) <= MAX_VIEWERS, stream_list_data['data']))
         for stream in streams_found:
+            streams_grabbed += 1
             r.setex(json.dumps(stream), SECONDS_BEFORE_RECORD_EXPIRATION, time.time())
 
         if len(streams_found) > 0:
             logging.info(f"Inserted {len(streams_found)} streams")
 
         if requests_sent % 100 == 0:
-            logging.info(f"{requests_sent} requests sent; API is {rate_limit_usage}% consumed")
+            logging.info(f"{requests_sent} requests sent ({streams_grabbed} streams found); API is {rate_limit_usage}% consumed")
 
         try:
             pagination_offset = stream_list_data['pagination']['cursor']
