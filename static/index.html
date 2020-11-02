@@ -127,7 +127,7 @@
           <p>You are the only audience member of the below stream. Say hello!</p>
         </div>
         <div class="refresh">
-          <button id="new-streamer-button" onClick="getStream();" disabled>Refresh Stream</button>
+          <button id="new-streamer-button" onClick="getStream();" disabled>New Stream</button>
         </div>
       </div>
       <br>
@@ -221,6 +221,12 @@
       if (!localStorage.getItem('streamHistory')) {
         localStorage.setItem('streamHistory', '')
       }
+
+      document.onkeyup = function(e) {
+        if (e.altKey && e.which == 82) {
+          getStream();
+        }
+      };
 
       getStream();
     </script>
