@@ -24,13 +24,25 @@ def get_stream():
     if not key:
         return "{}"
 
-    time_fetched = r.get(key)
-    ttl = r.ttl(key)
-
     response = json.loads(key)
-    response['fetched'] = time_fetched
-    response['ttl'] = ttl
+    response['fetched'] = r.get(key)
+    response['ttl'] = r.ttl(key)
     return response
+
+@app.route('/streams', defaults={'count': 20})
+@app.route('/streams/<count>')
+def get_streams(count):
+    streams = []
+    for i in range(int(count)):
+        key = r.randomkey()
+        stream = json.loads(key)
+        stream['fetched'] = r.get(key)
+        stream['ttl'] = r.ttl(key)
+
+        if key != 'stats':
+            streams.append(stream)
+
+    return jsonify(streams)
 
 @app.route('/stats')
 def get_stats():
