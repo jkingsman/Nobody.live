@@ -54,7 +54,7 @@
         padding: 10px;
       }
 
-      @media only screen and (min-width: 700px) {
+      @media only screen and (min-width: 750px) {
         .grid-container {
           display: grid;
           grid-template-columns: 80% 20%;
@@ -75,6 +75,13 @@
 
       .intro-text {
         font-style: italic;
+      }
+
+      /* Default collapse height of twitch pane */
+      @media only screen and (max-width: 750px) {
+        .fullscreen-toggle {
+          display: none;
+        }
       }
 
       #new-streamer-button {
@@ -109,7 +116,7 @@
     </style>
   </head>
   <body>
-    <div class="container">
+    <div id="content" class="container">
       <h1>streams with no viewers</h1>
       <div class="grid-container">
         <div class="intro-text">
@@ -128,6 +135,7 @@
         <h3 id="stream-title"></h3>
         <p>Streamed by <i><a id="streamer-name" href="#" target="_blank"></a></i></p>
         <p>Zero viewers as of <span id="stream-confirmed-time"></span></p>
+        <p class="fullscreen-toggle"><a href="#" onclick="toggleFullWidth();">Toggle full-width player</a></p>
         <div id="twitch-embed"></div>
       </div>
     </div>
@@ -141,6 +149,16 @@
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript">
+      const defaultTwitchWindowHeightPx = 416;
+      function toggleFullWidth() {
+        // toggle full width
+        document.getElementById('content').classList.toggle("container");
+
+        // toggle between default height and (viewport - 100px)
+        const twitchContainer = document.getElementById("twitch-embed").children[0];
+        twitchContainer.height = twitchContainer.height == defaultTwitchWindowHeightPx ? window.innerHeight - 100 : defaultTwitchWindowHeightPx;
+      }
+
       function renderDescriptions(stream) {
         document.getElementById('stream-title').innerText = stream.title || '[No Title]';
         document.getElementById('streamer-name').innerText = stream.user_name;
@@ -167,7 +185,7 @@
           document.getElementById('twitch-embed').innerHTML = '';
           new Twitch.Embed('twitch-embed', {
             width: '100%',
-            height: 416,
+            height: defaultTwitchWindowHeightPx,
             channel: stream.user_name,
             theme: 'dark',
             parent: ['nobody.live']
