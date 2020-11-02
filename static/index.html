@@ -72,7 +72,7 @@
         grid-area: refresh;
       }
 
-      .new-streamer-button {
+      #new-streamer-button {
         background-color: #4CAF50;
         border: none;
         color: white;
@@ -82,6 +82,10 @@
         display: inline-block;
         font-size: 16px;
         width: 100%;
+      }
+
+      #new-streamer-button:disabled, #new-streamer-button[disabled] {
+        background-color: #efefef;
       }
 
       #twitch-embed {
@@ -114,7 +118,7 @@
           <p>Stream already has viewers? Refresh the page to get another.</p>
         </div>
         <div class="refresh">
-          <button class="new-streamer-button" onClick="getStream();">Refresh Stream</button>
+          <button id="new-streamer-button" onClick="getStream();" disabled>Refresh Stream</button>
         </div>
       </div>
       <br>
@@ -146,6 +150,8 @@
       }
 
       async function getStream() {
+        document.getElementById('new-streamer-button').disabled = true;
+
         fetch('/stream').then(response => response.json())
         .then(stream => {
           console.log('Got stream:', stream);
@@ -168,6 +174,8 @@
         }).catch((error) => {
           console.error('Error:', error);
         });
+
+        setTimeout(() => document.getElementById('new-streamer-button').disabled = false, 4000);
       }
 
       getStream();
