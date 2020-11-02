@@ -57,22 +57,21 @@ def get_stream_list_response(client_id, token, pagination_offset=None):
     return stream_list
 
 
-def populate_streamers():
-    token = get_bearer_token(CLIENT_ID, CLIENT_SECRET)
+def populate_streamers(client_id, client_secret):
+    token = get_bearer_token(client_id, client_secret)
 
     if not token:
-        logging.error("There's no token; returning empty response")
-        return []
+        logging.error("There's no token! Halting.")
+        return
 
     requests_sent = 1
     streams_grabbed = 0
+
     # eat page after page of API results until we hit our request limit
-    stream_list = get_stream_list_response(CLIENT_ID, token)
+    stream_list = get_stream_list_response(client_id, token)
     while requests_sent <= REQUEST_LIMIT or streams_grabbed < MINIMUM_STREAMS_TO_GET:
         stream_list_data = stream_list.json()
         requests_sent += 1
-
-        rate_limit_usage = round((1 - int(stream_list.headers['Ratelimit-Remaining']) / int(stream_list.headers['Ratelimit-Limit'])) * 100)
 
         # filter out streams with our desired count and inject into redis
         streams_found = list(filter(lambda stream: int(stream['viewer_count']) <= MAX_VIEWERS, stream_list_data['data']))
@@ -80,18 +79,28 @@ def populate_streamers():
             streams_grabbed += 1
             r.setex(json.dumps(stream), SECONDS_BEFORE_RECORD_EXPIRATION, time.time())
 
+        # report on what we inserted
         if len(streams_found) > 0:
             logging.info(f"Inserted {len(streams_found)} streams")
 
+        # sleep on rate limit token utilization
+        rate_limit_usage = round((1 - int(stream_list.headers['Ratelimit-Remaining']) / int(stream_list.headers['Ratelimit-Limit'])) * 100)
+        if rate_limit_usage > 60:
+            logger.warning(f"Rate limiting is at {rate_limit_usage}% utilized; sleeping for 30s")
+            time.sleep(30)
+
+        # drop a status every now and again
         if requests_sent % 100 == 0:
             logging.info(f"{requests_sent} requests sent ({streams_grabbed} streams found); API is {rate_limit_usage}% consumed")
 
+        # aaaaand do it again
         try:
             pagination_offset = stream_list_data['pagination']['cursor']
         except KeyError:
             # we hit the end of the list; no more keys
             break
-        stream_list = get_stream_list_response(CLIENT_ID, token, pagination_offset)
+        stream_list = get_stream_list_response(client_id, token, pagination_offset)
 
 while True:
-    populate_streamers()
+    populate_streamers(CLIENT_ID, CLIENT_SECRET)
+    time.sleep(5)
