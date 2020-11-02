@@ -154,7 +154,11 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript">
       const defaultTwitchWindowHeightPx = 416;
+      let fullWidth = false;
+
       function toggleFullWidth() {
+        fullWidth = true;
+
         // toggle full width
         document.getElementById('content').classList.toggle("container");
 
@@ -189,7 +193,7 @@
           document.getElementById('twitch-embed').innerHTML = '';
           new Twitch.Embed('twitch-embed', {
             width: '100%',
-            height: defaultTwitchWindowHeightPx,
+            height: fullWidth ? window.innerHeight - 100 : defaultTwitchWindowHeightPx,
             channel: stream.user_name,
             theme: 'dark',
             parent: ['nobody.live']
