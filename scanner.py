@@ -92,6 +92,7 @@ def populate_streamers(client_id, client_secret):
         # drop a status every now and again
         if requests_sent % 100 == 0:
             logging.info(f"{requests_sent} requests sent ({streams_grabbed} streams found); API is {rate_limit_usage}% consumed")
+            r.set('stats', json.dumps({'ratelimit_usage': rate_limit_usage, "time_of_ratelimit": time.time()}))
 
         # aaaaand do it again
         try:

@@ -16,6 +16,11 @@ def root():
 @app.route('/stream')
 def get_stream():
     key = r.randomkey()
+
+    # if someone gets our stats key, try again
+    if key == 'stats':
+        key = r.randomkey()
+
     if not key:
         return "{}"
 
@@ -29,9 +34,13 @@ def get_stream():
 
 @app.route('/stats')
 def get_stats():
-    streams = r.dbsize()
+    streamcount = r.dbsize()
+    stats = json.loads(r.get('stats'))
+
     return jsonify(
-        streams=streams,
+        streams=streamcount,
+        ratelimit_usage=stats['ratelimit_usage'],
+        time=stats['time_of_ratelimit']
     )
 
 if __name__ == "__main__":
