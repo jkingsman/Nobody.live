@@ -49,9 +49,14 @@
         margin: 0 auto;
       }
 
-      .stream-container {
+      .surface-container {
+        margin-top: 10px;
         background-color: #202020;
         padding: 10px;
+      }
+
+      .center-text {
+        text-align: center;
       }
 
       @media only screen and (min-width: 750px) {
@@ -112,7 +117,7 @@
        padding-top:20px;
       }
 
-      .footer-text, .footer-text a {
+      .footer-text, .footer-text a, .subdued, .subdued a {
         text-align: center;
         color: #4c4c4c;
       }
@@ -132,7 +137,7 @@
       </div>
       <br>
       <hr>
-      <div class="stream-container">
+      <div class="surface-container">
         <h3 id="stream-title"></h3>
         <p>Streamed by <i><a id="streamer-name" href="#" target="_blank"></a></i></p>
         <p>Zero viewers as of <span id="stream-confirmed-time"></span></p>
@@ -176,6 +181,32 @@
         document.getElementById('stream-confirmed-time').innerText = `${check_time.toLocaleDateString()} ${check_time.toLocaleTimeString()}`;
       }
 
+      function setUpTwitch(stream) {
+        document.getElementById('twitch-embed').innerHTML = '';
+        new Twitch.Embed('twitch-embed', {
+          width: '100%',
+          height: fullWidth ? window.innerHeight - 100 : defaultTwitchWindowHeightPx,
+          channel: stream.user_name,
+          theme: 'dark',
+          parent: ['nobody.live']
+        });
+      }
+
+      function appendToWatchHistory(stream) {
+        // load and append to historical streams + hack for splitting
+        let pastStreams = localStorage.getItem('streamHistory').split(',').filter(item => item);
+        pastStreams.push(stream.user_name);
+        let trimmedStreams = pastStreams.slice(-5);
+        localStorage.setItem('streamHistory', trimmedStreams);
+        document.getElementById('stream-list').innerHTML = trimmedStreams.map(username => `<a href="https://www.twitch.tv/${username}">${username}</a>`).join(', ');
+      }
+
+      function displayStream(stream) {
+        renderDescriptions(stream);
+        setUpTwitch(stream);
+        appendToWatchHistory(stream);
+      }
+
       async function getStream() {
         document.getElementById('new-streamer-button').disabled = true;
 
@@ -188,24 +219,7 @@
             return
           }
 
-          renderDescriptions(stream);
-
-          document.getElementById('twitch-embed').innerHTML = '';
-          new Twitch.Embed('twitch-embed', {
-            width: '100%',
-            height: fullWidth ? window.innerHeight - 100 : defaultTwitchWindowHeightPx,
-            channel: stream.user_name,
-            theme: 'dark',
-            parent: ['nobody.live']
-          });
-
-          // load and append to historical streams + hack for splitting
-          let pastStreams = localStorage.getItem('streamHistory').split(',').filter(item => item);
-          pastStreams.push(stream.user_name);
-          let trimmedStreams = pastStreams.slice(-5);
-          localStorage.setItem('streamHistory', trimmedStreams);
-          document.getElementById('stream-list').innerHTML = trimmedStreams.map(username => `<a href="https://www.twitch.tv/${username}">${username}</a>`).join(', ');
-
+          displayStream(stream);
         }).catch((error) => {
           console.error('Error:', error);
         });
