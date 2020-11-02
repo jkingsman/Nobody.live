@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -54,26 +54,31 @@
         padding: 10px;
       }
 
-      .grid-container {
-        display: grid;
-        grid-template-columns: 80% 20%;
-        grid-template-rows: 1fr;
-        gap: 0px 0px;
-        grid-template-areas:
-          "intro-text refresh";
+      @media only screen and (min-width: 700px) {
+        .grid-container {
+          display: grid;
+          grid-template-columns: 80% 20%;
+          grid-template-rows: 1fr;
+          gap: 0px 0px;
+          grid-template-areas:
+            "intro-text refresh";
+        }
+
+        .intro-text {
+          grid-area: intro-text;
+        }
+
+        .refresh {
+          grid-area: refresh;
+        }
       }
 
       .intro-text {
         font-style: italic;
-        grid-area: intro-text;
-      }
-
-      .refresh {
-        grid-area: refresh;
       }
 
       #new-streamer-button {
-        background-color: #4CAF50;
+        background-color: #2d7330;
         border: none;
         color: white;
         padding: 15px 32px;
@@ -82,6 +87,7 @@
         display: inline-block;
         font-size: 16px;
         width: 100%;
+        margin-top: 10px;
       }
 
       #new-streamer-button:disabled, #new-streamer-button[disabled] {
@@ -93,17 +99,12 @@
       }
 
       #footer {
-       position:fixed;
-       left:0px;
-       bottom:0px;
-       height:30px;
-       width:100%;
+       padding-top:20px;
       }
 
       .footer-text, .footer-text a {
         text-align: center;
         color: #4c4c4c;
-        float: right;
       }
     </style>
   </head>
@@ -133,7 +134,7 @@
     <div id="footer">
       <div class="container">
         <p class="footer-text">
-          Made with <a href="https://github.com/jkingsman/Nobody.live">open source</a> love by Jack Kingsman.
+          Made with <a href="https://github.com/jkingsman/Nobody.live">open source</a> and love by Jack Kingsman
         </p>
       </div>
     </div>
