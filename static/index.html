@@ -294,8 +294,10 @@
         }
       };
 
-      getStream();
-      getThumbnails();
+      if (window.location.hash !== '#noload') {
+        getStream();
+        getThumbnails();
+      }
     </script>
   </body>
 </html>
