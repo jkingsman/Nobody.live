@@ -277,7 +277,8 @@
         fetch('/streams/12').then(response => response.json())
         .then(streams => {streams.forEach(stream => {
           let entry = document.createElement('img');
-          entry.className = "thumbnail-item";
+          entry.className =  "thumbnail-item";
+          entry.alt = entry.title = `${stream.user_name}: ${stream.title || '[No title]'}`
           entry.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
           entry.onclick = () => displayStream(stream);
           container.appendChild(entry)
