@@ -122,16 +122,15 @@
       }
 
       .thumbnail-item {
+        width: 90%;
         border: 1px solid rgba(0, 0, 0, 0.8);
         font-size: 30px;
         text-align: center;
         margin: 10px;
         overflow: hidden;
         cursor: pointer;
-      }
-
-      .stream-thumbnail {
-        width: 100%
+        width: 90%;
+        justify-self: center;
       }
 
       #footer {
@@ -265,7 +264,7 @@
         .then(streams => {streams.forEach(stream => {
           let entry = document.createElement('img');
           entry.className = "thumbnail-item";
-          entry.src = stream.thumbnail_url.replace('{width}', '220').replace('{height}', '124');
+          entry.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
           entry.onclick = () => displayStream(stream);
           container.appendChild(entry)
         })})
