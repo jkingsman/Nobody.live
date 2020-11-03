@@ -230,7 +230,7 @@
 
       async function getStats() {
         fetch('/stats').then(response => response.json())
-        .then(stats => {alert(`Ratelimit at ${stats.ratelimit_usage}% capacity and ${stats.streams - 1} streams loaded as of ${new Date(stats.time * 1000).toLocaleDateString()} ${new Date(stats.time * 1000).toLocaleTimeString()}`)})
+        .then(stats => {alert(`API is ${stats.ratelimit_usage}% loaded. ${stats.streams - 1} streams loaded as of ${new Date(stats.time * 1000).toLocaleDateString()} ${new Date(stats.time * 1000).toLocaleTimeString()}`)})
       }
 
       document.onkeyup = function(e) {
