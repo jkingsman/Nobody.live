@@ -254,7 +254,9 @@
 
       async function getStats() {
         fetch('/stats').then(response => response.json())
-        .then(stats => {alert(`API is ${stats.ratelimit_usage}% loaded. ${stats.streams - 1} streams loaded as of ${new Date(stats.time * 1000).toLocaleDateString()} ${new Date(stats.time * 1000).toLocaleTimeString()}`)})
+        .then(stats => {
+            alert(`${stats.ratelimit_remaining}/${stats.ratelimit_limit} tokens used (${Math.round((1 - stats.ratelimit_remaining / stats.ratelimit_limit) * 10000) / 100}% utilized). ${stats.streams - 1} streams loaded as of ${new Date(stats.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats.time_of_ratelimit * 1000).toLocaleTimeString()}.`)
+        })
       }
 
       async function getThumbnails() {

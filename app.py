@@ -54,14 +54,10 @@ def get_streams(count):
 
 @app.route('/stats')
 def get_stats():
-    streamcount = r.dbsize()
     stats = json.loads(r.get('stats'))
+    stats['streams'] = r.dbsize()
 
-    return jsonify(
-        streams=streamcount,
-        ratelimit_usage=stats['ratelimit_usage'],
-        time=stats['time_of_ratelimit']
-    )
+    return jsonify(stats)
 
 if __name__ == "__main__":
     app.run()
