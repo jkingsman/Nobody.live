@@ -274,7 +274,7 @@
       async function getThumbnails() {
         let container = document.getElementById('thumbnails');
         container.innerHTML = '';
-        fetch('/streams').then(response => response.json())
+        fetch('/streams/12').then(response => response.json())
         .then(streams => {streams.forEach(stream => {
           let entry = document.createElement('img');
           entry.className = "thumbnail-item";
@@ -295,6 +295,7 @@
       };
 
       getStream();
+      getThumbnails();
     </script>
   </body>
 </html>
