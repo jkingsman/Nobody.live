@@ -262,7 +262,7 @@
         .then(stats => {
             let statsField = document.getElementById('stats');
             statsField.innerHTML = '';
-            statsField.innerText = `${stats.ratelimit_remaining}/${stats.ratelimit_limit} tokens used (${Math.round((1 - stats.ratelimit_remaining / stats.ratelimit_limit) * 10000) / 100}% utilized). ${stats.streams - 1} streams loaded as of ${new Date(stats.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats.time_of_ratelimit * 1000).toLocaleTimeString()}.`;
+            statsField.innerText = `${stats.ratelimit_remaining}/${stats.ratelimit_limit} API tokens left (${Math.round((1 - stats.ratelimit_remaining / stats.ratelimit_limit) * 10000) / 100}% spent). ${stats.streams - 1} streams loaded as of ${new Date(stats.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats.time_of_ratelimit * 1000).toLocaleTimeString()}.`;
         })
       }
 
