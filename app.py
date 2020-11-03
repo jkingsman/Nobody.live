@@ -17,11 +17,12 @@ def root():
 def get_stream():
     key = r.randomkey()
 
-    # if someone gets our stats key, try again
-    while key == 'stats':
+    # if someone gets our stats key, try again up to ten times
+    tries = 0
+    while key == 'stats' or tries > 10:
         key = r.randomkey()
 
-    if not key:
+    if not key or key == 'stats':
         return "{}"
 
     response = json.loads(key)
@@ -35,6 +36,13 @@ def get_streams(count):
     streams = []
     for i in range(int(count)):
         key = r.randomkey()
+        tries = 0
+        while key == 'stats' or tries > 10:
+            key = r.randomkey()
+
+        if not key or key == 'stats':
+            return "[]"
+
         stream = json.loads(key)
         stream['fetched'] = r.get(key)
         stream['ttl'] = r.ttl(key)

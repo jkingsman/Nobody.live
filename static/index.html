@@ -36,8 +36,10 @@
         color: #eeebff;
       }
 
-      a {
+      a, .fake-link {
         color: aquamarine;
+        cursor: pointer;
+        text-decoration: underline;
       }
 
       h3, p {
@@ -84,7 +86,7 @@
 
       /* Default collapse height of twitch pane */
       @media only screen and (max-width: 750px) {
-        .fullscreen-toggle {
+        .fullscreen-toggle, .thumbnails {
           display: none;
         }
 
@@ -111,6 +113,25 @@
 
       #twitch-embed {
         margin-top: 10px;
+      }
+
+      .thumbnail-container {
+        display: grid;
+        grid-gap: 25px;
+        grid-template-columns: auto auto auto auto;
+      }
+
+      .thumbnail-item {
+        border: 1px solid rgba(0, 0, 0, 0.8);
+        font-size: 30px;
+        text-align: center;
+        margin: 10px;
+        overflow: hidden;
+        cursor: pointer;
+      }
+
+      .stream-thumbnail {
+        width: 100%
       }
 
       #footer {
@@ -143,6 +164,10 @@
         <p>Zero viewers as of <span id="stream-confirmed-time"></span></p>
         <p class="fullscreen-toggle"><a href="#" onclick="toggleFullWidth();">Toggle widescreen</a></p>
         <div id="twitch-embed"></div>
+      </div>
+      <div class="thumbnails surface-container center-text">
+        <span aria-role="button" class="fake-link subdued" onclick="getThumbnails();">Refresh thumbnails</span>
+        <div id="thumbnails" class="thumbnail-container"></div>
       </div>
     </div>
     <div id="footer">
@@ -231,6 +256,19 @@
       async function getStats() {
         fetch('/stats').then(response => response.json())
         .then(stats => {alert(`API is ${stats.ratelimit_usage}% loaded. ${stats.streams - 1} streams loaded as of ${new Date(stats.time * 1000).toLocaleDateString()} ${new Date(stats.time * 1000).toLocaleTimeString()}`)})
+      }
+
+      async function getThumbnails() {
+        let container = document.getElementById('thumbnails');
+        container.innerHTML = '';
+        fetch('/streams').then(response => response.json())
+        .then(streams => {streams.forEach(stream => {
+          let entry = document.createElement('img');
+          entry.className = "thumbnail-item";
+          entry.src = stream.thumbnail_url.replace('{width}', '220').replace('{height}', '124');
+          entry.onclick = () => displayStream(stream);
+          container.appendChild(entry)
+        })})
       }
 
       document.onkeyup = function(e) {
