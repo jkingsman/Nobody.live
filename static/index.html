@@ -271,10 +271,10 @@
         setInterval(getStats, 5000);
       }
 
-      async function getThumbnails() {
+      async function getThumbnails(thumbs=12) {
         let container = document.getElementById('thumbnails');
         container.innerHTML = '';
-        fetch('/streams/12').then(response => response.json())
+        fetch(`/streams/${thumbs}`).then(response => response.json())
         .then(streams => {streams.forEach(stream => {
           let entry = document.createElement('img');
           entry.className =  "thumbnail-item";
