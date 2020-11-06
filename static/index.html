@@ -111,6 +111,10 @@
         background-color: #efefef;
       }
 
+      #main-stream-container {
+        min-height: 515px;
+      }
+
       #twitch-embed {
         margin-top: 10px;
       }
@@ -119,6 +123,7 @@
         display: grid;
         grid-gap: 25px;
         grid-template-columns: auto auto auto auto;
+        min-height: 600px;
       }
 
       .thumbnail-item {
@@ -157,7 +162,7 @@
       </div>
       <br>
       <hr>
-      <div class="surface-container">
+      <div id="main-stream-container" class="surface-container">
         <h2 id="stream-title"></h2>
         <p>Streamed by <i><a rel="noopener" id="streamer-name" href="#" target="_blank"></a></i></p>
         <p>Zero viewers as of <span id="stream-confirmed-time"></span></p>
@@ -271,18 +276,19 @@
         setInterval(getStats, 5000);
       }
 
-      async function getThumbnails(thumbs=12) {
+      let refreshCount = 12;
+      async function getThumbnails(thumbs=refreshCount) {
         let container = document.getElementById('thumbnails');
         container.innerHTML = '';
         fetch(`/streams/${thumbs}`).then(response => response.json())
-        .then(streams => {streams.forEach(stream => {
+        .then(streams => streams.forEach(stream => {
           let entry = document.createElement('img');
           entry.className =  "thumbnail-item";
           entry.alt = entry.title = `${stream.user_name}: ${stream.title || '[No title]'}`
           entry.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
           entry.onclick = () => displayStream(stream);
           container.appendChild(entry)
-        })})
+        }));
       }
 
       document.onkeyup = function(e) {
