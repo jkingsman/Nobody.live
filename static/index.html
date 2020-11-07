@@ -112,12 +112,19 @@
 
       function appendToWatchHistory(stream) {
         // load and append to historical streams + hack for splitting
-        let streams = localStorage.getItem('streamHistory') || '';
-        let splitStrems = streams.split(',').filter(item => item);
-        splitStrems.push(stream.user_name);
-        let trimmedStreams = splitStrems.slice(-5);
-        localStorage.setItem('streamHistory', trimmedStreams);
-        document.getElementById('stream-list').innerHTML = trimmedStreams.map(username => `<a href="https://www.twitch.tv/${username}">${username}</a>`).join(', ');
+        let usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
+        usernames.push(stream.user_name);
+        let trimmedUsernames = usernames.slice(-5);
+        localStorage.setItem('streamHistoryJSON', JSON.stringify(trimmedUsernames));
+
+        // render list
+        document.getElementById('stream-list').innerHTML = trimmedUsernames.map(username => {
+          let a = document.createElement('a');
+          var linkText = document.createTextNode(username);
+          a.appendChild(linkText);
+          a.href = "https://www.twitch.tv/" + username;
+          return a.outerHTML;
+        }).join(', ');
       }
 
       function displayStream(stream) {
