@@ -1,0 +1,126 @@
+body {
+  margin: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #131313;
+  color: #eeebff;
+}
+
+a,
+.fake-link {
+  color: aquamarine;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+h2,
+p {
+  margin: 0;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.surface-container {
+  margin-top: 10px;
+  background-color: #202020;
+  padding: 10px;
+}
+
+.center-text {
+  text-align: center;
+}
+
+@media only screen and (min-width: 750px) {
+  .grid-container {
+    display: grid;
+    grid-template-columns: 80% 20%;
+    grid-template-rows: 1fr;
+    gap: 0px 0px;
+    grid-template-areas: "intro-text refresh";
+  }
+  .intro-text {
+    grid-area: intro-text;
+  }
+  .refresh {
+    grid-area: refresh;
+  }
+}
+
+.intro-text {
+  font-style: italic;
+}
+
+
+/* Default collapse height of twitch pane */
+
+@media only screen and (max-width: 750px) {
+  .fullscreen-toggle,
+  .thumbnails {
+    display: none;
+  }
+  #new-streamer-button {
+    margin-top: 20px;
+  }
+}
+
+#new-streamer-button {
+  background-color: #2d7330;
+  border: none;
+  color: white;
+  padding: 10px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  width: 100%;
+}
+
+#new-streamer-button:disabled,
+#new-streamer-button[disabled] {
+  background-color: #efefef;
+}
+
+#main-stream-container {
+  min-height: 515px;
+}
+
+#twitch-embed {
+  margin-top: 10px;
+}
+
+.thumbnail-container {
+  display: grid;
+  grid-gap: 25px;
+  grid-template-columns: auto auto auto auto;
+  min-height: 600px;
+}
+
+.thumbnail-item {
+  width: 90%;
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  font-size: 30px;
+  text-align: center;
+  margin: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  width: 90%;
+  justify-self: center;
+}
+
+#footer {
+  padding-top: 20px;
+}
+
+.footer-text,
+.footer-text a,
+.subdued,
+.subdued a {
+  text-align: center;
+  color: #8a8a8a;
+}
+
+.footer-text {
+  margin-top: 13px;
+}
