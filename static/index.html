@@ -195,7 +195,7 @@
       if (urlParams.has('noload')) {
         console.error('Halting page load per request');
       } else if (urlParams.has('stream')) {
-        console.log(`Loading stream from URL: "${JSON.parse(decodeURIComponent(urlParams.get('stream')))}" (raw: "${urlParams.get('stream')}")`)
+        console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
         displayStream(JSON.parse(urlParams.get('stream')));
         getThumbnails();
         window.history.pushState({}, document.title, window.location.pathname);
