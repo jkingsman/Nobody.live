@@ -39,7 +39,7 @@
           <p>You are the only audience member of the below stream. Say hello!</p>
         </div>
         <div class="refresh">
-          <button id="new-streamer-button" onClick="getStream();" disabled>New Stream</button>
+          <button id="new-streamer-button" disabled>New Stream</button>
         </div>
       </div>
       <br>
@@ -48,11 +48,11 @@
         <h2 id="stream-title"></h2>
         <p>Streamed by <i><a rel="noopener" id="streamer-name" href="#" target="_blank"></a></i></p>
         <p>Zero viewers as of <span id="stream-confirmed-time"></span></p>
-        <p class="fullscreen-toggle"><a href="#" onclick="toggleFullWidth();">Toggle widescreen</a></p>
+        <p class="fullscreen-toggle"><a href="#" id="widescreen-toggle">Toggle widescreen</a></p>
         <div id="twitch-embed"></div>
       </div>
       <div class="thumbnails surface-container center-text">
-        <span role="button" class="fake-link subdued" onclick="getThumbnails();">Get new stream thumbnails</span>
+        <span id="new-thumbnails" role="button" class="fake-link subdued">Get new stream thumbnails</span>
         <div id="thumbnails" class="thumbnail-container"></div>
       </div>
     </div>
@@ -65,10 +65,10 @@
           Made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by Jack Kingsman, with much appreciation for Carsten Hoffrichter's <i>Lonely Streams</i>
         </p>
         <p id="stats" class="footer-text">
-          <a href="#" onclick="startStats();">live stats</a>
+          <a id="live-stats" href="#">live stats</a>
         </p>
         <p class="footer-text">
-          <a href="#" onclick="refreshThisStream();">refresh page and keep stream</a>
+          <a href="#" id="keep-stream-refresh">refresh page and keep stream</a>
         </p>
       </div>
     </div>
@@ -78,17 +78,7 @@
       const defaultTwitchWindowHeightPx = 416;
       let fullWidth = false;
       let loadedStream = null;
-
-      function toggleFullWidth() {
-        fullWidth = !fullWidth;
-
-        // toggle full width
-        document.getElementById('content').classList.toggle("container");
-
-        // toggle between default height and (viewport - 100px)
-        const twitchContainer = document.getElementById("twitch-embed").children[0];
-        twitchContainer.height = twitchContainer.height == defaultTwitchWindowHeightPx ? window.innerHeight - 100 : defaultTwitchWindowHeightPx;
-      }
+      let refreshCount = 12;
 
       function renderDescriptions(stream) {
         document.getElementById('stream-title').innerText = stream.title || '[No Title]';
@@ -163,12 +153,6 @@
         })
       }
 
-      function startStats() {
-        getStats();
-        setInterval(getStats, 5000);
-      }
-
-      let refreshCount = 12;
       async function getThumbnails(thumbs=refreshCount) {
         let container = document.getElementById('thumbnails');
         container.innerHTML = '';
@@ -183,10 +167,29 @@
         }));
       }
 
-      function refreshThisStream() {
+      document.getElementById('widescreen-toggle').addEventListener('click', function() {
+        fullWidth = !fullWidth;
+
+        // toggle full width
+        document.getElementById('content').classList.toggle("container");
+
+        // toggle between default height and (viewport - 100px)
+        const twitchContainer = document.getElementById("twitch-embed").children[0];
+        twitchContainer.height = twitchContainer.height == defaultTwitchWindowHeightPx ? window.innerHeight - 100 : defaultTwitchWindowHeightPx;
+      });
+
+      document.getElementById('keep-stream-refresh').addEventListener('click', function() {
         let streamHash = encodeURIComponent(JSON.stringify(loadedStream));
         window.location.href = `${window.location.origin}/?stream=${streamHash}`
-      }
+      });
+
+      document.getElementById('live-stats').addEventListener('click', function() {
+        getStats();
+        setInterval(getStats, 5000);
+      });
+
+      document.getElementById('new-streamer-button').addEventListener('click', getStream);
+      document.getElementById('new-thumbnails').addEventListener('click', getThumbnails);
 
       document.onkeyup = function(e) {
         if (e.altKey && e.which == 82 /*r*/) {
