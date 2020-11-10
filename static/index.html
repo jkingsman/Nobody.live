@@ -115,6 +115,7 @@
             a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
             // override the default so on-page clicks just run the render code
             a.onclick = (event) => {if (!event.ctrlKey) {event.preventDefault(); displayStream(stream)}};
+            a.rel = 'noopener'
 
             let thumb = document.createElement('img');
             thumb.className =  "thumbnail-item";
