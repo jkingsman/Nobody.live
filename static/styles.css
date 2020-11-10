@@ -79,8 +79,8 @@ a,
   background-color: #efefef;
 }
 
-#twitch-embed > iframe {
-  height: 85vh;
+#twitch-embed, #twitch-embed > iframe {
+  min-height: 85vh;
 }
 
 .thumbnail-container {
