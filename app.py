@@ -59,7 +59,7 @@ def get_stats_json():
 
     return jsonify(stats)
 
-@app.route('/stats/human')
+@app.route('/stats')
 def get_stats_human():
     stats = json.loads(r.get('stats'))
 
