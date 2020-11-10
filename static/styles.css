@@ -51,13 +51,13 @@ a,
 
 .thumbnail-container {
   display: grid;
-  grid-template-columns: auto auto auto auto;
+  grid-template-columns: 25% 25% 25% 25%;
 }
 
 @media only screen and (max-width: 750px) {
   .thumbnail-container {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 33.33% 33.33% 33.33%;
   }
   #new-streamer-button {
     margin-top: 20px;
