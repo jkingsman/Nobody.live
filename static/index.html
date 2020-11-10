@@ -106,7 +106,14 @@
 
       async function fetchAndRenderThumbnails(_event, thumbs = numberOfThumbnailsToFetch) {
         let container = document.getElementById('thumbnails');
+
+        // if this is not our first load, lock elem height so there's no shudder as we load new ones
+        if (container.childNodes.length != 0) {
+          container.style.height = `${container.offsetHeight}px`;
+        }
+
         container.innerHTML = '';
+
         fetch(`/streams/${thumbs}`).then(response => response.json())
           .then(streams => streams.forEach(stream => {
             // embed inside of an a element so you can open in a new tab
@@ -127,8 +134,11 @@
             thumb.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
 
             a.appendChild(thumb);
-            container.appendChild(a)
+            container.appendChild(a);
           }));
+
+          // restore any height locking we did
+          container.style.height = 'auto';
       }
 
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
