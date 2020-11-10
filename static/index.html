@@ -138,11 +138,11 @@
         console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
         displayStream(JSON.parse(urlParams.get('stream')));
         window.history.pushState({}, document.title, window.location.pathname);
-        fetchAndRenderThumbnails();
       } else {
         fetchAndRenderRandomStream();
-        fetchAndRenderThumbnails();
       }
+
+      fetchAndRenderThumbnails();
     </script>
   </body>
 </html>
