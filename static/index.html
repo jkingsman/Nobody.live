@@ -90,21 +90,21 @@
         setTimeout(() => document.getElementById('new-streamer-button').disabled = false, 4000);
 
         fetch('/stream').then(response => response.json())
-        .then(stream => {
-          console.log('Got stream:', stream);
+          .then(stream => {
+            console.log('Got stream:', stream);
 
-          if (Object.keys(stream).length === 0) {
-            alert("Uh oh! There's been an issue retrieving a stream. Either there are no streams (unlikely) or something is broken.")
-            return
-          }
+            if (Object.keys(stream).length === 0) {
+              alert("Uh oh! There's been an issue retrieving a stream. Either there are no streams (unlikely) or something is broken.")
+              return
+            }
 
-          displayStream(stream);
-        }).catch((error) => {
-          console.error('Error:', error);
-        });
+            displayStream(stream);
+          }).catch((error) => {
+            console.error('Error:', error);
+          });
       }
 
-      async function fetchAndRenderThumbnails(_event, thumbs=numberOfThumbnailsToFetch) {
+      async function fetchAndRenderThumbnails(_event, thumbs = numberOfThumbnailsToFetch) {
         let container = document.getElementById('thumbnails');
         container.innerHTML = '';
         fetch(`/streams/${thumbs}`).then(response => response.json())
@@ -113,11 +113,16 @@
             let a = document.createElement('a');
             a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
             // override the default so on-page clicks just run the render code
-            a.onclick = (event) => {if (!event.ctrlKey) {event.preventDefault(); displayStream(stream)}};
+            a.onclick = (event) => {
+              if (!event.ctrlKey) {
+                event.preventDefault();
+                displayStream(stream)
+              }
+            };
             a.rel = 'noopener';
 
             let thumb = document.createElement('img');
-            thumb.className =  "thumbnail-item";
+            thumb.className = "thumbnail-item";
             thumb.alt = thumb.title = `${stream.user_name}: ${stream.title || '[No title]'}`
             thumb.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
 
