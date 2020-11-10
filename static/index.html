@@ -137,8 +137,8 @@
             container.appendChild(a);
           }));
 
-          // restore any height locking we did
-          container.style.height = 'auto';
+          // restore any height locking we did after the thumbs have had a chance to load
+          setTimeout(() => container.style.height = 'auto', 1000);
       }
 
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
