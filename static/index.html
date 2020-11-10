@@ -121,7 +121,7 @@
             a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
             // override the default so on-page clicks just run the render code
             a.onclick = (event) => {
-              if (!event.ctrlKey) {
+              if (!event.ctrlKey && !event.metaKey) {
                 event.preventDefault();
                 displayStream(stream)
               }
