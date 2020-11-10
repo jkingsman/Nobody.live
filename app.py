@@ -52,12 +52,18 @@ def get_streams(count):
 
     return jsonify(streams)
 
-@app.route('/stats')
-def get_stats():
+@app.route('/stats/json')
+def get_stats_json():
     stats = json.loads(r.get('stats'))
     stats['streams'] = r.dbsize()
 
     return jsonify(stats)
+
+@app.route('/stats/human')
+def get_stats_human():
+    stats = json.loads(r.get('stats'))
+
+    return f"{int(stats['ratelimit_remaining'])}/{int(stats['ratelimit_limit'])} API tokens left ({round((1 - int(stats['ratelimit_remaining']) / int(stats['ratelimit_limit'])) * 100, 2)}% spent). {r.dbsize() - 1} streams loaded."
 
 if __name__ == "__main__":
     app.run()

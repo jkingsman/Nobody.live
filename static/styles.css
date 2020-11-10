@@ -5,30 +5,24 @@ body {
   color: #eeebff;
 }
 
-a,
-.fake-link {
-  color: aquamarine;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-h2,
+h1,
 p {
   margin: 0;
 }
 
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
+a,
+.fake-link {
+  cursor: pointer;
+  text-decoration: underline;
 }
 
-.surface-container {
+.container {
   margin-top: 10px;
   background-color: #202020;
   padding: 10px;
 }
 
-.center-text {
+.thumbnails {
   text-align: center;
 }
 
@@ -39,12 +33,16 @@ p {
     grid-template-rows: 1fr;
     gap: 0px 0px;
     grid-template-areas: "intro-text refresh";
+    height: 6vh;
   }
+
   .intro-text {
     grid-area: intro-text;
   }
+
   .refresh {
     grid-area: refresh;
+    align-self: center;
   }
 }
 
@@ -53,13 +51,12 @@ p {
 }
 
 
-/* Default collapse height of twitch pane */
-
 @media only screen and (max-width: 750px) {
   .fullscreen-toggle,
   .thumbnails {
     display: none;
   }
+
   #new-streamer-button {
     margin-top: 20px;
   }
@@ -82,12 +79,8 @@ p {
   background-color: #efefef;
 }
 
-#main-stream-container {
-  min-height: 515px;
-}
-
-#twitch-embed {
-  margin-top: 10px;
+#twitch-embed > iframe {
+  height: 85vh;
 }
 
 .thumbnail-container {
@@ -107,10 +100,6 @@ p {
   cursor: pointer;
   width: 90%;
   justify-self: center;
-}
-
-#footer {
-  padding-top: 20px;
 }
 
 .footer-text,

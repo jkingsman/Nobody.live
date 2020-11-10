@@ -31,77 +31,44 @@
     <link rel="stylesheet" href="styles.css" type="text/css">
   </head>
   <body>
-    <div id="content" class="container">
-      <h1>streams with no viewers</h1>
-      <div class="grid-container">
-        <div class="intro-text">
-          <p>Thousands upon thousands of streamers are streaming to zero viewers.</p>
-          <p>You are the only audience member of the below stream. Say hello!</p>
-        </div>
-        <div class="refresh">
-          <button id="new-streamer-button" disabled>New Stream</button>
-        </div>
+    <div class="grid-container">
+      <div class="intro-text">
+        <h1>nobody.live</h1>
+        <p>streams with nobody watching</p>
       </div>
-      <br>
-      <hr>
-      <div id="main-stream-container" class="surface-container">
-        <h2 id="stream-title"></h2>
-        <p>Streamed by <i><a rel="noopener" id="streamer-name" href="#" target="_blank"></a></i></p>
-        <p>Zero viewers as of <span id="stream-confirmed-time"></span></p>
-        <p class="fullscreen-toggle"><a href="#" id="widescreen-toggle">Toggle widescreen</a></p>
-        <div id="twitch-embed"></div>
-      </div>
-      <div class="thumbnails surface-container center-text">
-        <span id="new-thumbnails" role="button" class="fake-link subdued">Get new stream thumbnails</span>
-        <div id="thumbnails" class="thumbnail-container"></div>
+      <div class="refresh">
+        <button id="new-streamer-button" disabled>New Stream</button>
       </div>
     </div>
+    <div id="twitch-embed" class="container"></div>
+    <div class="thumbnails container center-text">
+      <span id="new-thumbnails" role="button" class="fake-link subdued">Get new stream thumbnails</span>
+      <div id="thumbnails" class="thumbnail-container"></div>
+    </div>
     <div id="footer">
-      <div class="container">
-        <p class="footer-text">
-          Last five streams watched: <span id="stream-list"></span>
-        </p>
-        <p class="footer-text">
-          Made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by Jack Kingsman, with much appreciation for Carsten Hoffrichter's <i>Lonely Streams</i>
-        </p>
-        <p id="stats" class="footer-text">
-          <a id="live-stats" href="#">live stats</a>
-        </p>
-        <p class="footer-text">
-          <a href="#" id="keep-stream-refresh">refresh page and keep stream</a>
-        </p>
-      </div>
+      <p class="footer-text">
+        Last five streams watched: <span id="stream-list"></span>
+      </p>
+      <p class="footer-text">
+        Made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by Jack Kingsman, with much appreciation for Carsten Hoffrichter's <i>Lonely Streams</i>.
+      </p>
     </div>
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript">
-      const defaultTwitchWindowHeightPx = 416;
-      let fullWidth = false;
-      let loadedStream = null;
-      let refreshCount = 12;
+      let numberOfThumbnailsToFetch = 12;
 
-      function renderDescriptions(stream) {
-        document.getElementById('stream-title').innerText = stream.title || '[No Title]';
-        document.getElementById('streamer-name').innerText = stream.user_name;
-        document.getElementById('streamer-name').href = `https://www.twitch.tv/${stream.user_name}`;
-
-        const check_time = new Date(stream.fetched * 1000);
-        document.getElementById('stream-confirmed-time').innerText = `${check_time.toLocaleDateString()} ${check_time.toLocaleTimeString()}`;
-      }
-
-      function loadTwitch(stream) {
+      function displayStream(stream) {
+        // clear and rerender the embed div
         document.getElementById('twitch-embed').innerHTML = '';
         new Twitch.Embed('twitch-embed', {
           width: '100%',
-          height: fullWidth ? window.innerHeight - 100 : defaultTwitchWindowHeightPx,
           channel: stream.user_name,
           theme: 'dark',
           parent: ['nobody.live']
         });
-      }
 
-      function appendToWatchHistory(stream) {
-        // load and append to historical streams + hack for splitting
+        // load and append stream to historical streams
         let usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
         usernames.push(stream.user_name);
         let trimmedUsernames = usernames.slice(-5);
@@ -112,20 +79,16 @@
           let a = document.createElement('a');
           var linkText = document.createTextNode(username);
           a.appendChild(linkText);
-          a.href = "https://www.twitch.tv/" + username;
+          a.href = 'https://www.twitch.tv/' + username;
+          a.target = '_blank'
           return a.outerHTML;
         }).join(', ');
       }
 
-      function displayStream(stream) {
-        loadedStream = stream;
-        renderDescriptions(stream);
-        loadTwitch(stream);
-        appendToWatchHistory(stream);
-      }
-
-      async function getStream() {
+      async function fetchAndRenderRandomStream() {
+        // disable button to do some hacky rate limiting
         document.getElementById('new-streamer-button').disabled = true;
+        setTimeout(() => document.getElementById('new-streamer-button').disabled = false, 4000);
 
         fetch('/stream').then(response => response.json())
         .then(stream => {
@@ -140,82 +103,42 @@
         }).catch((error) => {
           console.error('Error:', error);
         });
-
-        setTimeout(() => document.getElementById('new-streamer-button').disabled = false, 4000);
       }
 
-      async function getStats() {
-        fetch('/stats').then(response => response.json())
-        .then(stats => {
-            let statsField = document.getElementById('stats');
-            statsField.innerHTML = '';
-            statsField.innerText = `${stats.ratelimit_remaining}/${stats.ratelimit_limit} API tokens left (${Math.round((1 - stats.ratelimit_remaining / stats.ratelimit_limit) * 10000) / 100}% spent). ${stats.streams - 1} streams loaded as of ${new Date(stats.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats.time_of_ratelimit * 1000).toLocaleTimeString()}.`;
-        })
-      }
-
-      async function getThumbnails(thumbs=refreshCount) {
+      async function fetchAndRenderThumbnails(_event, thumbs=numberOfThumbnailsToFetch) {
         let container = document.getElementById('thumbnails');
         container.innerHTML = '';
         fetch(`/streams/${thumbs}`).then(response => response.json())
-        .then(streams => streams.forEach(stream => {
-          let a = document.createElement('a');
-          a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
-          a.onclick = (event) => {if (!event.ctrlKey) {event.preventDefault(); displayStream(stream)}};
+          .then(streams => streams.forEach(stream => {
+            // embed inside of an a element so you can open in a new tab
+            let a = document.createElement('a');
+            a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
+            // override the default so on-page clicks just run the render code
+            a.onclick = (event) => {if (!event.ctrlKey) {event.preventDefault(); displayStream(stream)}};
 
-          let thumb = document.createElement('img');
-          thumb.className =  "thumbnail-item";
-          thumb.alt = thumb.title = `${stream.user_name}: ${stream.title || '[No title]'}`
-          thumb.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
+            let thumb = document.createElement('img');
+            thumb.className =  "thumbnail-item";
+            thumb.alt = thumb.title = `${stream.user_name}: ${stream.title || '[No title]'}`
+            thumb.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
 
-          a.appendChild(thumb);
-          container.appendChild(a)
-        }));
+            a.appendChild(thumb);
+            container.appendChild(a)
+          }));
       }
 
-      document.getElementById('widescreen-toggle').addEventListener('click', function() {
-        fullWidth = !fullWidth;
+      document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
+      document.getElementById('new-thumbnails').addEventListener('click', fetchAndRenderThumbnails);
 
-        // toggle full width
-        document.getElementById('content').classList.toggle("container");
-
-        // toggle between default height and (viewport - 100px)
-        const twitchContainer = document.getElementById("twitch-embed").children[0];
-        twitchContainer.height = twitchContainer.height == defaultTwitchWindowHeightPx ? window.innerHeight - 100 : defaultTwitchWindowHeightPx;
-      });
-
-      document.getElementById('keep-stream-refresh').addEventListener('click', function() {
-        window.location.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(loadedStream))}`;
-      });
-
-      document.getElementById('live-stats').addEventListener('click', function() {
-        getStats();
-        setInterval(getStats, 5000);
-      });
-
-      document.getElementById('new-streamer-button').addEventListener('click', getStream);
-      document.getElementById('new-thumbnails').addEventListener('click', getThumbnails);
-
-      document.onkeyup = function(e) {
-        if (e.altKey && e.which == 82 /*r*/) {
-          getStream();
-        }
-
-        if (e.altKey && e.which == 87 /*w*/) {
-          toggleFullWidth();
-        }
-      };
-
+      // if we have /?stream=... then render the specified stream
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('noload')) {
-        console.error('Halting page load per request');
-      } else if (urlParams.has('stream')) {
+      if (urlParams.has('stream')) {
         console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
         displayStream(JSON.parse(urlParams.get('stream')));
-        getThumbnails();
         window.history.pushState({}, document.title, window.location.pathname);
+        fetchAndRenderThumbnails();
       } else {
-        getStream();
-        getThumbnails();
+        fetchAndRenderRandomStream();
+        fetchAndRenderThumbnails();
       }
     </script>
   </body>
