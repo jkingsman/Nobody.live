@@ -54,6 +54,7 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript">
       let numberOfThumbnailsToFetch = 12;
+      let server = 'https://nobody.live';
 
       function displayStream(stream) {
         // clear and rerender the embed div
@@ -89,7 +90,7 @@
         document.getElementById('new-streamer-button').disabled = true;
         setTimeout(() => document.getElementById('new-streamer-button').disabled = false, 4000);
 
-        fetch('/stream').then(response => response.json())
+        fetch(`${server}/stream`).then(response => response.json())
           .then(stream => {
             console.log('Got stream:', stream);
 
@@ -114,7 +115,7 @@
 
         container.innerHTML = '';
 
-        fetch(`/streams/${thumbs}`).then(response => response.json())
+        fetch(`${server}/streams/${thumbs}`).then(response => response.json())
           .then(streams => streams.forEach(stream => {
             // embed inside of an a element so you can open in a new tab
             let a = document.createElement('a');
