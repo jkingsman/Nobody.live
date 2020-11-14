@@ -46,9 +46,11 @@
       <div id="thumbnails" class="thumbnail-container"></div>
     </div>
     <div id="footer">
-      Last five streams watched: <span id="stream-list"></span>
+      this stream had zero viewers as of <span id="stream-zero-time"></span> seconds ago
       <br><br>
-      Made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by Jack Kingsman, with much appreciation for Carsten Hoffrichter's <i>Lonely Streams</i>.
+      last five streams watched: <span id="stream-list"></span>
+      <br><br>
+      made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by jack kingsman, with much appreciation for carsten hoffrichter's <i>lonely streams</i>
     </div>
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
@@ -65,6 +67,8 @@
           theme: 'dark',
           parent: ['nobody.live']
         });
+
+        document.getElementById('stream-zero-time').innerText = (Math.round(new Date().getTime() / 1000  - stream.fetched));
 
         // load and append stream to historical streams
         let usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
