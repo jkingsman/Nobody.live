@@ -128,7 +128,10 @@
             a.onclick = (event) => {
               if (!event.ctrlKey && !event.metaKey) {
                 event.preventDefault();
-                displayStream(stream)
+                displayStream(stream);
+
+                document.body.scrollTop = 0; // For Safari
+                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
               }
             };
             a.rel = 'noopener';
