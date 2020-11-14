@@ -149,6 +149,13 @@
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
       document.getElementById('new-thumbnails').addEventListener('click', fetchAndRenderThumbnails);
 
+      // little treat for the readers :)
+      document.addEventListener("keydown", event => {
+        if (event.keyCode === 82) {
+          numberOfThumbnailsToFetch = 64;
+        }
+      });
+
       // if we have /?stream=... then render the specified stream
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('stream')) {
