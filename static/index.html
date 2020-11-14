@@ -156,6 +156,10 @@
       document.addEventListener("keydown", event => {
         if (event.keyCode === 82) {
           numberOfThumbnailsToFetch = 64;
+
+          if (event.altKey) {
+              fetchAndRenderThumbnails();
+          }
         }
       });
 
