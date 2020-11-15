@@ -16,6 +16,9 @@ def getStreams(count = 1):
     for i in range(int(count)):
         key = main_redis.randomkey()
 
+        if not key:
+            return results
+
         stream = json.loads(key)
         stream['fetched'] = main_redis.get(key)
         stream['ttl'] = main_redis.ttl(key)
