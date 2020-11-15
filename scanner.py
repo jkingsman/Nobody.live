@@ -20,12 +20,13 @@ if not CLIENT_ID or not CLIENT_SECRET:
     exit(1)
 
 MAX_VIEWERS = 0  # number of viewers to be considered for inclusion
-REQUEST_LIMIT = 1500  # number of API requests to stop at before starting a new search
+REQUEST_LIMIT = 1800  # number of API requests to stop at before starting a new search
 MINIMUM_STREAMS_TO_GET = 50  # if REQUEST_LIMIT streams doesn't capture at least this many zero-
                              # viewer streams, keep going
-SECONDS_BEFORE_RECORD_EXPIRATION = 180  # how many seconds a stream should stay in redis
+SECONDS_BEFORE_RECORD_EXPIRATION = 240  # how many seconds a stream should stay in redis
 
-r = redis.Redis()
+main_redis = redis.Redis(decode_responses=True, db=0)
+stats_redis = redis.Redis(decode_responses=True, db=1)
 
 
 def get_bearer_token(client_id, secret):
@@ -77,7 +78,7 @@ def populate_streamers(client_id, client_secret):
         streams_found = list(filter(lambda stream: int(stream['viewer_count']) <= MAX_VIEWERS, stream_list_data['data']))
         for stream in streams_found:
             streams_grabbed += 1
-            r.setex(json.dumps(stream), SECONDS_BEFORE_RECORD_EXPIRATION, time.time())
+            main_redis.setex(json.dumps(stream), SECONDS_BEFORE_RECORD_EXPIRATION, time.time())
 
         # report on what we inserted
         if len(streams_found) > 0:
@@ -86,13 +87,15 @@ def populate_streamers(client_id, client_secret):
         # sleep on rate limit token utilization
         rate_limit_usage = round((1 - int(stream_list.headers['Ratelimit-Remaining']) / int(stream_list.headers['Ratelimit-Limit'])) * 100)
         if rate_limit_usage > 60:
-            logger.warning(f"Rate limiting is at {rate_limit_usage}% utilized; sleeping for 30s")
+            logging.warning(f"Rate limiting is at {rate_limit_usage}% utilized; sleeping for 30s")
             time.sleep(30)
 
         # drop a status every now and again
         if requests_sent % 100 == 0:
-            logging.info(f"{requests_sent} requests sent ({streams_grabbed} streams found); {stream_list.headers['Ratelimit-Remaining']} of {stream_list.headers['Ratelimit-Limit']} API tokens remaining ({rate_limit_usage}% utilized)")
-            r.set('stats',
+            logging.info((f"{requests_sent} requests sent ({streams_grabbed} streams found); "
+                          f"{stream_list.headers['Ratelimit-Remaining']} of {stream_list.headers['Ratelimit-Limit']} "
+                          f"API tokens remaining ({rate_limit_usage}% utilized)"))
+            stats_redis.set('stats',
                   json.dumps({
                     'ratelimit_remaining': stream_list.headers['Ratelimit-Remaining'],
                     'ratelimit_limit': stream_list.headers['Ratelimit-Limit'],
