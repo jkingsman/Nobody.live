@@ -82,7 +82,7 @@ def populate_streamers(client_id, client_secret):
 
         # report on what we inserted
         if len(streams_found) > 0:
-            logging.info(f"Inserted {len(streams_found)} streams")
+            logging.debug(f"Inserted {len(streams_found)} streams")
 
         # sleep on rate limit token utilization
         rate_limit_usage = round((1 - int(stream_list.headers['Ratelimit-Remaining']) / int(stream_list.headers['Ratelimit-Limit'])) * 100)
@@ -91,7 +91,7 @@ def populate_streamers(client_id, client_secret):
             time.sleep(30)
 
         # drop a status every now and again
-        if requests_sent % 100 == 0:
+        if requests_sent % 10 == 0:
             logging.info((f"{requests_sent} requests sent ({streams_grabbed} streams found); "
                           f"{stream_list.headers['Ratelimit-Remaining']} of {stream_list.headers['Ratelimit-Limit']} "
                           f"API tokens remaining ({rate_limit_usage}% utilized)"))
