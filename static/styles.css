@@ -80,6 +80,7 @@ a,
 #new-streamer-button:disabled,
 #new-streamer-button[disabled] {
   background-color: #efefef;
+  cursor: wait;
 }
 
 #twitch-embed,
