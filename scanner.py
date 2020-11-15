@@ -37,7 +37,7 @@ def get_bearer_token(client_id, secret):
     logging.debug(f"Issuing token request to {token_response.url}")
 
     try:
-        logging.debug(f"Recieved {token_response.json()['access_token']}; expies in {token_response.json()['expires_in']}s")
+        logging.debug(f"Recieved {token_response.json()['access_token']}; expires in {token_response.json()['expires_in']}s")
         return(token_response.json()['access_token'])
     except KeyError:
         logging.error(f"Didn't find access token. Got '{token_response.text}'")
