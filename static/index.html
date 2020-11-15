@@ -37,7 +37,7 @@
         <p>streams with nobody watching</p>
       </div>
       <div class="refresh">
-        <button id="new-streamer-button" disabled>New Stream</button>
+        <button id="new-streamer-button" disabled>please wait...</button>
       </div>
     </div>
     <div id="twitch-embed" class="container"></div>
@@ -92,7 +92,11 @@
       async function fetchAndRenderRandomStream() {
         // disable button to do some hacky rate limiting
         document.getElementById('new-streamer-button').disabled = true;
-        setTimeout(() => document.getElementById('new-streamer-button').disabled = false, 4000);
+        document.getElementById('new-streamer-button').innerText = 'please wait...';
+        setTimeout(() => {
+          document.getElementById('new-streamer-button').disabled = false;
+          document.getElementById('new-streamer-button').innerText = 'new streamer';
+        }, 4000);
 
         fetch(`${server}/stream`).then(response => response.json())
           .then(stream => {
