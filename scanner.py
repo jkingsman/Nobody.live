@@ -114,4 +114,3 @@ def populate_streamers(client_id, client_secret):
 
 while True:
     populate_streamers(CLIENT_ID, CLIENT_SECRET)
-    time.sleep(5)
