@@ -108,6 +108,7 @@ def populate_streamers(client_id, client_secret):
             pagination_offset = stream_list_data['pagination']['cursor']
         except KeyError:
             # we hit the end of the list; no more keys
+            logging.warning(f"Hit end of search results")
             break
         stream_list = get_stream_list_response(client_id, token, pagination_offset)
 
