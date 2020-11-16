@@ -20,10 +20,10 @@ if not CLIENT_ID or not CLIENT_SECRET:
     exit(1)
 
 MAX_VIEWERS = 0  # number of viewers to be considered for inclusion
-REQUEST_LIMIT = 1800  # number of API requests to stop at before starting a new search
+REQUEST_LIMIT = 1500  # number of API requests to stop at before starting a new search
 MINIMUM_STREAMS_TO_GET = 50  # if REQUEST_LIMIT streams doesn't capture at least this many zero-
                              # viewer streams, keep going
-SECONDS_BEFORE_RECORD_EXPIRATION = 240  # how many seconds a stream should stay in redis
+SECONDS_BEFORE_RECORD_EXPIRATION = 180  # how many seconds a stream should stay in redis
 
 main_redis = redis.Redis(decode_responses=True, db=0)
 stats_redis = redis.Redis(decode_responses=True, db=1)
