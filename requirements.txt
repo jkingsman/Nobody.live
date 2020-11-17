@@ -17,6 +17,6 @@ redis==3.5.3              # via -r requirements.in
 requests==2.24.0          # via -r requirements.in
 urllib3==1.25.11          # via requests
 werkzeug==1.0.1           # via flask
-
+flask-cors==3.0.9		  # via flask-cors
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

@@ -30,14 +30,18 @@ a,
 @media only screen and (min-width: 750px) {
   .grid-container {
     display: grid;
-    grid-template-columns: 80% 20%;
+    grid-template-columns: 33.33% 33.33% 33.33%;
     grid-template-rows: 1fr;
-    gap: 0px 0px;
-    grid-template-areas: "intro-text refresh";
+    grid-gap: 0px 10px;
+    grid-template-areas: "intro-text refresh2 refresh";
     height: 6vh;
   }
   .intro-text {
     grid-area: intro-text;
+  }
+  .refresh2 {
+    grid-area: refresh2;
+    align-self: center;
   }
   .refresh {
     grid-area: refresh;
@@ -62,6 +66,9 @@ a,
   #new-streamer-button {
     margin-top: 20px;
   }
+  #join-train-button {
+    margin-top: 20px;
+  }
 }
 
 #new-streamer-button {
@@ -77,8 +84,28 @@ a,
   cursor: pointer;
 }
 
+
 #new-streamer-button:disabled,
 #new-streamer-button[disabled] {
+  background-color: #efefef;
+  cursor: wait;
+}
+
+#join-train-button {
+  background-color: #008a07;
+  border: none;
+  color: white;
+  padding: 10px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  width: 100%;
+  cursor: pointer;
+}
+
+#join-train-button:disabled,
+#join-train-button[disabled] {
   background-color: #efefef;
   cursor: wait;
 }

@@ -36,6 +36,9 @@
         <h1>nobody.live</h1>
         <p>streams with nobody watching</p>
       </div>
+      <div class="refresh2">
+        <button id="join-train-button" disabled>please wait...</button>
+      </div>
       <div class="refresh">
         <button id="new-streamer-button" disabled>please wait...</button>
       </div>
@@ -56,7 +59,8 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript">
       let numberOfThumbnailsToFetch = 12;
-      let server = 'https://nobody.live';
+      let server =  window.location.hostname === '127.0.0.1' ? 'http://localhost:5000':'https://nobody.live';
+      let trainId = NaN
 
       function displayStream(stream) {
         // clear and rerender the embed div
@@ -88,14 +92,63 @@
           return a.outerHTML;
         }).join(', ');
       }
+      // execute find trainId every 60 seconds
+      var intervalId = window.setInterval(fetchTrainId, 60000)
+      var foundTrainId = false
+      let changingIn = 60
+      function fetchTrainId() {
+        fetch(`${server}/streamtrain`).then(response => response.json())
+          .then(newTrainId => {
+            console.log(newTrainId)
+            trainId = newTrainId;
+            foundTrainId = true;
+            changingIn = 60;
+          }).catch((error) => {
+            console.eror('Error:', error)
+          });
+      }
+      fetchTrainId()
 
+      // join train button show countdown
+      var intervalId = window.setInterval(setChangingIn, 1000)
+      function setChangingIn() {
+        document.getElementById('join-train-button').disabled = false;
+        document.getElementById('join-train-button').innerText = 'join twitch train! new streamer in ' + changingIn + ' seconds';
+        if (changingIn > 0) {
+          changingIn = changingIn - 1;
+        }
+      }
+
+      async function fetchAndRenderStreamTrain() {
+        document.getElementById('join-train-button').disabled = true;
+        document.getElementById('join-train-button').innerText = 'please wait...';
+        setTimeout(() => {
+          document.getElementById('join-train-button').disabled = false;
+        }, 4000);
+
+        fetch(`${server}/streamtrainId/${trainId}`).then(response => response.json())
+          .then(stream => {
+            console.log('Got stream:', stream);
+
+            if (Object.keys(stream).length === 0) {
+              alert("Uh oh! There's been an issue retrieving a stream. Either there are no streams (unlikely) or something is broken.")
+              return
+            }
+
+            displayStream(stream);
+          }).catch((error) => {
+            console.error('Error:', error);
+          });
+
+
+      }
       async function fetchAndRenderRandomStream() {
         // disable button to do some hacky rate limiting
         document.getElementById('new-streamer-button').disabled = true;
         document.getElementById('new-streamer-button').innerText = 'please wait...';
         setTimeout(() => {
           document.getElementById('new-streamer-button').disabled = false;
-          document.getElementById('new-streamer-button').innerText = 'new streamer';
+          document.getElementById('new-streamer-button').innerText = 'random streamer';
         }, 4000);
 
         fetch(`${server}/stream`).then(response => response.json())
@@ -155,6 +208,7 @@
 
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
       document.getElementById('new-thumbnails').addEventListener('click', fetchAndRenderThumbnails);
+      document.getElementById('join-train-button').addEventListener('click', fetchAndRenderStreamTrain)
 
       // little treat for the readers :)
       document.addEventListener("keydown", event => {
