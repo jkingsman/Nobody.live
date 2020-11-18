@@ -49,15 +49,17 @@ def get_streams(count):
 
 
 @app.route('/stats/json')
+@app.route('/stats.json')
 def get_stats_json():
     stats = json.loads(stats_redis.get('stats'))
-    stats['streams'] = stats_redis.dbsize()
+    stats['streams'] = main_redis.dbsize()
 
     return jsonify(stats)
 
 
 @app.route('/status')
 @app.route('/stats')
+@app.route('/stats.txt')
 def get_stats_human():
     stats = json.loads(stats_redis.get('stats'))
 
