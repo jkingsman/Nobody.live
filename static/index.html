@@ -99,8 +99,6 @@
 
         fetch(`${server}stream`).then(response => response.json())
           .then(stream => {
-            console.log('Got stream:', stream);
-
             if (Object.keys(stream).length === 0) {
               alert("Uh oh! There's been an issue retrieving a stream. Either there are no streams (unlikely) or something is broken.")
               return
@@ -108,6 +106,7 @@
 
             displayStream(stream);
           }).catch((error) => {
+            alert("Uh oh! There's been an issue retrieving a stream. Either there are no streams (unlikely) or something is broken.")
             console.error('Error:', error);
           });
       }
