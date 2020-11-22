@@ -54,7 +54,7 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript">
       let numberOfThumbnailsToFetch = 12;
-      let server = document.location.href;
+      let server = window.location.origin + window.location.pathname;
       let currentStream;
 
       function displayStream(stream) {
