@@ -112,6 +112,9 @@
       }
 
       async function fetchAndRenderThumbnails(_event, thumbs = numberOfThumbnailsToFetch) {
+        // hacky way to make this runnable once-at-a-time -- unhook the event listener
+        document.getElementById('new-thumbnails').removeEventListener('click', fetchAndRenderThumbnails);
+
         let container = document.getElementById('thumbnails');
 
         // if this is not our first load, lock elem height so there's no shudder as we load new ones
@@ -121,7 +124,7 @@
 
         container.innerHTML = '';
 
-        fetch(`${server}streams/${thumbs}`).then(response => response.json())
+        await fetch(`${server}streams/${thumbs}`).then(response => response.json())
           .then(streams => streams.forEach(stream => {
             // embed inside of an a element so you can open in a new tab
             let a = document.createElement('a');
@@ -149,6 +152,9 @@
 
           // restore any height locking we did after the thumbs have had a chance to load
           setTimeout(() => container.style.height = 'auto', 1000);
+
+          // restore button function
+          document.getElementById('new-thumbnails').addEventListener('click', fetchAndRenderThumbnails);
       }
 
       // little treat for the readers :)
