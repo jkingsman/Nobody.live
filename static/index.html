@@ -55,6 +55,7 @@
     <script type="text/javascript">
       let numberOfThumbnailsToFetch = 12;
       let server = window.location.origin + window.location.pathname;
+      let devMode = false;
       let currentStream;
 
       function displayStream(stream) {
@@ -159,6 +160,11 @@
 
       // little treat for the readers :)
       function enterDevMode() {
+        if (devMode) {
+            return;
+        }
+        devMode = true;
+
         numberOfThumbnailsToFetch = 64;
 
         // alt + r triggers thumbnail refresh
@@ -174,7 +180,7 @@
             .then(stats => {
               document.getElementById('dev-mode').innerHTML = `0 viewer as of ${(Math.round(new Date().getTime() / 1000  - currentStream.fetched))} seconds ago. ${stats.ratelimit_remaining}/${stats.ratelimit_limit} API tokens left (${Math.round((1 - stats.ratelimit_remaining / stats.ratelimit_limit) * 10000) / 100}% spent). ${stats.streams - 1} streams loaded as of ${new Date(stats.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats.time_of_ratelimit * 1000).toLocaleTimeString()}.`
             });
-        }, 1000);
+        }, 250);
       }
 
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
