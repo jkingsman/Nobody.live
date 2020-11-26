@@ -42,8 +42,9 @@
     </div>
     <div id="twitch-embed" class="container"></div>
     <div class="thumbnails container center-text">
-      <span id="new-thumbnails" role="button" class="fake-link subdued">Get new stream thumbnails</span>
+      <span role="button" class="new-thumbnails fake-link subdued">Get new stream thumbnails</span>
       <div id="thumbnails" class="thumbnail-container"></div>
+      <span role="button" class="new-thumbnails fake-link subdued">Get new stream thumbnails</span>
     </div>
     <div id="footer">
       recent streams: <span id="stream-list"></span>
@@ -114,7 +115,7 @@
 
       async function fetchAndRenderThumbnails(_event, thumbs = numberOfThumbnailsToFetch) {
         // hacky way to make this runnable once-at-a-time -- unhook the event listener
-        document.getElementById('new-thumbnails').removeEventListener('click', fetchAndRenderThumbnails);
+        document.querySelectorAll('.new-thumbnails').forEach((button) => button.removeEventListener('click', fetchAndRenderThumbnails));
 
         let container = document.getElementById('thumbnails');
 
@@ -155,7 +156,7 @@
           setTimeout(() => container.style.height = 'auto', 1000);
 
           // restore button function
-          document.getElementById('new-thumbnails').addEventListener('click', fetchAndRenderThumbnails);
+          document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
       }
 
       // little treat for the readers :)
@@ -183,9 +184,9 @@
         }, 250);
       }
 
-      document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
-      document.getElementById('new-thumbnails').addEventListener('click', fetchAndRenderThumbnails);
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
+      document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
+      document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
       // if we have /?stream=... then render the specified stream
       const urlParams = new URLSearchParams(window.location.search);
