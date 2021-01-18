@@ -6,7 +6,15 @@ import datetime
 import redis
 
 from flask import Flask, jsonify, send_from_directory
+from flask_cors import CORS, cross_origin
 app = Flask(__name__, static_url_path='', static_folder='static')
+# TODO: Revisit best practices for CORS
+CORS(app)
+cors = CORS(app, resources={
+    r"/*": {
+        "origins": "*"
+    }
+})
 main_redis = redis.Redis(decode_responses=True, db=0)
 stats_redis = redis.Redis(decode_responses=True, db=1)
 
@@ -38,7 +46,7 @@ def get_stream():
         return streams[0]
     return '{}'
 
-@app.route('/streams', defaults={'count': 20})
+@app.route('/streams', defaults={'count': 20}, methods=['GET'])
 @app.route('/streams/<count>')
 def get_streams(count):
     streams = getStreams(count)
