@@ -1,3 +1,6 @@
 __pycache__
 venv*
 scratch
+~/etc/supervisor_services.conf
+
+env/
