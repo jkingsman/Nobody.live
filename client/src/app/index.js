@@ -1,4 +1,4 @@
-// import './App.css';
+import { LiveStream } from '../pages';
 
 function App() {
   return (
@@ -11,6 +11,7 @@ function App() {
       <div className="nl-app__content">
         <div className="nl-video-player__container">
           VIDEO HERE
+          <LiveStream />
         </div>
         <div>
           CHAT
