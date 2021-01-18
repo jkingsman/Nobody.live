@@ -2,20 +2,23 @@
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="nl-app__container">
+      <nav className="nl-navigation__container">
+        <div>LOGO</div>
+        <div>SEARCH BOX</div>
+        <div>CONFIG?</div>
+      </nav>
+      <div className="nl-app__content">
+        <div className="nl-video-player__container">
+          VIDEO HERE
+        </div>
+        <div>
+          CHAT
+        </div>
+      </div>
+      <footer className="nl-footer__container">
+        FOOTER HERE
+      </footer>
     </div>
   );
 }
