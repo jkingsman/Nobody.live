@@ -78,7 +78,8 @@ def populate_streamers(client_id, client_secret):
         streams_found = list(filter(lambda stream: int(stream['viewer_count']) <= MAX_VIEWERS, stream_list_data['data']))
         for stream in streams_found:
             streams_grabbed += 1
-            main_redis.setex(json.dumps(stream), SECONDS_BEFORE_RECORD_EXPIRATION, time.time())
+            stream['fetched'] = time.time()
+            main_redis.setex(f"{stream['id']}::{stream['game_name'].lower()}", SECONDS_BEFORE_RECORD_EXPIRATION, json.dumps(stream))
 
         # report on what we inserted
         if len(streams_found) > 0:

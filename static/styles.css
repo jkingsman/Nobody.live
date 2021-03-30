@@ -23,18 +23,22 @@ a,
   padding: 10px;
 }
 
-.thumbnails {
+.thumbnails, .filter {
   text-align: center;
+}
+
+.filter {
+  padding-top: 10px;
 }
 
 @media only screen and (min-width: 750px) {
   .grid-container {
+    min-height: 60px;
     display: grid;
     grid-template-columns: 80% 20%;
     grid-template-rows: 1fr;
     gap: 0px 0px;
     grid-template-areas: "intro-text refresh";
-    height: 6vh;
   }
   .intro-text {
     grid-area: intro-text;

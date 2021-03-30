@@ -3,27 +3,38 @@
 import json
 import os.path
 import datetime
+import random
 import redis
 
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory
 app = Flask(__name__, static_url_path='', static_folder='static')
 main_redis = redis.Redis(decode_responses=True, db=0)
 stats_redis = redis.Redis(decode_responses=True, db=1)
 
 
-def getStreams(count = 1):
-    results = []
-    for i in range(int(count)):
-        key = main_redis.randomkey()
+def getStreams(count=1, game=None):
+    if game:
+        results = main_redis.keys(f"*{game.lower()}*")
 
-        if not key:
-            return results
+        try:
+            keys = random.sample(results, int(count))
+        except ValueError:
+            # likely have fewer keys than we want; just use what we have
+            keys = results
+        streams = list(map(lambda key: json.loads(main_redis.get(key)), keys))
+        print(len(streams))
+        return streams
+    else:
+        results = []
+        for i in range(int(count)):
+            key = main_redis.randomkey()
 
-        stream = json.loads(key)
-        stream['fetched'] = main_redis.get(key)
-        stream['ttl'] = main_redis.ttl(key)
-        results.append(stream)
-    return results
+            if not key:
+                return results
+
+            stream = json.loads(main_redis.get(key))
+            results.append(stream)
+        return results
 
 @app.route('/')
 def root():
@@ -38,7 +49,14 @@ def get_stream():
         return streams[0]
     return '{}'
 
-@app.route('/streams', defaults={'count': 20})
+@app.route('/searchstream/<game>')
+def get_single_game_stream(game):
+    streams = getStreams(count=1, game=game)
+
+    if streams:
+        return streams[0]
+    return '{}'
+
 @app.route('/streams/<count>')
 def get_streams(count):
     streams = getStreams(count)
@@ -47,6 +65,13 @@ def get_streams(count):
         return jsonify(streams)
     return '[]'
 
+@app.route('/searchstreams/<game>/<count>')
+def get_single_game_streams(game, count):
+    streams = getStreams(count, game)
+
+    if streams:
+        return jsonify(streams)
+    return '[]'
 
 @app.route('/stats/json')
 @app.route('/stats.json')

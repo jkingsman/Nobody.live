@@ -34,10 +34,11 @@
     <div class="grid-container">
       <div class="intro-text">
         <h1>nobody.live</h1>
-        <p id="dev-mode">streams with nobody watching</p>
+        <span id="dev-mode">streams with nobody watching</span>
       </div>
       <div class="refresh">
-        <button id="new-streamer-button" disabled>please wait...</button>
+        <button id="new-streamer-button" disabled>please wait...</button><br />
+        <p role="button" class="subdued fake-link filter" id="filter">filter</p>
       </div>
     </div>
     <div id="twitch-embed" class="container"></div>
@@ -60,6 +61,7 @@
       let server = 'https://nobody.live/';
       let devMode = false;
       let currentStream;
+      let streamFilter = '';
 
       function displayStream(stream) {
         currentStream = stream;
@@ -101,18 +103,20 @@
           document.getElementById('new-streamer-button').innerText = 'new streamer';
         }, 4000);
 
-        fetch(`${server}stream`).then(response => response.json())
+        let streamEndpoint = `${server}stream`;
+        if (streamFilter) {
+          streamEndpoint = `${server}searchstream/${streamFilter}`;
+        }
+
+        fetch(streamEndpoint).then(response => response.json())
           .then(stream => {
             if (Object.keys(stream).length === 0) {
-              alert("Uh oh! There's been an issue retrieving a stream. Either there are no streams (unlikely) or something is broken.")
+              alert("Uh oh! No streams found. Please try a different search term.")
               return
             }
 
             displayStream(stream);
-          }).catch((error) => {
-            alert("Uh oh! There's been an issue retrieving a stream. Either there are no streams (unlikely) or something is broken.")
-            console.error('Error:', error);
-          });
+          })
       }
 
       async function fetchAndRenderThumbnails(_event, thumbs = numberOfThumbnailsToFetch) {
@@ -128,7 +132,11 @@
 
         container.innerHTML = '';
 
-        await fetch(`${server}streams/${thumbs}`).then(response => response.json())
+        let thumbsEndpoint = `${server}streams/${thumbs}`;
+        if (streamFilter) {
+          thumbsEndpoint = `${server}searchstreams/${streamFilter}/${thumbs}`;
+        }
+        await fetch(thumbsEndpoint).then(response => response.json())
           .then(streams => streams.forEach(stream => {
             // embed inside of an a element so you can open in a new tab
             let a = document.createElement('a');
@@ -190,6 +198,7 @@
 
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
+      document.getElementById('filter').addEventListener('click', () => streamFilter = prompt("Enter a search term to filter games on", streamFilter).toLowerCase());
       document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
       // if we have /?stream=... then render the specified stream
