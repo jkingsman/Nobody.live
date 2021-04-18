@@ -2,7 +2,7 @@
 
 import json
 import os
-import datetime
+import time
 import random
 import redis
 
@@ -11,6 +11,14 @@ app = Flask(__name__, static_url_path='', static_folder='static')
 main_redis = redis.Redis(decode_responses=True, db=0)
 stats_redis = redis.Redis(decode_responses=True, db=1)
 
+cached_load = {'load': os.getloadavg(), 'retrieved_time': time.time()}
+def getSysLoad():
+    load_cache_time = 5
+
+    if time.time() - cached_load['retrieved_time'] > 5:
+        cached_load['load'] = os.getloadavg()
+        cached_load['retrieved_time'] = time.time()
+    return cached_load['load']
 
 def getStreams(count=1, game=None):
     if game:
@@ -77,6 +85,7 @@ def get_single_game_streams(game, count):
 def get_stats_json():
     stats = json.loads(stats_redis.get('stats'))
     stats['streams'] = main_redis.dbsize()
+    stats['load'] = getSysLoad()
 
     return jsonify(stats)
 

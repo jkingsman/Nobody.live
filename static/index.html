@@ -191,7 +191,7 @@
           fetch(`${server}stats.json`).then(response => response.json())
             .then(stats => {
               let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
-              document.getElementById('dev-mode').innerHTML = `Stream loaded (zero viewers) as of ${minutes !== 0 ? `${minutes}m` : ''}${(Math.round(new Date().getTime() / 1000  - currentStream.fetched)) - Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60) * 60}s ago. ${stats.ratelimit_remaining}/${stats.ratelimit_limit} API tokens left (${Math.round((1 - stats.ratelimit_remaining / stats.ratelimit_limit) * 10000) / 100}% spent). ${stats.streams - 1} streams loaded as of ${new Date(stats.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats.time_of_ratelimit * 1000).toLocaleTimeString()}.`
+              document.getElementById('dev-mode').innerHTML = `Stream delta: ${minutes !== 0 ? `${minutes}m` : ''}${(Math.round(new Date().getTime() / 1000  - currentStream.fetched)) - Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60) * 60}s. API consumption: ${Math.round((1 - stats.ratelimit_remaining / stats.ratelimit_limit) * 10000) / 100}%. Load is ${stats.load.join(' ')}. Stream count: ${stats.streams - 1}. Last stream loaded: ${new Date(stats.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats.time_of_ratelimit * 1000).toLocaleTimeString()}.`
             });
         }, 750);
       }
