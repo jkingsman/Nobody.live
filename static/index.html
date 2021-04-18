@@ -198,7 +198,11 @@
 
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
-      document.getElementById('filter').addEventListener('click', () => streamFilter = prompt("Enter a search term to filter games on", streamFilter).toLowerCase());
+      document.getElementById('filter').addEventListener('click', () => {
+        streamFilter = prompt("Enter a search term to filter games on", streamFilter).toLowerCase();
+        fetchAndRenderRandomStream();
+        fetchAndRenderThumbnails();
+      });
       document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
       // if we have /?stream=... then render the specified stream
