@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import json
-import os.path
+import os
 import datetime
 import random
 import redis
@@ -73,26 +73,12 @@ def get_single_game_streams(game, count):
         return jsonify(streams)
     return '[]'
 
-@app.route('/stats/json')
 @app.route('/stats.json')
 def get_stats_json():
     stats = json.loads(stats_redis.get('stats'))
     stats['streams'] = main_redis.dbsize()
 
     return jsonify(stats)
-
-
-@app.route('/status')
-@app.route('/stats')
-@app.route('/stats.txt')
-def get_stats_human():
-    stats = json.loads(stats_redis.get('stats'))
-
-    return (f"{int(stats['ratelimit_remaining'])}/{int(stats['ratelimit_limit'])} API tokens left "
-            f"({round((1 - int(stats['ratelimit_remaining']) / int(stats['ratelimit_limit'])) * 100, 2)}% spent). "
-            f"{main_redis.dbsize() - 1} streams loaded."
-    )
-
 
 if __name__ == "__main__":
     app.run()
