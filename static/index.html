@@ -199,7 +199,7 @@
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
       document.getElementById('filter').addEventListener('click', () => {
-        streamFilter = prompt("Enter a search term to filter games on", streamFilter).toLowerCase();
+        streamFilter = prompt("Enter a search term to filter games on (e.g. 'just chatting' or 'dead by daylight')", streamFilter).toLowerCase();
         fetchAndRenderRandomStream();
         fetchAndRenderThumbnails();
       });

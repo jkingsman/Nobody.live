@@ -4,6 +4,8 @@ import json
 import os
 import time
 import random
+import re
+
 import redis
 
 from flask import Flask, jsonify, request, send_from_directory
@@ -20,9 +22,15 @@ def getSysLoad():
         cached_load['retrieved_time'] = time.time()
     return cached_load['load']
 
+def normalizeAndEscapeGlobTerm(glob):
+    glob = glob.lower()
+    glob = glob.replace('?', '\\?')
+    glob = re.sub(r'([\[\]\?\*\^])', r'\\\1', glob)
+    return glob
+
 def getStreams(count=1, game=None):
     if game:
-        results = main_redis.keys(f"*{game.lower()}*")
+        results = main_redis.keys(f"*{normalizeAndEscapeGlobTerm(game)}*")
 
         try:
             keys = random.sample(results, int(count))
