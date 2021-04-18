@@ -67,6 +67,7 @@ def populate_streamers(client_id, client_secret):
 
     requests_sent = 1
     streams_grabbed = 0
+    stats_redis.set('populate_started', time.time())
 
     # eat page after page of API results until we hit our request limit
     stream_list = get_stream_list_response(client_id, token)
