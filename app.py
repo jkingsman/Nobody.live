@@ -86,7 +86,7 @@ def get_stats_json():
     stats = json.loads(stats_redis.get('stats'))
     stats['streams'] = main_redis.dbsize()
     stats['load'] = getSysLoad()
-    stats['populate_started'] = stats_redis.get('populate_started')
+    stats['populate_started'] = float(stats_redis.get('populate_started'))
 
     return jsonify(stats)
 
