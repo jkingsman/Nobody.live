@@ -89,5 +89,18 @@ def get_stats_json():
 
     return jsonify(stats)
 
+# @app.route('/games.json')
+# def get_games_json():
+#     raw_list = main_redis.keys()
+#     games = set()
+#
+#     for raw_game in raw_list:
+#         raw_name = raw_game.split('::')[1]
+#         name_bytes = bytes(my_str, 'utf-8')
+#         games.add(.decode('utf-8').title())
+#
+#     return json.dumps(sorted(list(games)))
+
+
 if __name__ == "__main__":
     app.run()
