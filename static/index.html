@@ -108,15 +108,14 @@
           streamEndpoint = `${server}searchstream/${streamFilter}`;
         }
 
-        fetch(streamEndpoint).then(response => response.json())
-          .then(stream => {
-            if (Object.keys(stream).length === 0) {
-              alert("Uh oh! No streams found. Please try a different search term.")
-              return
-            }
+        fetch(streamEndpoint).then(response => response.json()).then(stream => {
+          if (Object.keys(stream).length === 0) {
+            alert("Uh oh! No streams found. Please try a different search term.")
+            return
+          }
 
-            displayStream(stream);
-          })
+          displayStream(stream);
+        });
       }
 
       async function fetchAndRenderThumbnails(_event, thumbs = numberOfThumbnailsToFetch) {
@@ -193,7 +192,7 @@
               let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
               document.getElementById('dev-mode').innerHTML = `Stream delta: ${minutes !== 0 ? `${minutes}m` : ''}${(Math.round(new Date().getTime() / 1000  - currentStream.fetched)) - Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60) * 60}s. API consumption: ${Math.round((1 - stats.ratelimit_remaining / stats.ratelimit_limit) * 10000) / 100}%. Load is ${stats.load.join(' ')}. Stream count: ${stats.streams - 1}. Last update: ${new Date(stats.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats.time_of_ratelimit * 1000).toLocaleTimeString()}.`
             });
-        }, 750);
+        }, 1000);
       }
 
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
