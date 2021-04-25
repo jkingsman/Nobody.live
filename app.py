@@ -8,29 +8,29 @@ import re
 
 import redis
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify
 app = Flask(__name__, static_url_path='', static_folder='static')
 main_redis = redis.Redis(decode_responses=True, db=0)
 stats_redis = redis.Redis(decode_responses=True, db=1)
 
 cached_load = {'load': os.getloadavg(), 'retrieved_time': time.time()}
-def getSysLoad():
+def get_sys_load():
     load_cache_time = 5
 
-    if time.time() - cached_load['retrieved_time'] > 5:
+    if time.time() - cached_load['retrieved_time'] > load_cache_time:
         cached_load['load'] = os.getloadavg()
         cached_load['retrieved_time'] = time.time()
     return cached_load['load']
 
-def normalizeAndEscapeGlobTerm(glob):
+def normalize_and_escape_glob_term(glob):
     glob = glob.lower()
     glob = glob.replace('?', '\\?')
     glob = re.sub(r'([\[\]\?\*\^])', r'\\\1', glob)
     return glob
 
-def getStreams(count=1, game=None):
-    if game:
-        results = main_redis.keys(f"*{normalizeAndEscapeGlobTerm(game)}*")
+def get_streams(count=1, game=None):
+    if game: # pylint: disable=no-else-return
+        results = main_redis.keys(f"*{normalize_and_escape_glob_term(game)}*")
 
         try:
             keys = random.sample(results, int(count))
@@ -42,7 +42,7 @@ def getStreams(count=1, game=None):
         return streams
     else:
         results = []
-        for i in range(int(count)):
+        for _i in range(int(count)):
             key = main_redis.randomkey()
 
             if not key:
@@ -59,7 +59,7 @@ def root():
 
 @app.route('/stream')
 def get_stream():
-    streams = getStreams()
+    streams = get_streams(count=1, game=None)
 
     if streams:
         return streams[0]
@@ -67,15 +67,15 @@ def get_stream():
 
 @app.route('/searchstream/<game>')
 def get_single_game_stream(game):
-    streams = getStreams(count=1, game=game)
+    streams = get_streams(count=1, game=game)
 
     if streams:
         return streams[0]
     return '{}'
 
 @app.route('/streams/<count>')
-def get_streams(count):
-    streams = getStreams(count)
+def get_streams_endpoint(count):
+    streams = get_streams(count)
 
     if streams:
         return jsonify(streams)
@@ -83,7 +83,7 @@ def get_streams(count):
 
 @app.route('/searchstreams/<game>/<count>')
 def get_single_game_streams(game, count):
-    streams = getStreams(count, game)
+    streams = get_streams(count, game)
 
     if streams:
         return jsonify(streams)
@@ -93,7 +93,7 @@ def get_single_game_streams(game, count):
 def get_stats_json():
     stats = json.loads(stats_redis.get('stats'))
     stats['streams'] = main_redis.dbsize()
-    stats['load'] = getSysLoad()
+    stats['load'] = get_sys_load()
     stats['populate_started'] = float(stats_redis.get('populate_started'))
 
     return jsonify(stats)

@@ -17,7 +17,7 @@ CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
 
 if not CLIENT_ID or not CLIENT_SECRET:
     logging.error('CLIENT_ID or CLIENT_SECRET not set correctly! Exiting...')
-    exit(1)
+    sys.exit(1)
 
 MAX_VIEWERS = 0  # number of viewers to be considered for inclusion
 REQUEST_LIMIT = 1500  # number of API requests to stop at before starting a new search
@@ -39,7 +39,7 @@ def get_bearer_token(client_id, secret):
 
     try:
         logging.debug(f"Recieved {token_response.json()['access_token']}; expires in {token_response.json()['expires_in']}s")
-        return(token_response.json()['access_token'])
+        return token_response.json()['access_token']
     except KeyError:
         logging.error(f"Didn't find access token. Got '{token_response.text}'")
         return None
@@ -80,14 +80,17 @@ def populate_streamers(client_id, client_secret):
         for stream in streams_found:
             streams_grabbed += 1
             stream['fetched'] = time.time()
-            main_redis.setex(f"{stream['id']}::{stream['game_name'].lower()}", SECONDS_BEFORE_RECORD_EXPIRATION, json.dumps(stream))
+            main_redis.setex(f"{stream['id']}::{stream['game_name'].lower()}",
+                             SECONDS_BEFORE_RECORD_EXPIRATION,
+                             json.dumps(stream))
 
         # report on what we inserted
         if len(streams_found) > 0:
             logging.debug(f"Inserted {len(streams_found)} streams")
 
         # sleep on rate limit token utilization
-        rate_limit_usage = round((1 - int(stream_list.headers['Ratelimit-Remaining']) / int(stream_list.headers['Ratelimit-Limit'])) * 100)
+        rate_limit_usage = round((1 - int(stream_list.headers['Ratelimit-Remaining']) /
+                                  int(stream_list.headers['Ratelimit-Limit'])) * 100)
         if rate_limit_usage > 60:
             logging.warning(f"Rate limiting is at {rate_limit_usage}% utilized; sleeping for 30s")
             time.sleep(30)
@@ -110,7 +113,7 @@ def populate_streamers(client_id, client_secret):
             pagination_offset = stream_list_data['pagination']['cursor']
         except KeyError:
             # we hit the end of the list; no more keys
-            logging.warning(f"Hit end of search results")
+            logging.warning("Hit end of search results")
             break
         stream_list = get_stream_list_response(client_id, token, pagination_offset)
 
