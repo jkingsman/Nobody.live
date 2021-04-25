@@ -98,28 +98,31 @@
         // disable button to do some hacky rate limiting
         document.getElementById('new-streamer-button').disabled = true;
         document.getElementById('new-streamer-button').innerText = 'please wait...';
+
+        // disable button for a couple seconds to prevent spamming
         setTimeout(() => {
           document.getElementById('new-streamer-button').disabled = false;
           document.getElementById('new-streamer-button').innerText = 'new streamer';
-        }, 4000);
+        }, 2000);
 
         let streamEndpoint = `${server}stream`;
         if (streamFilter) {
           streamEndpoint = `${server}searchstream/${streamFilter}`;
         }
 
-        fetch(streamEndpoint).then(response => response.json()).then(stream => {
-          if (Object.keys(stream).length === 0) {
-            alert("Uh oh! No streams found. Please try a different search term.")
-            return
-          }
+        let stream_response = await fetch(streamEndpoint);
+        let stream_json = await stream_response.json();
+        if (Object.keys(stream_json).length === 0) {
+          alert("Uh oh! No streams found. Please try a different search term.")
+          return
+        }
 
-          displayStream(stream);
-        });
+        displayStream(stream_json);
       }
 
       async function fetchAndRenderThumbnails(_event, thumbs = numberOfThumbnailsToFetch) {
-        // hacky way to make this runnable once-at-a-time -- unhook the event listener
+        // hacky way to make this runnable once-at-a-time:
+        // unhook the event listener until we're done, and reinstate and the end
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.removeEventListener('click', fetchAndRenderThumbnails));
 
         let container = document.getElementById('thumbnails');
@@ -129,14 +132,17 @@
           container.style.height = `${container.offsetHeight}px`;
         }
 
+        // empty any possible old thumbs
         container.innerHTML = '';
 
         let thumbsEndpoint = `${server}streams/${thumbs}`;
         if (streamFilter) {
           thumbsEndpoint = `${server}searchstreams/${streamFilter}/${thumbs}`;
         }
-        await fetch(thumbsEndpoint).then(response => response.json())
-          .then(streams => streams.forEach(stream => {
+        let thumbs_response = await fetch(thumbsEndpoint);
+        let thumbs_json = await thumbs_response.json()
+
+        thumbs_json.forEach(stream => {
             // embed inside of an a element so you can open in a new tab
             let a = document.createElement('a');
             a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
@@ -159,12 +165,12 @@
 
             a.appendChild(thumb);
             container.appendChild(a);
-          }));
+          });
 
           // restore any height locking we did after the thumbs have had a chance to load
           setTimeout(() => container.style.height = 'auto', 1000);
 
-          // restore button function
+          // restore our button listener from our hacky don't-run-multiple-times code
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
       }
 
@@ -177,21 +183,21 @@
 
         numberOfThumbnailsToFetch = 64;
 
-        // alt + r triggers thumbnail refresh
+        // alt + t triggers thumbnail refresh
         document.addEventListener("keydown", event => {
-          if (event.keyCode === 82 && event.altKey) {
+          console.log(event)
+          if (event.keyCode === 84 && event.altKey) {
             fetchAndRenderThumbnails();
           }
         });
 
         // refresh stats bar once a second
         // forgive me. it works. go 'way.
-        setInterval(() => {
-          fetch(`${server}stats.json`).then(response => response.json())
-            .then(stats => {
-              let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
-              document.getElementById('dev-mode').innerHTML = `Stream delta: ${minutes !== 0 ? `${minutes}m` : ''}${(Math.round(new Date().getTime() / 1000  - currentStream.fetched)) - Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60) * 60}s. API consumption: ${Math.round((1 - stats.ratelimit_remaining / stats.ratelimit_limit) * 10000) / 100}%. Load is ${stats.load.join(' ')}. Stream count: ${stats.streams - 1}. Last update: ${new Date(stats.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats.time_of_ratelimit * 1000).toLocaleTimeString()}.`
-            });
+        setInterval(async () => {
+          let stats_response = await fetch(`${server}stats.json`);
+          let stats_json = await stats_response.json();
+          let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
+          document.getElementById('dev-mode').innerHTML = `Stream delta: ${minutes !== 0 ? `${minutes}m` : ''}${(Math.round(new Date().getTime() / 1000  - currentStream.fetched)) - Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60) * 60}s. API consumption: ${Math.round((1 - stats_json.ratelimit_remaining / stats_json.ratelimit_limit) * 10000) / 100}%. Load is ${stats_json.load.join(' ')}. Stream count: ${stats_json.streams - 1}. Last update: ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleTimeString()}.`
         }, 1000);
       }
 
