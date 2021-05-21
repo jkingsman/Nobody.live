@@ -32,16 +32,25 @@
   </head>
   <body>
     <div class="grid-container">
-      <div class="intro-text">
+      <div class="left-pane">
         <h1>nobody.live</h1>
         <span id="dev-mode">streams with nobody watching</span>
       </div>
-      <div class="refresh">
+      <div class="right-pane">
         <button id="new-streamer-button" disabled>please wait...</button><br />
         <p role="button" class="subdued fake-link filter" id="filter">filter</p>
       </div>
     </div>
-    <div id="twitch-embed" class="container"></div>
+    <div id="twitch-embed-wrapper" class="container">
+      <div id="twitch-embed"></div>
+      <div class="grid-container">
+        <div class="left-pane">
+        </div>
+        <div class="right-pane">
+          <p class="cookie-check">Trouble logging into chat? Try enabling third party cookies.</p>
+        </div>
+      </div>
+    </div>
     <div class="thumbnails container center-text">
       <span role="button" class="new-thumbnails fake-link subdued">Get new stream thumbnails</span>
       <div id="thumbnails" class="thumbnail-container"></div>
@@ -58,7 +67,7 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script type="text/javascript">
       let numberOfThumbnailsToFetch = 12;
-      let server = 'https://nobody.live/';
+      let server = document.location.origin;
       let devMode = false;
       let currentStream;
       let streamFilter = '';
@@ -105,7 +114,7 @@
           document.getElementById('new-streamer-button').innerText = 'new streamer';
         }, 2000);
 
-        let streamEndpoint = `${server}stream`;
+        let streamEndpoint = `${server}/stream`;
         if (streamFilter) {
           streamEndpoint = `${server}searchstream/${streamFilter}`;
         }
@@ -135,9 +144,9 @@
         // empty any possible old thumbs
         container.innerHTML = '';
 
-        let thumbsEndpoint = `${server}streams/${thumbs}`;
+        let thumbsEndpoint = `${server}/streams/${thumbs}`;
         if (streamFilter) {
-          thumbsEndpoint = `${server}searchstreams/${streamFilter}/${thumbs}`;
+          thumbsEndpoint = `${server}/searchstreams/${streamFilter}/${thumbs}`;
         }
         let thumbs_response = await fetch(thumbsEndpoint);
         let thumbs_json = await thumbs_response.json()
@@ -194,7 +203,7 @@
         // refresh stats bar once a second
         // forgive me. it works. go 'way.
         setInterval(async () => {
-          let stats_response = await fetch(`${server}stats.json`);
+          let stats_response = await fetch(`${server}/stats.json`);
           let stats_json = await stats_response.json();
           let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
           document.getElementById('dev-mode').innerHTML = `Stream delta: ${minutes !== 0 ? `${minutes}m` : ''}${(Math.round(new Date().getTime() / 1000  - currentStream.fetched)) - Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60) * 60}s. API consumption: ${Math.round((1 - stats_json.ratelimit_remaining / stats_json.ratelimit_limit) * 10000) / 100}%. Load is ${stats_json.load.join(' ')}. Stream count: ${stats_json.streams - 1}. Last update: ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleTimeString()}.`

@@ -23,8 +23,12 @@ a,
   padding: 10px;
 }
 
-.thumbnails, .filter {
+.thumbnails, .filter, .cookie-check {
   text-align: center;
+}
+
+.cookie-check {
+  margin-top: 10px;
 }
 
 .filter {
@@ -33,23 +37,25 @@ a,
 
 @media only screen and (min-width: 750px) {
   .grid-container {
-    min-height: 60px;
+    min-height: 20px;
     display: grid;
     grid-template-columns: 80% 20%;
     grid-template-rows: 1fr;
     gap: 0px 0px;
-    grid-template-areas: "intro-text refresh";
+    grid-template-areas: "left-pane right-pane";
   }
-  .intro-text {
-    grid-area: intro-text;
+
+  .left-pane {
+    grid-area: left-pane;
   }
-  .refresh {
-    grid-area: refresh;
+
+  .right-pane {
+    grid-area: right-pane;
     align-self: center;
   }
 }
 
-.intro-text {
+.left-pane, .cookie-check {
   font-style: italic;
 }
 
