@@ -116,7 +116,7 @@
 
         let streamEndpoint = `${server}/stream`;
         if (streamFilter) {
-          streamEndpoint = `${server}searchstream/${streamFilter}`;
+          streamEndpoint = `${server}/searchstream/${streamFilter}`;
         }
 
         let stream_response = await fetch(streamEndpoint);
