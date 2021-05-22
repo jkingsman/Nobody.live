@@ -5,6 +5,8 @@ import os
 import time
 import random
 import re
+import subprocess
+import sys
 
 import redis
 
@@ -12,6 +14,10 @@ from flask import Flask, jsonify
 app = Flask(__name__, static_url_path='', static_folder='static')
 main_redis = redis.Redis(decode_responses=True, db=0)
 stats_redis = redis.Redis(decode_responses=True, db=1)
+
+script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
+git_rev_fetch = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=script_path, stdout=subprocess.PIPE)
+loaded_git_rev = git_rev_fetch.stdout.decode("ascii").rstrip()
 
 cached_load = {'load': os.getloadavg(), 'retrieved_time': time.time()}
 def get_sys_load():
@@ -94,6 +100,7 @@ def get_stats_json():
     stats = json.loads(stats_redis.get('stats'))
     stats['streams'] = main_redis.dbsize()
     stats['load'] = get_sys_load()
+    stats['rev'] = loaded_git_rev
     stats['populate_started'] = float(stats_redis.get('populate_started'))
 
     return jsonify(stats)
