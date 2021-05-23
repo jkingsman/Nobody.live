@@ -225,6 +225,10 @@
         console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
         displayStream(JSON.parse(urlParams.get('stream')));
         window.history.pushState({}, document.title, window.location.pathname);
+        setTimeout(() => {
+          document.getElementById('new-streamer-button').disabled = false;
+          document.getElementById('new-streamer-button').innerText = 'new streamer';
+        }, 2000);
       } else {
         fetchAndRenderRandomStream();
       }
