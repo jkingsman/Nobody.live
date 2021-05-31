@@ -210,6 +210,18 @@
         }, 1000);
       }
 
+      // work in progress
+      function games_by_viewers() {
+        let viewer_response = await fetch(`${server}/games.json`);
+        let viewer_json = await stats_response.json();
+        let sorted_viewer_json = viewer_json.sort((a, b) => {return b.viewers - a.viewers})
+
+        let top_games_obj = {}
+        sorted_viewer_json.forEach((game_obj) => {top_games_obj[game_obj.game] = game_obj.viewers})
+
+        return top_games_obj;
+      }
+
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
       document.getElementById('filter').addEventListener('click', () => {
