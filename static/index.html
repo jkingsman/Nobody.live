@@ -38,7 +38,7 @@
       </div>
       <div class="right-pane">
         <button id="new-streamer-button" disabled>please wait...</button><br />
-        <p role="button" class="subdued fake-link filter" id="filter">filter</p>
+        <p role="button" class="subdued fake-link filter" id="filter">click to filter</p>
       </div>
     </div>
     <div id="twitch-embed-wrapper" class="container">
@@ -107,12 +107,7 @@
         // disable button to do some hacky rate limiting
         document.getElementById('new-streamer-button').disabled = true;
         document.getElementById('new-streamer-button').innerText = 'please wait...';
-
-        // disable button for a couple seconds to prevent spamming
-        setTimeout(() => {
-          document.getElementById('new-streamer-button').disabled = false;
-          document.getElementById('new-streamer-button').innerText = 'new streamer';
-        }, 2000);
+        enableNewStreamerButtonAfterDelay();
 
         let streamEndpoint = `${server}/stream`;
         if (streamFilter) {
@@ -183,8 +178,16 @@
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
       }
 
+      function enableNewStreamerButtonAfterDelay() {
+        setTimeout(() => {
+          document.getElementById('new-streamer-button').disabled = false;
+          let newStreamText = streamFilter ? `new streamer (${streamFilter})` : 'new streamer';
+          document.getElementById('new-streamer-button').innerText = newStreamText;
+        }, 2000);
+      }
+
       // little treat for the readers :)
-      function enterDevMode() {
+      async function enterDevMode() {
         if (devMode) {
             return;
         }
@@ -208,6 +211,8 @@
           let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
           document.getElementById('dev-mode').innerHTML = `Stream delta: ${minutes !== 0 ? `${minutes}m` : ''}${(Math.round(new Date().getTime() / 1000  - currentStream.fetched)) - Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60) * 60}s. API consumption: ${Math.round((1 - stats_json.ratelimit_remaining / stats_json.ratelimit_limit) * 10000) / 100}%. Load is ${stats_json.load.join(' ')}. Stream count: ${stats_json.streams - 1}. Last update: ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleTimeString()}. <code>${stats_json.rev}</code>`
         }, 1000);
+
+        games_by_viewers();
       }
 
       // work in progress
@@ -223,7 +228,14 @@
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
       document.getElementById('filter').addEventListener('click', () => {
-        streamFilter = prompt("Enter a search term to filter games on (e.g. 'just chatting' or 'dead by daylight')", streamFilter).toLowerCase();
+        streamFilter = prompt("Enter a game or category to filter games on (e.g. 'just chatting' or 'dead by daylight')", streamFilter).toLowerCase();
+
+        let newThumbText = streamFilter ? `Refresh thumbnails (${streamFilter})` : 'Refresh thumbnails';
+        document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = newThumbText);
+
+        let filterButtonText = streamFilter ? `filter active` : 'click to filter';
+        document.querySelector('#filter').innerText = filterButtonText;
+
         fetchAndRenderRandomStream();
         fetchAndRenderThumbnails();
       });
@@ -235,10 +247,7 @@
         console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
         displayStream(JSON.parse(urlParams.get('stream')));
         window.history.pushState({}, document.title, window.location.pathname);
-        setTimeout(() => {
-          document.getElementById('new-streamer-button').disabled = false;
-          document.getElementById('new-streamer-button').innerText = 'new streamer';
-        }, 2000);
+        enableNewStreamerButtonAfterDelay();
       } else {
         fetchAndRenderRandomStream();
       }
