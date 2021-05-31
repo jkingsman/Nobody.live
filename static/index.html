@@ -216,10 +216,8 @@
         let viewer_json = await viewer_response.json();
         let sorted_viewer_json = viewer_json.sort((a, b) => {return b.viewers - a.viewers})
 
-        let top_games_obj = {}
-        sorted_viewer_json.forEach((game_obj) => {top_games_obj[game_obj.game] = game_obj.viewers})
-
-        return top_games_obj;
+        console.table(sorted_viewer_json.slice(0, 25))
+        return sorted_viewer_json;
       }
 
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
