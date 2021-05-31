@@ -12,8 +12,10 @@ import redis
 
 from flask import Flask, jsonify
 app = Flask(__name__, static_url_path='', static_folder='static')
-main_redis = redis.Redis(decode_responses=True, db=0)
-stats_redis = redis.Redis(decode_responses=True, db=1)
+app.config['JSON_AS_ASCII'] = False
+
+main_redis = redis.Redis(db=0)
+stats_redis = redis.Redis(db=1)
 
 script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 git_rev_fetch = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=script_path, stdout=subprocess.PIPE)
@@ -44,7 +46,6 @@ def get_streams(count=1, game=None):
             # likely have fewer keys than we want; just use what we have
             keys = results
         streams = list(map(lambda key: json.loads(main_redis.get(key)), keys))
-        print(len(streams))
         return streams
     else:
         results = []
@@ -108,14 +109,16 @@ def get_stats_json():
 # @app.route('/games.json')
 # def get_games_json():
 #     raw_list = main_redis.keys()
-#     games = set()
-#
+#     games = {}
+
 #     for raw_game in raw_list:
-#         raw_name = raw_game.split('::')[1]
-#         name_bytes = bytes(my_str, 'utf-8')
-#         games.add(.decode('utf-8').title())
-#
-#     return json.dumps(sorted(list(games)))
+#         raw_name = raw_game.decode('utf-8').split('::')[1]
+#         if raw_name in games:
+#             games[raw_name] += 1
+#         else:
+#             games[raw_name] = 1
+
+#     return games
 
 
 if __name__ == "__main__":
