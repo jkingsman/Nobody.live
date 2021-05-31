@@ -2,7 +2,8 @@
 
 import json
 import os
-import time
+import datetime
+import functools
 import random
 import re
 import subprocess
@@ -21,14 +22,26 @@ script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 git_rev_fetch = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=script_path, stdout=subprocess.PIPE)
 loaded_git_rev = git_rev_fetch.stdout.decode("ascii").rstrip()
 
-cached_load = {'load': os.getloadavg(), 'retrieved_time': time.time()}
-def get_sys_load():
-    load_cache_time = 5
+# decorator to cache a result for a given time
+# https://stackoverflow.com/a/50866968/1588786
+def cache(ttl=datetime.timedelta(seconds=5)):
+    def wrap(func):
+        time, value = None, None
+        @functools.wraps(func)
+        def wrapped(*args, **kw):
+            nonlocal time
+            nonlocal value
+            now = datetime.datetime.now()
+            if not time or now - time > ttl:
+                value = func(*args, **kw)
+                time = now
+            return value
+        return wrapped
+    return wrap
 
-    if time.time() - cached_load['retrieved_time'] > load_cache_time:
-        cached_load['load'] = os.getloadavg()
-        cached_load['retrieved_time'] = time.time()
-    return cached_load['load']
+@cache(ttl=datetime.timedelta(seconds=5))
+def get_sys_load():
+    return os.getloadavg()
 
 def normalize_and_escape_glob_term(glob):
     glob = glob.lower()
@@ -106,19 +119,20 @@ def get_stats_json():
 
     return jsonify(stats)
 
-# @app.route('/games.json')
-# def get_games_json():
-#     raw_list = main_redis.keys()
-#     games = {}
+@app.route('/games.json')
+@cache(ttl=datetime.timedelta(seconds=30))
+def get_games_json():
+    raw_list = main_redis.keys()
+    games = {}
 
-#     for raw_game in raw_list:
-#         raw_name = raw_game.decode('utf-8').split('::')[1]
-#         if raw_name in games:
-#             games[raw_name] += 1
-#         else:
-#             games[raw_name] = 1
+    for raw_game in raw_list:
+        raw_name = raw_game.decode('utf-8').split('::')[1]
+        if raw_name in games:
+            games[raw_name] += 1
+        else:
+            games[raw_name] = 1
 
-#     return games
+    return games
 
 
 if __name__ == "__main__":
