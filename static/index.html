@@ -213,7 +213,7 @@
       // work in progress
       async function games_by_viewers() {
         let viewer_response = await fetch(`${server}/games.json`);
-        let viewer_json = await stats_response.json();
+        let viewer_json = await viewer_response.json();
         let sorted_viewer_json = viewer_json.sort((a, b) => {return b.viewers - a.viewers})
 
         let top_games_obj = {}
