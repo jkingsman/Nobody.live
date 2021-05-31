@@ -39,7 +39,7 @@ def cache(ttl=datetime.timedelta(seconds=5)):
         return wrapped
     return wrap
 
-@cache(ttl=datetime.timedelta(seconds=5))
+@cache(ttl=datetime.timedelta(seconds=1))
 def get_sys_load():
     return os.getloadavg()
 
