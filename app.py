@@ -8,12 +8,14 @@ import re
 import subprocess
 import sys
 
+from flask import Flask, jsonify
 import redis
 
-from flask import Flask, jsonify
+import db_utils
+
 app = Flask(__name__, static_url_path='', static_folder='static')
-main_redis = redis.Redis(decode_responses=True, db=0)
-stats_redis = redis.Redis(decode_responses=True, db=1)
+conn = db_utils.get_connection()
+db_utils.migrate()
 
 script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 git_rev_fetch = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=script_path, stdout=subprocess.PIPE)
@@ -35,17 +37,13 @@ def normalize_and_escape_glob_term(glob):
     return glob
 
 def get_streams(count=1, game=None):
-    if game: # pylint: disable=no-else-return
-        results = main_redis.keys(f"*{normalize_and_escape_glob_term(game)}*")
 
-        try:
-            keys = random.sample(results, int(count))
-        except ValueError:
-            # likely have fewer keys than we want; just use what we have
-            keys = results
-        streams = list(map(lambda key: json.loads(main_redis.get(key)), keys))
-        print(len(streams))
-        return streams
+    curs = db_utils.get_cursor()
+
+    if game: # pylint: disable=no-else-return
+        streams = curs.execute("SELECT * FROM streams WHERE game LIKE ? LIMIT ?", (f"%{game.lower()}%", int(count))).fetchall()
+
+        return(streams)
     else:
         results = []
         for _i in range(int(count)):
