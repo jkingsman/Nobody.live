@@ -139,5 +139,14 @@ def get_games_json():
     return jsonify(collated_games)
 
 
+@app.route('/motd')
+@cache(ttl=datetime.timedelta(minutes=1))
+def get_motd():
+    try:
+      with open('motd.txt', "r") as fh:
+        return fh.read().strip()
+    except IOError:
+      return ('', 204)
+
 if __name__ == "__main__":
     app.run()
