@@ -108,6 +108,7 @@ def populate_streamers(client_id, client_secret):
                     'time_of_ratelimit': time.time()
                   })
             )
+            time.sleep(1)
 
         # aaaaand do it again
         try:
@@ -118,4 +119,5 @@ def populate_streamers(client_id, client_secret):
             break
         stream_list = get_stream_list_response(reqests_session, client_id, token, pagination_offset)
 
-populate_streamers(CLIENT_ID, CLIENT_SECRET)
+while True:
+    populate_streamers(CLIENT_ID, CLIENT_SECRET)
