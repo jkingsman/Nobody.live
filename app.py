@@ -9,14 +9,12 @@ import re
 import subprocess
 import sys
 
-import redis
+import db_utils
+cursor = db_utils.get_cursor()
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, json
 app = Flask(__name__, static_url_path='', static_folder='static')
 app.config['JSON_AS_ASCII'] = False
-
-main_redis = redis.Redis(db=0)
-stats_redis = redis.Redis(db=1)
 
 script_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 git_rev_fetch = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=script_path, stdout=subprocess.PIPE)
@@ -43,120 +41,49 @@ def cache(ttl=datetime.timedelta(seconds=5)):
 def get_sys_load():
     return os.getloadavg()
 
-def normalize_and_escape_glob_term(glob):
-    glob = glob.lower()
-    glob = glob.replace('?', '\\?')
-    glob = re.sub(r'([\[\]\?\*\^])', r'\\\1', glob)
-    return glob
-
-def get_streams(count=1, game=None):
-    if game: # pylint: disable=no-else-return
-        results = main_redis.keys(f"*{normalize_and_escape_glob_term(game)}*")
-
-        try:
-            keys = random.sample(results, int(count))
-        except ValueError:
-            # likely have fewer keys than we want; just use what we have
-            keys = results
-        streams = list(map(lambda key: json.loads(main_redis.get(key)), keys))
-        return streams
-    else:
-        results = []
-        for _i in range(int(count)):
-            key = main_redis.randomkey()
-
-            if not key:
-                return results
-
-            stream = json.loads(main_redis.get(key))
-            results.append(stream)
-        return results
-
 @app.route('/')
 def root():
     return app.send_static_file('index.html')
 
-
 @app.route('/stream')
 def get_stream():
-    streams = get_streams(count=1, game=None)
-
-    if streams:
-        return streams[0]
-    return '{}'
+    stream = db_utils.get_n_games(cursor, 1)
+    return jsonify(json.loads(stream[0][0]))
 
 @app.route('/searchstream/<game>')
 def get_single_game_stream(game):
-    streams = get_streams(count=1, game=game)
-
-    if streams:
-        return streams[0]
-    return '{}'
+    stream = db_utils.get_n_games_filter_game(cursor, 1, game)
+    return jsonify(json.loads(stream[0][0]))
 
 @app.route('/streams/<count>')
 def get_streams_endpoint(count):
-    streams = get_streams(count)
-
-    if streams:
-        return jsonify(streams)
-    return '[]'
+    streams = db_utils.get_n_games(cursor, min(int(count), 60))
+    return jsonify([json.loads(stream[0]) for stream in streams])
 
 @app.route('/searchstreams/<game>/<count>')
 def get_single_game_streams(game, count):
-    streams = get_streams(count, game)
-
-    if streams:
-        return jsonify(streams)
-    return '[]'
+    streams = db_utils.get_n_games_filter_game(cursor, min(int(count), 60), game)
+    return jsonify([json.loads(stream[0]) for stream in streams])
 
 @app.route('/stats.json')
 def get_stats_json():
-    stats = json.loads(stats_redis.get('stats'))
-    stats['streams'] = main_redis.dbsize()
+    stats = (db_utils.get_stats())
     stats['load'] = get_sys_load()
     stats['rev'] = loaded_git_rev
-    stats['populate_started'] = float(stats_redis.get('populate_started'))
 
     return jsonify(stats)
 
 @app.route('/games_by_stream.json')
 @cache(ttl=datetime.timedelta(seconds=30))
-def get_games_by_stream():
-    raw_list = main_redis.keys()
-    games = {}
-
-    for raw_game in raw_list:
-        raw_name = raw_game.decode('utf-8').split('::')[1]
-        if raw_name in games:
-            games[raw_name] += 1
-        else:
-            games[raw_name] = 1
-
-    collated_games = []
-    for game, streams in games.items():
-        collated_games.append({"game": game, "streams": streams})
-
-    return jsonify(collated_games)
+def get_games_streamers():
+    games = [{'game': game[0], 'streamers': game[1]} for game in db_utils.get_games_list_by_game(cursor)]
+    return jsonify(sorted(games, key=lambda game: game['streamers'], reverse=True))
 
 @app.route('/games_by_lang.json')
 @cache(ttl=datetime.timedelta(seconds=30))
-def get_games_by_lang():
-    raw_list = main_redis.keys()
-    games = {}
-
-    for raw_game in raw_list:
-        raw_name = raw_game.decode('utf-8').split('::')[2].replace('lang:', '')
-        if raw_name in games:
-            games[raw_name] += 1
-        else:
-            games[raw_name] = 1
-
-    collated_games = []
-    for game, streams in games.items():
-        collated_games.append({"game": game, "streams": streams})
-
-    return jsonify(collated_games)
-
+def get_games_lang():
+    langs = [{'lang': lang[0], 'streamers': lang[1]} for lang in db_utils.get_games_list_by_lang(cursor)]
+    return jsonify(sorted(langs, key=lambda lang: lang['streamers'], reverse=True))
 
 @app.route('/motd')
 @cache(ttl=datetime.timedelta(minutes=1))
