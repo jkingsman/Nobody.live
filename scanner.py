@@ -6,10 +6,14 @@ import os
 import sys
 import time
 
-import redis
 import requests
 
+import db_utils
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
+cursor = db_utils.get_cursor()
+db_utils.migrate()
 
 # found at https://dev.twitch.tv/console
 CLIENT_ID = os.environ.get('CLIENT_ID')
@@ -23,10 +27,7 @@ MAX_VIEWERS = 0  # number of viewers to be considered for inclusion
 REQUEST_LIMIT = 1500  # number of API requests to stop at before starting a new search
 MINIMUM_STREAMS_TO_GET = 50  # if REQUEST_LIMIT streams doesn't capture at least this many zero-
                              # viewer streams, keep going
-SECONDS_BEFORE_RECORD_EXPIRATION = 300  # how many seconds a stream should stay in redis
-
-main_redis = redis.Redis(decode_responses=True, db=0)
-stats_redis = redis.Redis(decode_responses=True, db=1)
+SECONDS_BEFORE_RECORD_EXPIRATION = 300  # how many seconds a stream should stay in the db
 
 
 def get_bearer_token(client_id, secret):
@@ -67,7 +68,7 @@ def populate_streamers(client_id, client_secret):
 
     requests_sent = 1
     streams_grabbed = 0
-    stats_redis.set('populate_started', time.time())
+    db_utils.set_populate_started(cursor)
 
     # eat page after page of API results until we hit our request limit
     stream_list = get_stream_list_response(client_id, token)
@@ -75,14 +76,10 @@ def populate_streamers(client_id, client_secret):
         stream_list_data = stream_list.json()
         requests_sent += 1
 
-        # filter out streams with our desired count and inject into redis
+        # filter out streams with our desired count and inject into the db
         streams_found = list(filter(lambda stream: int(stream['viewer_count']) <= MAX_VIEWERS, stream_list_data['data']))
-        for stream in streams_found:
-            streams_grabbed += 1
-            stream['fetched'] = time.time()
-            main_redis.setex(f"{stream['id']}::{stream['game_name'].lower()}",
-                             SECONDS_BEFORE_RECORD_EXPIRATION,
-                             json.dumps(stream))
+        db_utils.bulk_insert_streams(cursor, streams_found)
+        streams_grabbed += len(streams_found)
 
         # report on what we inserted
         if len(streams_found) > 0:
@@ -100,13 +97,9 @@ def populate_streamers(client_id, client_secret):
             logging.info((f"{requests_sent} requests sent ({streams_grabbed} streams found); "
                           f"{stream_list.headers['Ratelimit-Remaining']} of {stream_list.headers['Ratelimit-Limit']} "
                           f"API tokens remaining ({rate_limit_usage}% utilized)"))
-            stats_redis.set('stats',
-                  json.dumps({
-                    'ratelimit_remaining': stream_list.headers['Ratelimit-Remaining'],
-                    'ratelimit_limit': stream_list.headers['Ratelimit-Limit'],
-                    'time_of_ratelimit': time.time()
-                  })
-            )
+            db_utils.set_ratelimit_data(cursor,
+                                        stream_list.headers['Ratelimit-Limit'],
+                                        stream_list.headers['Ratelimit-Remaining'])
 
         # aaaaand do it again
         try:
@@ -119,3 +112,4 @@ def populate_streamers(client_id, client_secret):
 
 while True:
     populate_streamers(CLIENT_ID, CLIENT_SECRET)
+    db_utils.prune(cursor, SECONDS_BEFORE_RECORD_EXPIRATION)

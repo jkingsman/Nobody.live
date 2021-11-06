@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="styles.css" type="text/css">
   </head>
   <body>
+    <div id="motd"></div>
     <div class="grid-container">
       <div class="left-pane">
         <h1>nobody.live</h1>
@@ -204,25 +205,22 @@
         });
 
         // refresh stats bar once a second
-        // forgive me. it works. go 'way.
         setInterval(async () => {
           let stats_response = await fetch(`${server}/stats.json`);
           let stats_json = await stats_response.json();
           let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
-          document.getElementById('dev-mode').innerHTML = `Stream delta: ${minutes !== 0 ? `${minutes}m` : ''}${(Math.round(new Date().getTime() / 1000  - currentStream.fetched)) - Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60) * 60}s. API consumption: ${Math.round((1 - stats_json.ratelimit_remaining / stats_json.ratelimit_limit) * 10000) / 100}%. Load is ${stats_json.load.join(' ')}. Stream count: ${stats_json.streams - 1}. Last update: ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleTimeString()}. <code>${stats_json.rev}</code>`
-        }, 1000);
 
-        games_by_viewers();
+          let api_usage = Math.round((1 - stats_json.ratelimit_remaining / stats_json.ratelimit_limit) * 10000) / 100;
+          document.getElementById('dev-mode').innerHTML = `API consumption: ${api_usage}%. Load is ${stats_json.load.join(' ')}.
+          Stream count: ${stats_json.streams - 1}.
+          Last update: ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleTimeString()}. <code>${stats_json.rev}</code>`
+        }, 1000);
       }
 
-      // work in progress
-      async function games_by_viewers() {
-        let viewer_response = await fetch(`${server}/games.json`);
-        let viewer_json = await viewer_response.json();
-        let sorted_viewer_json = viewer_json.sort((a, b) => {return b.viewers - a.viewers})
-
-        console.table(sorted_viewer_json.slice(0, 25))
-        return sorted_viewer_json;
+      async function fetchAndRenderMOTD() {
+        let motd = await fetch(`${server}/motd`);
+        let motd_text = await motd.text();
+        document.getElementById('motd').innerHTML = motd_text;
       }
 
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
@@ -253,6 +251,7 @@
       }
 
       fetchAndRenderThumbnails();
+      fetchAndRenderMOTD();
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7JF3B0HFYJ"></script>
     <script>
