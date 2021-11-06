@@ -35,14 +35,6 @@ a,
   padding-top: 10px;
 }
 
-#motd {
-  background-color: darkgoldenrod;
-  text-align: center;
-  color: black;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
 @media only screen and (min-width: 750px) {
   .grid-container {
     min-height: 20px;

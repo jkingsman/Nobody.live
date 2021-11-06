@@ -4,25 +4,25 @@
 #
 #    pip-compile
 #
-astroid==2.6.6            # via pylint
-certifi==2021.10.8        # via requests
+astroid==2.5.6            # via pylint
+certifi==2020.12.5        # via requests
 chardet==3.0.4            # via requests
-click==8.0.3              # via flask
+click==7.1.2              # via flask
 flask==1.1.2              # via -r requirements.in
 gunicorn==20.0.4          # via -r requirements.in
 idna==2.10                # via requests
-isort==5.9.3              # via pylint
-itsdangerous==2.0.1       # via flask
-jinja2==3.0.2             # via flask
+isort==5.8.0              # via pylint
+itsdangerous==1.1.0       # via flask
+jinja2==2.11.3            # via flask
 lazy-object-proxy==1.6.0  # via astroid
-markupsafe==2.0.1         # via jinja2
+markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via pylint
-psycopg2==2.9.1           # via -r requirements.in
 pylint==2.7.4             # via -r requirements.in
+redis==3.5.3              # via -r requirements.in
 requests==2.24.0          # via -r requirements.in
 toml==0.10.2              # via pylint
 urllib3==1.25.11          # via requests
-werkzeug==2.0.2           # via flask
+werkzeug==1.0.1           # via flask
 wrapt==1.12.1             # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
