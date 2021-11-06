@@ -80,7 +80,7 @@ def populate_streamers(client_id, client_secret):
         for stream in streams_found:
             streams_grabbed += 1
             stream['fetched'] = time.time()
-            main_redis.setex(f"{stream['id']}::{stream['game_name'].lower()}",
+            main_redis.setex(f"{stream['id']}::{stream['game_name'].lower()}::lang:{stream['language'].lower()}",
                              SECONDS_BEFORE_RECORD_EXPIRATION,
                              json.dumps(stream))
 

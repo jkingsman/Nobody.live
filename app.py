@@ -119,14 +119,33 @@ def get_stats_json():
 
     return jsonify(stats)
 
-@app.route('/games.json')
+@app.route('/games_by_stream.json')
 @cache(ttl=datetime.timedelta(seconds=30))
-def get_games_json():
+def get_games_by_stream():
     raw_list = main_redis.keys()
     games = {}
 
     for raw_game in raw_list:
         raw_name = raw_game.decode('utf-8').split('::')[1]
+        if raw_name in games:
+            games[raw_name] += 1
+        else:
+            games[raw_name] = 1
+
+    collated_games = []
+    for game, streams in games.items():
+        collated_games.append({"game": game, "streams": streams})
+
+    return jsonify(collated_games)
+
+@app.route('/games_by_lang.json')
+@cache(ttl=datetime.timedelta(seconds=30))
+def get_games_by_lang():
+    raw_list = main_redis.keys()
+    games = {}
+
+    for raw_game in raw_list:
+        raw_name = raw_game.decode('utf-8').split('::')[2].replace('lang:', '')
         if raw_name in games:
             games[raw_name] += 1
         else:
