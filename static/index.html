@@ -212,6 +212,18 @@
           let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
           document.getElementById('dev-mode').innerHTML = `Stream delta: ${minutes !== 0 ? `${minutes}m` : ''}${(Math.round(new Date().getTime() / 1000  - currentStream.fetched)) - Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60) * 60}s. API consumption: ${Math.round((1 - stats_json.ratelimit_remaining / stats_json.ratelimit_limit) * 10000) / 100}%. Load is ${stats_json.load.join(' ')}. Stream count: ${stats_json.streams - 1}. Last update: ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleDateString()} ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleTimeString()}. <code>${stats_json.rev}</code>`
         }, 1000);
+
+        games_by_count();
+      }
+
+      // work in progress
+      async function games_by_count() {
+        let streams_response = await fetch(`${server}/games.json`);
+        let streams_json = await streams_response.json();
+        let sorted_streams_json = streams_json.sort((a, b) => {return b.streams - a.streams})
+
+        console.table(sorted_streams_json.slice(0, 25))
+        return sorted_streams_json;
       }
 
       async function fetchAndRenderMOTD() {

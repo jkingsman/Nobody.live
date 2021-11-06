@@ -133,8 +133,8 @@ def get_games_json():
             games[raw_name] = 1
 
     collated_games = []
-    for game, viewers in games.items():
-        collated_games.append({"game": game, "viewers": viewers})
+    for game, streams in games.items():
+        collated_games.append({"game": game, "streams": streams})
 
     return jsonify(collated_games)
 
