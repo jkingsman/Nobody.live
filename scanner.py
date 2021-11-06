@@ -60,7 +60,7 @@ def get_stream_list_response(session, client_id, token, pagination_offset=None):
 
 def populate_streamers(client_id, client_secret):
     token = get_bearer_token(client_id, client_secret)
-    reqests_session = requests.Session()
+    requests_session = requests.Session()
 
     if not token:
         logging.error("There's no token! Halting.")
@@ -71,7 +71,7 @@ def populate_streamers(client_id, client_secret):
     stats_redis.set('populate_started', time.time())
 
     # eat page after page of API results until we hit our request limit
-    stream_list = get_stream_list_response(reqests_session, client_id, token)
+    stream_list = get_stream_list_response(requests_session, client_id, token)
     while requests_sent <= REQUEST_LIMIT or streams_grabbed < MINIMUM_STREAMS_TO_GET:
         stream_list_data = stream_list.json()
         requests_sent += 1
@@ -117,7 +117,7 @@ def populate_streamers(client_id, client_secret):
             # we hit the end of the list; no more keys
             logging.warning("Hit end of search results")
             break
-        stream_list = get_stream_list_response(reqests_session, client_id, token, pagination_offset)
+        stream_list = get_stream_list_response(requests_session, client_id, token, pagination_offset)
 
 while True:
     populate_streamers(CLIENT_ID, CLIENT_SECRET)
