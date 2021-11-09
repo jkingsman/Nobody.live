@@ -10,11 +10,26 @@ p {
   margin: 0;
 }
 
+p {
+  margin-top: 10px;
+}
+
 a,
 .fake-link {
   cursor: pointer;
   text-decoration: underline;
   color: #8a8a8a;
+}
+
+.center-container {
+  text-align: center;
+}
+
+.fake-link {
+  background: none!important;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
 }
 
 .container {
@@ -23,12 +38,8 @@ a,
   padding: 10px;
 }
 
-.thumbnails, .filter, .cookie-check {
+.thumbnails, .filter {
   text-align: center;
-}
-
-.cookie-check {
-  margin-top: 10px;
 }
 
 .filter {
@@ -60,6 +71,7 @@ a,
   .right-pane {
     grid-area: right-pane;
     align-self: center;
+    text-align: center;
   }
 }
 
