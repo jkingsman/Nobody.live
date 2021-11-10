@@ -113,6 +113,10 @@
         let streamEndpoint = `${server}/stream?count=1&filter=${streamFilter}`;
 
         let stream_response = await fetch(streamEndpoint);
+        if (stream_response.status >= 400 && stream_response.status < 600) {
+          alert('Search error! Please use a shorter search phrase.');
+          return
+        }
         let stream_json = await stream_response.json();
         if (stream_json.length === 0) {
           alert("Uh oh! No streams found. Please try a different search term.")
@@ -176,7 +180,7 @@
       function enableNewStreamerButtonAfterDelay() {
         setTimeout(() => {
           document.getElementById('new-streamer-button').disabled = false;
-          let newStreamText = streamFilter ? `new streamer (${streamFilter})` : 'new streamer';
+          let newStreamText = streamFilter ? `new streamer ('${streamFilter}')` : 'new streamer';
           document.getElementById('new-streamer-button').innerText = newStreamText;
         }, 2000);
       }
@@ -220,9 +224,9 @@
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
       document.getElementById('filter').addEventListener('click', () => {
-        streamFilter = prompt("Enter a game or category to filter games on (e.g. 'just chatting' or 'dead by daylight')", streamFilter).toLowerCase();
+        streamFilter = prompt("Enter a game or category to filter games on (e.g. 'just chatting' or 'dead by daylight'). You may also prefix words with 'not:' to exclude them from results. For example, 'dead not:red' would return streams including Dead by Daylight but excluding Red Dead Redemption; 'not:fortnite' would show all games except fortnite.", streamFilter).toLowerCase();
 
-        let newThumbText = streamFilter ? `Refresh thumbnails (${streamFilter})` : 'Refresh thumbnails';
+        let newThumbText = streamFilter ? `Get new thumbnails ('${streamFilter}')` : 'Get new thumbnails';
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = newThumbText);
 
         let filterButtonText = streamFilter ? `filter active` : 'click to filter';

@@ -67,12 +67,20 @@ def set_ratelimit_data(cursor, ratelimit_limit, ratelimit_remaining):
     """
     cursor.execute(set_ratelimit_query, (ratelimit_limit, ratelimit_remaining))
 
-def get_games(cursor, count, filter):
-    games_query = """SELECT data FROM streams
+def get_games(cursor, count, search_string, exclude_list):
+    games_query = f"""SELECT data FROM streams
                     WHERE lower(game) LIKE %s
+                    {'AND lower(game) NOT LIKE %s ' * len(exclude_list)}
                     ORDER BY RANDOM()
                     LIMIT %s"""
-    cursor.execute(games_query, [f"%{filter.lower()}%", count])
+    wildcarded_exclusions = [f"%{exclude}%" for exclude in exclude_list]
+    cursor.execute(games_query, [f"%{search_string}%", *wildcarded_exclusions, count])
+    return cursor.fetchall()
+
+def get_games_list_by_game(cursor):
+    games_list_query = """SELECT game, count(*) FROM streams
+                    GROUP BY game"""
+    cursor.execute(games_list_query)
     return cursor.fetchall()
 
 def get_stats():

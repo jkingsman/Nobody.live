@@ -49,10 +49,16 @@ def get_streams():
     filter = request.args.get('filter', default='', type=str)
 
     # do a moderate approximation of not falling over
-    if count > 64:
+    if count > 64 or len(filter) > 128:
         return ('Filter too large! Please request fewer records.', 413)
 
-    streams = db_utils.get_games(cursor, count, filter)
+    # handle our negation logic
+    include_string = ' '.join([term for term in filter.split() if 'not:' not in term]).lower()
+    exclude_keywords = []
+    if 'not:' in filter:
+        exclude_keywords = [term[4:].lower() for term in filter.split() if 'not:' in term]
+
+    streams = db_utils.get_games(cursor, count, include_string, exclude_keywords)
 
     if not streams:
         return jsonify([])
@@ -76,6 +82,12 @@ def get_motd():
         return fh.read().strip()
     except IOError:
       return ('', 204)
+
+@app.route('/games')
+@cache(ttl=datetime.timedelta(seconds=30))
+def get_games_streamers():
+    games = [{'game': game[0], 'streamers': game[1]} for game in db_utils.get_games_list_by_game(cursor)]
+    return jsonify(sorted(games, key=lambda game: game['streamers'], reverse=True))
 
 if __name__ == "__main__":
     app.run()
