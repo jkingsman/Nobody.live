@@ -53,9 +53,9 @@
       </div>
     </div>
     <div class="thumbnails container center-text">
-      <button role="button" class="new-thumbnails fake-link">Refresh thumbnails</button>
+      <button role="button" class="new-thumbnails fake-link">Get new thumbnails</button>
       <div id="thumbnails" class="thumbnail-container"></div>
-      <button role="button" class="new-thumbnails fake-link">Refresh thumbnails</button>
+      <button role="button" class="new-thumbnails fake-link">Get new thumbnails</button>
     </div>
     <div id="footer">
       last watched streams: <span id="stream-list"></span>
@@ -110,22 +110,19 @@
         document.getElementById('new-streamer-button').innerText = 'please wait...';
         enableNewStreamerButtonAfterDelay();
 
-        let streamEndpoint = `${server}/stream`;
-        if (streamFilter) {
-          streamEndpoint = `${server}/searchstream/${streamFilter}`;
-        }
+        let streamEndpoint = `${server}/stream?count=1&filter=${streamFilter}`;
 
         let stream_response = await fetch(streamEndpoint);
         let stream_json = await stream_response.json();
-        if (Object.keys(stream_json).length === 0) {
+        if (stream_json.length === 0) {
           alert("Uh oh! No streams found. Please try a different search term.")
           return
         }
 
-        displayStream(stream_json);
+        displayStream(stream_json[0]);
       }
 
-      async function fetchAndRenderThumbnails(_event, thumbs = numberOfThumbnailsToFetch) {
+      async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch) {
         // hacky way to make this runnable once-at-a-time:
         // unhook the event listener until we're done, and reinstate and the end
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.removeEventListener('click', fetchAndRenderThumbnails));
@@ -140,10 +137,7 @@
         // empty any possible old thumbs
         container.innerHTML = '';
 
-        let thumbsEndpoint = `${server}/streams/${thumbs}`;
-        if (streamFilter) {
-          thumbsEndpoint = `${server}/searchstreams/${streamFilter}/${thumbs}`;
-        }
+        let thumbsEndpoint = `${server}/stream?count=${thumbCount}&filter=${streamFilter}`;
         let thumbs_response = await fetch(thumbsEndpoint);
         let thumbs_json = await thumbs_response.json()
 
@@ -206,7 +200,7 @@
 
         // refresh stats bar once a second
         setInterval(async () => {
-          let stats_response = await fetch(`${server}/stats.json`);
+          let stats_response = await fetch(`${server}/stats`);
           let stats_json = await stats_response.json();
           let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
 

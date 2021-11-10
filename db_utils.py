@@ -67,6 +67,14 @@ def set_ratelimit_data(cursor, ratelimit_limit, ratelimit_remaining):
     """
     cursor.execute(set_ratelimit_query, (ratelimit_limit, ratelimit_remaining))
 
+def get_games(cursor, count, filter):
+    games_query = """SELECT data FROM streams
+                    WHERE lower(game) LIKE %s
+                    ORDER BY RANDOM()
+                    LIMIT %s"""
+    cursor.execute(games_query, [f"%{filter.lower()}%", count])
+    return cursor.fetchall()
+
 def get_stats():
     cursor = get_dict_cursor()
     cursor.execute("SELECT * FROM metadata;")
@@ -76,33 +84,6 @@ def get_stats():
     stats_dict['streams'] = cursor.fetchone()['total']
 
     return stats_dict
-
-def get_n_games(cursor, count):
-    games_query = """SELECT data FROM streams
-                    ORDER BY RANDOM()
-                    LIMIT %s"""
-    cursor.execute(games_query, [count])
-    return cursor.fetchall()
-
-def get_n_games_filter_game(cursor, count, game):
-    games_query = """SELECT data FROM streams
-                    WHERE lower(game) LIKE %s
-                    ORDER BY RANDOM()
-                    LIMIT %s"""
-    cursor.execute(games_query, [f"%{game.lower()}%", count])
-    return cursor.fetchall()
-
-def get_games_list_by_game(cursor):
-    games_list_query = """SELECT game, count(*) FROM streams
-                    GROUP BY game"""
-    cursor.execute(games_list_query)
-    return cursor.fetchall()
-
-def get_games_list_by_lang(cursor):
-    lang_list_query = """SELECT lang, count(*) FROM streams
-                    GROUP BY lang"""
-    cursor.execute(lang_list_query)
-    return cursor.fetchall()
 
 def prune(cursor, max_age_secs):
     age = time.time() - max_age_secs
