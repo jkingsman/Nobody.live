@@ -46,19 +46,15 @@ def root():
 @app.route('/stream')
 def get_streams():
     count = request.args.get('count', default=1, type=int)
-    filter = request.args.get('filter', default='', type=str)
+    include = request.args.get('include', default='', type=str)
+    exclude = request.args.get('exclude', default='', type=str)
 
     # do a moderate approximation of not falling over
-    if count > 64 or len(filter) > 128:
+    if count > 64 or len(include) + len(exclude) > 128:
         return ('Filter too large! Please request fewer records.', 413)
 
-    # handle our negation logic
-    include_string = ' '.join([term for term in filter.split() if 'not:' not in term]).lower()
-    exclude_keywords = []
-    if 'not:' in filter:
-        exclude_keywords = [term[4:].lower() for term in filter.split() if 'not:' in term]
-
-    streams = db_utils.get_games(cursor, count, include_string, exclude_keywords)
+    exclude_keywords = exclude.split()
+    streams = db_utils.get_games(cursor, count, include, exclude_keywords)
 
     if not streams:
         return jsonify([])

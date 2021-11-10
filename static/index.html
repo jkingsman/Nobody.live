@@ -39,7 +39,7 @@
         <span id="dev-mode">streams with nobody watching</span>
       </div>
       <div class="right-pane">
-        <button id="new-streamer-button" disabled>please wait...</button><br />
+        <button id="new-streamer-button" data-message="new streamer" disabled>please wait...</button><br />
         <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">click to filter</button>
       </div>
     </div>
@@ -98,7 +98,10 @@
       let server = document.location.origin;
       let devMode = false;
       let currentStream;
-      let streamFilter = '';
+      let streamFilter = {
+        include: '',
+        exclude: ''
+      };
 
       function displayStream(stream) {
         currentStream = stream;
@@ -137,7 +140,7 @@
         document.getElementById('new-streamer-button').innerText = 'please wait...';
         enableNewStreamerButtonAfterDelay();
 
-        let streamEndpoint = `${server}/stream?count=1&filter=${streamFilter}`;
+        let streamEndpoint = `${server}/stream?count=1&include=${streamFilter.include}&exclude=${streamFilter.exclude}`;
 
         let stream_response = await fetch(streamEndpoint);
         if (stream_response.status >= 400 && stream_response.status < 600) {
@@ -168,7 +171,7 @@
         // empty any possible old thumbs
         container.innerHTML = '';
 
-        let thumbsEndpoint = `${server}/stream?count=${thumbCount}&filter=${streamFilter}`;
+        let thumbsEndpoint = `${server}/stream?count=${thumbCount}&include=${streamFilter.include}&exclude=${streamFilter.exclude}`;
         let thumbs_response = await fetch(thumbsEndpoint);
         let thumbs_json = await thumbs_response.json()
 
@@ -206,32 +209,36 @@
 
       function enableNewStreamerButtonAfterDelay() {
         setTimeout(() => {
-          document.getElementById('new-streamer-button').disabled = false;
-          let newStreamText = streamFilter ? `new streamer ('${streamFilter}')` : 'new streamer';
-          document.getElementById('new-streamer-button').innerText = newStreamText;
+          let newButton = document.getElementById('new-streamer-button');
+          newButton.disabled = false;
+          newButton.innerText = newButton.getAttribute('data-message');
         }, 2000);
       }
 
       function setFilter(e) {
         e.preventDefault();
 
-        let search = document.getElementById('search').value.trim();
+        let include = document.getElementById('search').value.trim();
         let exclude = document.getElementById('exclude').value.trim();
 
-        if (!search.length && !exclude.length) {
-          streamFilter = '';
+        if (!include.length && !exclude.length) {
+          streamFilter.include = streamFilter.exclude = '';
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
           document.querySelector('#filter').innerText = 'click to filter';
+          document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
         } else {
-          let compiled_excludes = '';
+          streamFilter.include = include;
+          streamFilter.exclude = exclude;
+
+          let excludeString = '';
           if (exclude) {
-            compiled_excludes = exclude.split(' ').map((exclusion) => `not:${exclusion}`).join(' ');
+            excludeString = exclude.split(' ').map((term) => `not:${term}`).join(" ");
           }
+          let searchString = `${include} ${excludeString}`.trim();
 
-          streamFilter = `${search} ${compiled_excludes}`.trim();
-
-          document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = `Get new thumbnails ('${streamFilter}')`);
+          document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = `Get new thumbnails ('${searchString}')`);
           document.querySelector('#filter').innerText = 'filter active';
+          document.getElementById('new-streamer-button').setAttribute('data-message', `new streamer ('${searchString}')`);
         }
 
         fetchAndRenderRandomStream();
@@ -283,7 +290,6 @@
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
       document.getElementById('save-filter').addEventListener('click', setFilter);
       document.getElementById('search-form').addEventListener('submit', setFilter);
-      document.getElementById('remember-filter').addEventListener('change', updateFilterRemember)
       document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
       // if we have /?stream=... then render the specified stream
