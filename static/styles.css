@@ -12,6 +12,7 @@ p {
 
 p {
   margin-top: 10px;
+  font-size: 14px;
 }
 
 a,
@@ -67,16 +68,16 @@ a,
     gap: 0px 0px;
     grid-template-areas: "left-pane right-pane";
   }
+}
 
-  .left-pane {
-    grid-area: left-pane;
-  }
+.left-pane {
+  grid-area: left-pane;
+}
 
-  .right-pane {
-    grid-area: right-pane;
-    align-self: center;
-    text-align: center;
-  }
+.right-pane {
+  grid-area: right-pane;
+  align-self: center;
+  text-align: center;
 }
 
 .left-pane, .cookie-check {
@@ -114,6 +115,10 @@ a,
 #new-streamer-button:disabled,
 #new-streamer-button[disabled] {
   background-color: #efefef;
+}
+
+.search-input {
+  margin-top: 10px;
 }
 
 #twitch-embed,

@@ -29,6 +29,7 @@
 
     <title>Nobody.live | Lonely streams and streamers with zero viewers</title>
     <link rel="stylesheet" href="styles.css" type="text/css">
+    <link rel="stylesheet" href="modal.css" type="text/css">
   </head>
   <body>
     <div id="motd"></div>
@@ -39,7 +40,7 @@
       </div>
       <div class="right-pane">
         <button id="new-streamer-button" disabled>please wait...</button><br />
-        <button class="fake-link filter" id="filter">click to filter</button>
+        <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">click to filter</button>
       </div>
     </div>
     <div id="twitch-embed-wrapper" class="container">
@@ -65,7 +66,33 @@
       this site is free, and ad-free, forever; <a href="https://ko-fi.com/jackkingsman" target="_blank" rel="noopener">donations to help offset server costs</a> are much appreciated :)
     </div>
 
+    <div class="modal micromodal-slide" id="filter-modal" aria-hidden="true">
+      <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="filter-modal-title">
+          <header class="modal__header">
+            <h2 class="modal__title" id="filter-modal-title">
+              Filter Streams
+            </h2>
+            <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+          </header>
+          <form id="search-form">
+            <main class="modal__content" id="filter-modal-content">
+              <label for="search" class="search-input">Show Game:</label> <input class="search-input" type="text" name="search" id="search"><br>
+              <label for="exclude" class="search-input">Excluded Games:</label> <input class="search-input" type="text" name="exclude" id="exclude"><br>
+            </main>
+            <footer class="modal__footer">
+              <button class="modal__btn modal__btn-primary" data-micromodal-close aria-label="Save filter" id="save-filter" type="submit">Save Filter</button>
+            </footer>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
+    <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
+    <script type="text/javascript">
+      MicroModal.init();
+    </script>
     <script type="text/javascript">
       let numberOfThumbnailsToFetch = 12;
       let server = document.location.origin;
@@ -185,6 +212,37 @@
         }, 2000);
       }
 
+      function setFilter(e) {
+        e.preventDefault();
+
+        let search = document.getElementById('search').value.trim();
+        let exclude = document.getElementById('exclude').value.trim();
+
+        if (!search.length && !exclude.length) {
+          streamFilter = '';
+          document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
+          document.querySelector('#filter').innerText = 'click to filter';
+        } else {
+          let compiled_excludes = '';
+          if (exclude) {
+            compiled_excludes = exclude.split(' ').map((exclusion) => `not:${exclusion}`).join(' ');
+          }
+
+          streamFilter = `${search} ${compiled_excludes}`.trim();
+
+          document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = `Get new thumbnails ('${streamFilter}')`);
+          document.querySelector('#filter').innerText = 'filter active';
+        }
+
+        fetchAndRenderRandomStream();
+        fetchAndRenderThumbnails();
+        return false;
+      }
+
+      function updateFilterRemember() {
+        let shouldRemember = document.getElementById('remember-filter').checked;
+      }
+
       // little treat for the readers :)
       async function enterDevMode() {
         if (devMode) {
@@ -223,18 +281,9 @@
 
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
-      document.getElementById('filter').addEventListener('click', () => {
-        streamFilter = prompt("Enter a game or category to filter games on (e.g. 'just chatting' or 'dead by daylight'). You may also prefix words with 'not:' to exclude them from results. For example, 'dead not:red' would return streams including Dead by Daylight but excluding Red Dead Redemption; 'not:fortnite' would show all games except fortnite.", streamFilter).toLowerCase();
-
-        let newThumbText = streamFilter ? `Get new thumbnails ('${streamFilter}')` : 'Get new thumbnails';
-        document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = newThumbText);
-
-        let filterButtonText = streamFilter ? `filter active` : 'click to filter';
-        document.querySelector('#filter').innerText = filterButtonText;
-
-        fetchAndRenderRandomStream();
-        fetchAndRenderThumbnails();
-      });
+      document.getElementById('save-filter').addEventListener('click', setFilter);
+      document.getElementById('search-form').addEventListener('submit', setFilter);
+      document.getElementById('remember-filter').addEventListener('change', updateFilterRemember)
       document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
       // if we have /?stream=... then render the specified stream
