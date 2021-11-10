@@ -54,6 +54,10 @@ a,
   padding: 10px;
 }
 
+#motd:empty {
+  display: none;
+}
+
 @media only screen and (min-width: 750px) {
   .grid-container {
     min-height: 20px;
