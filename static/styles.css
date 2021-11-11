@@ -27,7 +27,7 @@ a,
 }
 
 .fake-link {
-  background: none!important;
+  background: none !important;
   border: none;
   cursor: pointer;
   font-size: 16px;
@@ -39,7 +39,8 @@ a,
   padding: 10px;
 }
 
-.thumbnails, .filter {
+.thumbnails,
+.filter {
   text-align: center;
 }
 
@@ -80,7 +81,8 @@ a,
   text-align: center;
 }
 
-.left-pane, .cookie-check {
+.left-pane,
+.cookie-check {
   font-style: italic;
 }
 
@@ -119,10 +121,27 @@ a,
 
 .search-input {
   margin-top: 10px;
+  width: 100%;
+  font-weight: bold;
+}
+
+#filter-modal-content {
+  display: grid;
+  grid-gap: 5px;
+}
+
+#filter-modal-content label {
+  text-align: right;
+}
+
+.field-description {
+  grid-column: 2;
+  font-style: italic;
+  font-size: 95%;
 }
 
 #twitch-embed,
-#twitch-embed>iframe {
+#twitch-embed > iframe {
   min-height: 85vh;
 }
 

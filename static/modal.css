@@ -16,6 +16,8 @@
     background-color: #fff;
     padding: 30px;
     max-width: 500px;
+    max-width: min(100vw, 500px);
+    min-width: min(500px, 100vw);
     max-height: 100vh;
     border-radius: 4px;
     overflow-y: auto;
