@@ -53,8 +53,7 @@ def get_streams():
     if count > 64 or len(include) + len(exclude) > 128:
         return ('Filter too large! Please request fewer records.', 413)
 
-    exclude_keywords = exclude.split()
-    streams = db_utils.get_games(cursor, count, include, exclude_keywords)
+    streams = db_utils.get_games(cursor, count, include.split(), exclude.split())
 
     if not streams:
         return jsonify([])

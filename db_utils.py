@@ -15,8 +15,10 @@ CREATE TABLE IF NOT EXISTS streams (
     data TEXT
 );
 
-CREATE INDEX IF NOT EXISTS lowercase_game ON streams ((lower(game)));
-CREATE INDEX IF NOT EXISTS lowercase_lang ON streams ((lower(lang)));
+CREATE INDEX IF NOT EXISTS lowercase_game ON streams (lower(game));
+CREATE INDEX IF NOT EXISTS lowercase_lang ON streams (lower(lang));
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX IF NOT EXISTS game_trgm ON streams USING gin (lower(game) gin_trgm_ops);
 
 CREATE TABLE IF NOT EXISTS metadata (
     populate_started    INTEGER,
@@ -67,14 +69,17 @@ def set_ratelimit_data(cursor, ratelimit_limit, ratelimit_remaining):
     """
     cursor.execute(set_ratelimit_query, (ratelimit_limit, ratelimit_remaining))
 
-def get_games(cursor, count, search_string, exclude_list):
+def get_games(cursor, count, include_list, exclude_list):
     games_query = f"""SELECT data FROM streams
-                    WHERE lower(game) LIKE %s
+                    WHERE 1=1
                     {'AND lower(game) NOT LIKE %s ' * len(exclude_list)}
+                    {'AND lower(game) LIKE %s ' * len(include_list)}
                     ORDER BY RANDOM()
                     LIMIT %s"""
     wildcarded_exclusions = [f"%{exclude}%" for exclude in exclude_list]
-    cursor.execute(games_query, [f"%{search_string}%", *wildcarded_exclusions, count])
+    wildcarded_inclusions = [f"%{include}%" for include in include_list]
+    cursor.execute(games_query, [*wildcarded_exclusions, *wildcarded_inclusions, count])
+    print(cursor.query)
     return cursor.fetchall()
 
 def get_games_list_by_game(cursor):

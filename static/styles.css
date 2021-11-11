@@ -130,10 +130,6 @@ a,
   grid-gap: 5px;
 }
 
-#filter-modal-content label {
-  text-align: right;
-}
-
 .field-description {
   grid-column: 2;
   font-style: italic;
