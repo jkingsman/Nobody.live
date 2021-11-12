@@ -1,4 +1,3 @@
-* Make motd not suck
 * Convert to Sanic
   * Make sure DB pooling is appropriate
 * ML classification of cam-on vs. cam-off streams
