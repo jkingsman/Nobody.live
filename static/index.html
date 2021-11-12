@@ -100,12 +100,13 @@
       let numberOfThumbnailsToFetch = 12;
       let server = document.location.origin;
       let devMode = false;
-      let currentStream;
+      let currentStream; // holds JSON blob of currently displayed stream
       let streamFilter = {
         include: '',
         exclude: ''
       };
 
+      // renders a stream given a stream json blob as returned by Twitch
       function displayStream(stream) {
         currentStream = stream;
 
@@ -124,7 +125,7 @@
         let trimmedUsernames = usernames.slice(-5);
         localStorage.setItem('streamHistoryJSON', JSON.stringify(trimmedUsernames));
 
-        // render list
+        // rerender list of historical streams
         document.getElementById('stream-list').innerHTML = trimmedUsernames.map(username => {
           let a = document.createElement('a');
           var linkText = document.createTextNode(username);
@@ -137,41 +138,41 @@
         }).join(', ');
       }
 
+      // wraps displayStream() and performs stream fetch/new streamer button timeout
       async function fetchAndRenderRandomStream() {
-        // disable button to do some hacky rate limiting
-        document.getElementById('new-streamer-button').disabled = true;
-        document.getElementById('new-streamer-button').innerText = 'please wait...';
-        enableNewStreamerButtonAfterDelay();
+        newStreamerButtonRateLimit();
 
         let streamEndpoint = `${server}/stream?count=1&include=${streamFilter.include}&exclude=${streamFilter.exclude}`;
 
         let stream_response = await fetch(streamEndpoint);
-        if (stream_response.status >= 400 && stream_response.status < 600) {
+        if (stream_response.status >= 400) {
           alert('Search error! Please use a shorter search phrase.');
-          return
-        }
-        let stream_json = await stream_response.json();
-        if (stream_json.length === 0) {
-          alert("Uh oh! No streams found. Please try a different search term.")
-          return
+          MicroModal.show('filter-modal');
+          return;
         }
 
-        displayStream(stream_json[0]);
+        let stream_json = await stream_response.json();
+        if (stream_json.length === 0) {
+          alert(`Uh oh! No streams found. Please broaden your filter (currently '${generateFilterString()}').`);
+          MicroModal.show('filter-modal');
+        } else {
+          displayStream(stream_json[0]);
+        }
       }
 
       async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch) {
-        // hacky way to make this runnable once-at-a-time:
+        // hacky way to debounce this
         // unhook the event listener until we're done, and reinstate and the end
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.removeEventListener('click', fetchAndRenderThumbnails));
 
         let container = document.getElementById('thumbnails');
 
-        // if this is not our first load, lock elem height so there's no shudder as we load new ones
+        // if this is not our first load, lock elem height so there's no reflow as we load new ones
         if (container.childNodes.length != 0) {
           container.style.height = `${container.offsetHeight}px`;
         }
 
-        // empty any possible old thumbs
+        // empty old thumbs
         container.innerHTML = '';
 
         let thumbsEndpoint = `${server}/stream?count=${thumbCount}&include=${streamFilter.include}&exclude=${streamFilter.exclude}`;
@@ -179,7 +180,7 @@
         let thumbs_json = await thumbs_response.json()
 
         thumbs_json.forEach(stream => {
-            // embed inside of an a element so you can open in a new tab
+            // embed inside of an a element so you can ctrl+click to open in a new tab
             let a = document.createElement('a');
             a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
             // override the default so on-page clicks just run the render code
@@ -206,11 +207,14 @@
           // restore any height locking we did after the thumbs have had a chance to load
           setTimeout(() => container.style.height = 'auto', 1000);
 
-          // restore our button listener from our hacky don't-run-multiple-times code
+          // restore our button listener from our hacky debounce
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
       }
 
-      function enableNewStreamerButtonAfterDelay() {
+      function newStreamerButtonRateLimit() {
+        document.getElementById('new-streamer-button').disabled = true;
+        document.getElementById('new-streamer-button').innerText = 'please wait...';
+
         setTimeout(() => {
           let newButton = document.getElementById('new-streamer-button');
           newButton.disabled = false;
@@ -218,33 +222,43 @@
         }, 2000);
       }
 
+      // load remembered filters into global scope if we have them
       function loadFilterFromLocalstorage() {
         if (localStorage.getItem('filter-include') || localStorage.getItem('filter-exclude')) {
           streamFilter = {
             include: localStorage.getItem('filter-include') || '',
             exclude: localStorage.getItem('filter-exclude') || ''
           };
-
-          document.getElementById('include').value = streamFilter.include;
-          document.getElementById('exclude').value = streamFilter.exclude;
-          document.getElementById('remember').checked = true;
         }
 
         setUIForFilter();
       }
 
+      // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
+      function generateFilterString() {
+        let excludeString = '';
+        if (streamFilter.exclude) {
+          excludeString = streamFilter.exclude.split(' ').map((term) => `not:${term}`).join(" ");
+        }
+
+        return `${streamFilter.include} ${excludeString}`.trim();
+      }
+
+      // populates the filter UI with remembered values and sets thumbnail + new streamer button text
       function setUIForFilter() {
+        document.getElementById('include').value = streamFilter.include;
+        document.getElementById('exclude').value = streamFilter.exclude;
+        document.getElementById('remember').checked = true;
+
         if (!streamFilter.include && !streamFilter.exclude) {
+          // we have no filter active; restore things to normal text
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
           document.querySelector('#filter').innerText = 'click to filter';
           document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
         } else {
-          let excludeString = '';
-          if (streamFilter.exclude) {
-            excludeString = streamFilter.exclude.split(' ').map((term) => `not:${term}`).join(" ");
-          }
-          let searchString = `${streamFilter.include} ${excludeString}`.trim();
+          let searchString = generateFilterString();
 
+          // set thumbnail text, filter status, and new streamer button text
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = `Get new thumbnails ('${searchString}')`);
           document.querySelector('#filter').innerText = 'filter active';
           document.getElementById('new-streamer-button').setAttribute('data-message', `new streamer ('${searchString}')`);
@@ -252,6 +266,7 @@
 
       }
 
+      // called after the filter form is updated and persists or clears filters to localstorage
       function setFilterFromForm(e) {
         if (e) {
           e.preventDefault();
@@ -274,6 +289,7 @@
 
         setUIForFilter();
 
+        // only fetch new streams and thumbs if something changed
         if (shouldReload) {
           fetchAndRenderRandomStream();
           fetchAndRenderThumbnails();
@@ -300,6 +316,7 @@
         });
 
         // refresh stats bar once a second
+        // it's ugly, I know
         setInterval(async () => {
           let stats_response = await fetch(`${server}/stats`);
           let stats_json = await stats_response.json();
@@ -314,6 +331,7 @@
         }, 1500);
       }
 
+      // dump all available stream data into an alert for debugging
       async function showStreamDetails() {
         let details = await fetch(`${server}/stream/${currentStream.id}`);
         let details_text = await details.json();
@@ -326,26 +344,35 @@
         document.getElementById('motd').innerHTML = motd_text;
       }
 
-      document.getElementById('dev-mode').addEventListener('click', enterDevMode);
-      document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
-      document.getElementById('save-filter').addEventListener('click', setFilterFromForm);
-      document.getElementById('search-form').addEventListener('submit', setFilterFromForm);
-      document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
+      function initPage() {
+        // hook up all event listeners
+        document.getElementById('dev-mode').addEventListener('click', enterDevMode);
+        document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
+        document.getElementById('save-filter').addEventListener('click', setFilterFromForm);
+        document.getElementById('search-form').addEventListener('submit', setFilterFromForm);
+        document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
-      // if we have /?stream=... then render the specified stream
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('stream')) {
-        console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
-        displayStream(JSON.parse(urlParams.get('stream')));
-        window.history.pushState({}, document.title, window.location.pathname);
-        enableNewStreamerButtonAfterDelay();
-      } else {
-        fetchAndRenderRandomStream();
+        // load filters before possibly fetching a random stream in below conditional
+        loadFilterFromLocalstorage();
+
+        // if we have /?stream=... then render the specified stream
+        // otherwise grab a random one
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('stream')) {
+          console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
+          displayStream(JSON.parse(urlParams.get('stream')));
+          window.history.pushState({}, document.title, window.location.pathname);
+          newStreamerButtonRateLimit();
+        } else {
+          fetchAndRenderRandomStream();
+        }
+
+        loadFilterFromLocalstorage();
+        fetchAndRenderThumbnails();
+        fetchAndRenderMOTD();
       }
 
-      loadFilterFromLocalstorage();
-      fetchAndRenderThumbnails();
-      fetchAndRenderMOTD();
+      initPage();
     </script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7JF3B0HFYJ"></script>
     <script>

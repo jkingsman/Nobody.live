@@ -51,7 +51,7 @@ def get_streams():
     exclude = request.args.get('exclude', default='', type=str)
 
     # do a moderate approximation of not falling over
-    if count > 64 or len(include) + len(exclude) > 128:
+    if count > 64 or len(include) + len(exclude) > 64:
         return ('Filter too large! Please request fewer records.', 413)
 
     streams = db_utils.get_games(cursor, count, include.split(), exclude.split())
