@@ -94,7 +94,10 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
     <script type="text/javascript">
-      MicroModal.init();
+      MicroModal.init({
+        disableScroll: true,
+        disableFocus: true
+      });
     </script>
     <script type="text/javascript">
       let numberOfThumbnailsToFetch = 12;
@@ -349,6 +352,7 @@
         document.getElementById('dev-mode').addEventListener('click', enterDevMode);
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
         document.getElementById('save-filter').addEventListener('click', setFilterFromForm);
+        document.getElementById('save-filter').addEventListener('touchstart', setFilterFromForm);
         document.getElementById('search-form').addEventListener('submit', setFilterFromForm);
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
