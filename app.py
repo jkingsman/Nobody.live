@@ -10,7 +10,6 @@ import sys
 from flask import Flask, jsonify, json, request
 
 import db_utils
-cursor = db_utils.get_cursor()
 
 app = Flask(__name__, static_url_path='', static_folder='static')
 app.config['JSON_AS_ASCII'] = False
@@ -54,7 +53,7 @@ def get_streams():
     if count > 64 or len(include) + len(exclude) > 64:
         return ('Filter too large! Please request fewer records.', 413)
 
-    streams = db_utils.get_games(cursor, count, include.split(), exclude.split())
+    streams = db_utils.get_games(count, include.split(), exclude.split())
 
     if not streams:
         return jsonify([])
@@ -98,7 +97,7 @@ def get_motd():
 @app.route('/games')
 @cache(ttl=datetime.timedelta(seconds=30))
 def get_games_streamers():
-    games = [{'game': game[0], 'streamers': game[1]} for game in db_utils.get_games_list_by_game(cursor)]
+    games = [{'game': game[0], 'streamers': game[1]} for game in db_utils.get_games_list_by_game()]
     return jsonify(sorted(games, key=lambda game: game['streamers'], reverse=True))
 
 if __name__ == "__main__":

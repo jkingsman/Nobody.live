@@ -11,7 +11,6 @@ import db_utils
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-cursor = db_utils.get_cursor()
 db_utils.migrate()
 
 # found at https://dev.twitch.tv/console
@@ -68,7 +67,7 @@ def populate_streamers(client_id, client_secret):
 
     requests_sent = 1
     streams_grabbed = 0
-    db_utils.set_populate_started(cursor)
+    db_utils.set_populate_started()
 
     # eat page after page of API results until we hit our request limit
     stream_list = get_stream_list_response(requests_session, client_id, token)
@@ -78,7 +77,7 @@ def populate_streamers(client_id, client_secret):
 
         # filter out streams with our desired count and inject into the db
         streams_found = list(filter(lambda stream: int(stream['viewer_count']) <= MAX_VIEWERS, stream_list_data['data']))
-        db_utils.bulk_insert_streams(cursor, streams_found)
+        db_utils.bulk_insert_streams(streams_found)
         streams_grabbed += len(streams_found)
 
         # report on what we inserted
@@ -97,8 +96,7 @@ def populate_streamers(client_id, client_secret):
             logging.info((f"{requests_sent} requests sent ({streams_grabbed} streams found); "
                           f"{stream_list.headers['Ratelimit-Remaining']} of {stream_list.headers['Ratelimit-Limit']} "
                           f"API tokens remaining ({rate_limit_usage}% utilized)"))
-            db_utils.set_ratelimit_data(cursor,
-                                        stream_list.headers['Ratelimit-Limit'],
+            db_utils.set_ratelimit_data(stream_list.headers['Ratelimit-Limit'],
                                         stream_list.headers['Ratelimit-Remaining'])
             time.sleep(1)
 
@@ -113,4 +111,4 @@ def populate_streamers(client_id, client_secret):
 
 while True:
     populate_streamers(CLIENT_ID, CLIENT_SECRET)
-    db_utils.prune(cursor, SECONDS_BEFORE_RECORD_EXPIRATION)
+    db_utils.prune(SECONDS_BEFORE_RECORD_EXPIRATION)
