@@ -138,29 +138,40 @@
         }).join(', ');
       }
 
-      // wraps displayStream() and performs stream fetch/new streamer button timeout
-      async function fetchAndRenderRandomStream() {
-        newStreamerButtonRateLimit();
+      async function getStreams(count=1) {
+        let streamEndpoint = `${server}/stream?count=${count}&include=${streamFilter.include}&exclude=${streamFilter.exclude}`;
 
-        let streamEndpoint = `${server}/stream?count=1&include=${streamFilter.include}&exclude=${streamFilter.exclude}`;
-
-        let stream_response = await fetch(streamEndpoint);
-        if (stream_response.status >= 400) {
+        let streamResponse = await fetch(streamEndpoint);
+        if (streamResponse.status >= 400) {
           alert('Search error! Please use a shorter search phrase.');
           MicroModal.show('filter-modal');
           return;
         }
 
-        let stream_json = await stream_response.json();
-        if (stream_json.length === 0) {
+        let streamJson = await streamResponse.json();
+        if (streamJson.length === 0) {
           alert(`Uh oh! No streams found. Please broaden your filter (currently '${generateFilterString()}').`);
           MicroModal.show('filter-modal');
         } else {
-          displayStream(stream_json[0]);
+         return streamJson;
         }
       }
 
-      async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch) {
+      // wraps displayStream() and performs stream fetch/new streamer button timeout
+      // accepts an optional stream object if streams have been prefetched
+      async function fetchAndRenderRandomStream(stream = null) {
+        newStreamerButtonRateLimit();
+
+        if (stream) {
+          return displayStream(stream);
+        }
+
+        displayStream(await getStreams(1))
+      }
+
+      // fetches a given number of thumbnails and renders them into view
+      // accepts an optional list of streams to draw from instead of making an API call
+      async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch, streamList = null) {
         // hacky way to debounce this
         // unhook the event listener until we're done, and reinstate and the end
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.removeEventListener('click', fetchAndRenderThumbnails));
@@ -175,11 +186,8 @@
         // empty old thumbs
         container.innerHTML = '';
 
-        let thumbsEndpoint = `${server}/stream?count=${thumbCount}&include=${streamFilter.include}&exclude=${streamFilter.exclude}`;
-        let thumbs_response = await fetch(thumbsEndpoint);
-        let thumbs_json = await thumbs_response.json()
-
-        thumbs_json.forEach(stream => {
+        let thumbsJSON = streamList || await getStreams(thumbCount);
+        thumbsJSON.forEach(stream => {
             // embed inside of an a element so you can ctrl+click to open in a new tab
             let a = document.createElement('a');
             a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
@@ -267,7 +275,7 @@
       }
 
       // called after the filter form is updated and persists or clears filters to localstorage
-      function setFilterFromForm(e) {
+      async function setFilterFromForm(e) {
         if (e) {
           e.preventDefault();
         }
@@ -291,8 +299,9 @@
 
         // only fetch new streams and thumbs if something changed
         if (shouldReload) {
-          fetchAndRenderRandomStream();
-          fetchAndRenderThumbnails();
+          let fetchedStreams = await getStreams(13);
+          fetchAndRenderRandomStream(fetchedStreams[0]);
+          fetchAndRenderThumbnails(streamList = fetchedStreams.slice(1));
         }
 
         return false;
@@ -318,36 +327,36 @@
         // refresh stats bar once a second
         // it's ugly, I know
         setInterval(async () => {
-          let stats_response = await fetch(`${server}/stats`);
-          let stats_json = await stats_response.json();
+          let statsResponse = await fetch(`${server}/stats`);
+          let statsJson = await statsResponse.json();
           let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
 
-          let api_usage = Math.round((1 - stats_json.ratelimit_remaining / stats_json.ratelimit_limit) * 10000) / 100;
-          document.getElementById('dev-mode').innerHTML = `API consumption: ${api_usage}%. Load is ${stats_json.load.join(' ')}.
-          Stream count: ${stats_json.streams - 1}.
-          Last update: ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleTimeString()}.
+          let apiUsage = Math.round((1 - statsJson.ratelimit_remaining / statsJson.ratelimit_limit) * 10000) / 100;
+          document.getElementById('dev-mode').innerHTML = `API consumption: ${apiUsage}%. Load is ${statsJson.load.join(' ')}.
+          Stream count: ${statsJson.streams - 1}.
+          Last update: ${new Date(statsJson.time_of_ratelimit * 1000).toLocaleTimeString()}.
           <a onclick="showStreamDetails();">Stream details</a>.
-          <code>${stats_json.rev}</code>`
+          <code>${statsJson.rev}</code>`
         }, 1500);
       }
 
       // dump all available stream data into an alert for debugging
       async function showStreamDetails() {
         let details = await fetch(`${server}/stream/${currentStream.id}`);
-        let details_text = await details.json();
-        alert(JSON.stringify(details_text));
+        let detailsText = await details.json();
+        alert(JSON.stringify(detailsText));
       }
 
       async function fetchAndRenderMOTD() {
         let motd = await fetch(`${server}/motd`);
         // only render if one exists
         if (motd.status == 200) {
-          let motd_text = await motd.text();
-          document.getElementById('motd').innerHTML = motd_text;
+          let motdText = await motd.text();
+          document.getElementById('motd').innerHTML = motdText;
         }
       }
 
-      function initPage() {
+      async function initPage() {
         // hook up all event listeners
         document.getElementById('dev-mode').addEventListener('click', enterDevMode);
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
@@ -359,6 +368,9 @@
         // load filters before possibly fetching a random stream in below conditional
         loadFilterFromLocalstorage();
 
+        // prefetch 13 thumbs (main + 12 thumbnails)
+        let fetchedStreams = await getStreams(13);
+
         // if we have /?stream=... then render the specified stream
         // otherwise grab a random one
         const urlParams = new URLSearchParams(window.location.search);
@@ -368,11 +380,10 @@
           window.history.pushState({}, document.title, window.location.pathname);
           newStreamerButtonRateLimit();
         } else {
-          fetchAndRenderRandomStream();
+          fetchAndRenderRandomStream(fetchedStreams[0]);
         }
 
-        loadFilterFromLocalstorage();
-        fetchAndRenderThumbnails();
+        fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
         fetchAndRenderMOTD();
       }
 
