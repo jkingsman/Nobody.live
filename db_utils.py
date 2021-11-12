@@ -79,7 +79,6 @@ def get_games(cursor, count, include_list, exclude_list):
     wildcarded_exclusions = [f"%{exclude}%" for exclude in exclude_list]
     wildcarded_inclusions = [f"%{include}%" for include in include_list]
     cursor.execute(games_query, [*wildcarded_exclusions, *wildcarded_inclusions, count])
-    print(cursor.query)
     return cursor.fetchall()
 
 def get_games_list_by_game(cursor):

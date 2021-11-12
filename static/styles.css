@@ -136,6 +136,14 @@ a,
   font-size: 95%;
 }
 
+#remember-container {
+  grid-column: 2;
+}
+
+#remember-container > input {
+  margin-left: 0;
+}
+
 #twitch-embed,
 #twitch-embed > iframe {
   min-height: 85vh;

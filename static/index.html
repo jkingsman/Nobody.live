@@ -77,13 +77,14 @@
           </header>
           <form id="search-form">
             <main class="modal__content" id="filter-modal-content">
-              <label for="search" class="search-input">Search phrase:</label> <input class="search-input" type="text" name="search" id="search">
+              <label for="include" class="search-input">Search phrase:</label> <input class="search-input" type="text" id="include">
               <span class="field-description">Only show games or categories which include <strong>all</strong> these terms</span>
-              <label for="exclude" class="search-input">Exclude Keywords:</label> <input class="search-input" type="text" name="exclude" id="exclude">
+              <label for="exclude" class="search-input">Exclude Keywords:</label> <input class="search-input" type="text" id="exclude">
               <span class="field-description">Exclude games/categories containing <strong>any</strong> of these terms (separate with spaces)</span>
+              <span id="remember-container"><input type="checkbox" id="remember"><label for="remember">Remember my filters</label></span>
             </main>
             <footer class="modal__footer">
-              <button class="modal__btn modal__btn-primary" data-micromodal-close aria-label="Save filter" id="save-filter" type="submit">Apply Filter</button>
+              <button class="modal__btn modal__btn-primary" data-micromodal-close aria-label="Save filter" id="save-filter" type="submit">Save & Apply</button>
             </footer>
           </form>
         </div>
@@ -217,39 +218,68 @@
         }, 2000);
       }
 
-      function setFilter(e) {
-        e.preventDefault();
+      function loadFilterFromLocalstorage() {
+        if (localStorage.getItem('filter-include') || localStorage.getItem('filter-exclude')) {
+          streamFilter = {
+            include: localStorage.getItem('filter-include') || '',
+            exclude: localStorage.getItem('filter-exclude') || ''
+          };
 
-        let include = document.getElementById('search').value.trim();
-        let exclude = document.getElementById('exclude').value.trim();
+          document.getElementById('include').value = streamFilter.include;
+          document.getElementById('exclude').value = streamFilter.exclude;
+          document.getElementById('remember').checked = true;
+        }
 
-        if (!include.length && !exclude.length) {
-          streamFilter.include = streamFilter.exclude = '';
+        setUIForFilter();
+      }
+
+      function setUIForFilter() {
+        if (!streamFilter.include && !streamFilter.exclude) {
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
           document.querySelector('#filter').innerText = 'click to filter';
           document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
         } else {
-          streamFilter.include = include;
-          streamFilter.exclude = exclude;
-
           let excludeString = '';
-          if (exclude) {
-            excludeString = exclude.split(' ').map((term) => `not:${term}`).join(" ");
+          if (streamFilter.exclude) {
+            excludeString = streamFilter.exclude.split(' ').map((term) => `not:${term}`).join(" ");
           }
-          let searchString = `${include} ${excludeString}`.trim();
+          let searchString = `${streamFilter.include} ${excludeString}`.trim();
 
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = `Get new thumbnails ('${searchString}')`);
           document.querySelector('#filter').innerText = 'filter active';
           document.getElementById('new-streamer-button').setAttribute('data-message', `new streamer ('${searchString}')`);
         }
 
-        fetchAndRenderRandomStream();
-        fetchAndRenderThumbnails();
-        return false;
       }
 
-      function updateFilterRemember() {
-        let shouldRemember = document.getElementById('remember-filter').checked;
+      function setFilterFromForm(e) {
+        if (e) {
+          e.preventDefault();
+        }
+
+        let include = document.getElementById('include').value.trim();
+        let exclude = document.getElementById('exclude').value.trim();
+
+        if (document.getElementById('remember').checked) {
+          localStorage.setItem('filter-include', include);
+          localStorage.setItem('filter-exclude', exclude);
+        } else {
+          localStorage.setItem('filter-include', '');
+          localStorage.setItem('filter-exclude', '');
+        }
+
+        let shouldReload = streamFilter.include !== include || streamFilter.exclude !== exclude;
+        streamFilter.include = include;
+        streamFilter.exclude = exclude;
+
+        loadFilterFromLocalstorage();
+
+        if (shouldReload) {
+          fetchAndRenderRandomStream();
+          fetchAndRenderThumbnails();
+        }
+
+        return false;
       }
 
       // little treat for the readers :)
@@ -290,8 +320,8 @@
 
       document.getElementById('dev-mode').addEventListener('click', enterDevMode);
       document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
-      document.getElementById('save-filter').addEventListener('click', setFilter);
-      document.getElementById('search-form').addEventListener('submit', setFilter);
+      document.getElementById('save-filter').addEventListener('click', setFilterFromForm);
+      document.getElementById('search-form').addEventListener('submit', setFilterFromForm);
       document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
       // if we have /?stream=... then render the specified stream
@@ -305,6 +335,7 @@
         fetchAndRenderRandomStream();
       }
 
+      loadFilterFromLocalstorage();
       fetchAndRenderThumbnails();
       fetchAndRenderMOTD();
     </script>
