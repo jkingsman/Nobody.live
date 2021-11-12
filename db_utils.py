@@ -76,8 +76,8 @@ def get_games(cursor, count, include_list, exclude_list):
                     {'AND lower(game) LIKE %s ' * len(include_list)}
                     ORDER BY RANDOM()
                     LIMIT %s"""
-    wildcarded_exclusions = [f"%{exclude}%" for exclude in exclude_list]
-    wildcarded_inclusions = [f"%{include}%" for include in include_list]
+    wildcarded_exclusions = [f"%{exclude.lower()}%" for exclude in exclude_list]
+    wildcarded_inclusions = [f"%{include.lower()}%" for include in include_list]
     cursor.execute(games_query, [*wildcarded_exclusions, *wildcarded_inclusions, count])
     return cursor.fetchall()
 
