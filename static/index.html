@@ -340,8 +340,11 @@
 
       async function fetchAndRenderMOTD() {
         let motd = await fetch(`${server}/motd`);
-        let motd_text = await motd.text();
-        document.getElementById('motd').innerHTML = motd_text;
+        // only render if one exists
+        if (motd.status == 200) {
+          let motd_text = await motd.text();
+          document.getElementById('motd').innerHTML = motd_text;
+        }
       }
 
       function initPage() {

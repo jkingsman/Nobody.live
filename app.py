@@ -85,15 +85,6 @@ def get_stats_json():
 
     return jsonify(stats)
 
-@app.route('/motd')
-@cache(ttl=datetime.timedelta(minutes=1))
-def get_motd():
-    try:
-        with open('motd.txt', "r") as fh:
-            return fh.read().strip()
-    except IOError:
-        return ('', 204)
-
 @app.route('/games')
 @cache(ttl=datetime.timedelta(seconds=30))
 def get_games_streamers():
