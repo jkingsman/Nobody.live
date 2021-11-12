@@ -62,6 +62,22 @@ def get_streams():
     extracted_streams = [json.loads(stream[0]) for stream in streams]
     return jsonify(extracted_streams)
 
+@app.route('/stream/<id>')
+def get_stream_details(id):
+    results = db_utils.get_stream_details(id)
+
+    if not results:
+        return ('No such stream.', 410)
+    twitch_data = json.loads(results['data'])
+
+    now = datetime.datetime.now()
+    scraped_at = datetime.datetime.fromtimestamp(results['time'])
+    age = now - scraped_at
+
+    twitch_data['scraped_at'] = results['time']
+    twitch_data['scraped_at_seconds_ago'] = age.total_seconds()
+    return jsonify(twitch_data)
+
 @app.route('/stats')
 def get_stats_json():
     stats = (db_utils.get_stats())

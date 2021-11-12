@@ -308,8 +308,16 @@
           let api_usage = Math.round((1 - stats_json.ratelimit_remaining / stats_json.ratelimit_limit) * 10000) / 100;
           document.getElementById('dev-mode').innerHTML = `API consumption: ${api_usage}%. Load is ${stats_json.load.join(' ')}.
           Stream count: ${stats_json.streams - 1}.
-          Last update: ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleTimeString()}. <code>${stats_json.rev}</code>`
-        }, 1000);
+          Last update: ${new Date(stats_json.time_of_ratelimit * 1000).toLocaleTimeString()}.
+          <a onclick="showStreamDetails();">Stream details</a>.
+          <code>${stats_json.rev}</code>`
+        }, 1500);
+      }
+
+      async function showStreamDetails() {
+        let details = await fetch(`${server}/stream/${currentStream.id}`);
+        let details_text = await details.json();
+        alert(JSON.stringify(details_text));
       }
 
       async function fetchAndRenderMOTD() {

@@ -97,6 +97,13 @@ def get_stats():
 
     return stats_dict
 
+def get_stream_details(id):
+    cursor = get_dict_cursor()
+    games_query = f"""SELECT * FROM streams
+                    WHERE id = %s"""
+    cursor.execute(games_query, [id])
+    return cursor.fetchone()
+
 def prune(cursor, max_age_secs):
     age = time.time() - max_age_secs
     delete_query = """DELETE FROM streams
