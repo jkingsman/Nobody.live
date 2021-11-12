@@ -70,7 +70,6 @@ def set_ratelimit_data(ratelimit_limit, ratelimit_remaining):
 
 def get_games(count, include_list, exclude_list):
     if not include_list and not exclude_list:
-        print('optimizesd')
         # if we have no criteria we can optimize
         games_query = f"""
             SELECT data FROM streams
