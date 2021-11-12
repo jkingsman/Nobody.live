@@ -7,6 +7,9 @@ import os
 import psycopg2.extras
 
 SCHEMA = """
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION  IF NOT EXISTS tsm_system_rows;
+
 CREATE TABLE IF NOT EXISTS streams (
     id   TEXT UNIQUE PRIMARY KEY,
     time INTEGER NOT NULL DEFAULT extract(epoch from now() at time zone 'utc'),
@@ -17,7 +20,6 @@ CREATE TABLE IF NOT EXISTS streams (
 
 CREATE INDEX IF NOT EXISTS lowercase_game ON streams (lower(game));
 CREATE INDEX IF NOT EXISTS lowercase_lang ON streams (lower(lang));
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE INDEX IF NOT EXISTS game_trgm ON streams USING gin (lower(game) gin_trgm_ops);
 
 CREATE TABLE IF NOT EXISTS metadata (
@@ -45,8 +47,7 @@ def bulk_insert_streams(streams):
     insert_query = """
         INSERT INTO streams (id, game, lang, data) values %s
         ON CONFLICT(id) DO UPDATE
-            SET time=extract(epoch from now() at time zone 'utc');
-    """
+        SET time=extract(epoch from now() at time zone 'utc');"""
 
     with conn.cursor() as cursor:
         psycopg2.extras.execute_values (
@@ -58,22 +59,34 @@ def set_populate_started():
         cursor.execute("UPDATE metadata SET populate_started = extract(epoch from now() at time zone 'utc')")
 
 def set_ratelimit_data(ratelimit_limit, ratelimit_remaining):
-    set_ratelimit_query = """UPDATE metadata SET
-                    time_of_ratelimit = extract(epoch from now() at time zone 'utc'),
-                    ratelimit_limit = %s,
-                    ratelimit_remaining = %s;
-    """
+    set_ratelimit_query = """
+        UPDATE metadata SET
+        time_of_ratelimit = extract(epoch from now() at time zone 'utc'),
+        ratelimit_limit = %s,
+        ratelimit_remaining = %s;"""
 
     with conn.cursor() as cursor:
         cursor.execute(set_ratelimit_query, (ratelimit_limit, ratelimit_remaining))
 
 def get_games(count, include_list, exclude_list):
-    games_query = f"""SELECT data FROM streams
-                    WHERE 1=1
-                    {'AND lower(game) NOT LIKE %s ' * len(exclude_list)}
-                    {'AND lower(game) LIKE %s ' * len(include_list)}
-                    ORDER BY RANDOM()
-                    LIMIT %s"""
+    if not include_list and not exclude_list:
+        print('optimizesd')
+        # if we have no criteria we can optimize
+        games_query = f"""
+            SELECT data FROM streams
+            TABLESAMPLE system_rows(%s)"""
+
+        with conn.cursor() as cursor:
+            cursor.execute(games_query, [count])
+            return cursor.fetchall()
+    else:
+        games_query = f"""
+            SELECT data FROM streams
+            WHERE 1=1
+            {'AND lower(game) NOT LIKE %s ' * len(exclude_list)}
+            {'AND lower(game) LIKE %s ' * len(include_list)}
+            ORDER BY RANDOM()
+            LIMIT %s"""
 
     wildcarded_exclusions = [f"%{exclude.lower()}%" for exclude in exclude_list]
     wildcarded_inclusions = [f"%{include.lower()}%" for include in include_list]
@@ -83,8 +96,9 @@ def get_games(count, include_list, exclude_list):
         return cursor.fetchall()
 
 def get_games_list_by_game():
-    games_list_query = """SELECT game, count(*) FROM streams
-                    GROUP BY game"""
+    games_list_query = """
+        SELECT game, count(*) FROM streams
+        GROUP BY game"""
 
     with conn.cursor() as cursor:
         cursor.execute(games_list_query)
@@ -101,8 +115,9 @@ def get_stats():
         return stats_dict
 
 def get_stream_details(id):
-    games_query = f"""SELECT * FROM streams
-                    WHERE id = %s"""
+    games_query = f"""
+        SELECT * FROM streams
+        WHERE id = %s"""
 
     with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
         cursor.execute(games_query, [id])
@@ -110,8 +125,9 @@ def get_stream_details(id):
 
 def prune(max_age_secs):
     age = time.time() - max_age_secs
-    delete_query = """DELETE FROM streams
-                      WHERE time < %s;"""
+    delete_query = """
+        DELETE FROM streams
+        WHERE time < %s;"""
 
     with conn.cursor() as cursor:
         cursor.execute(delete_query, [age])

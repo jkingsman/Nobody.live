@@ -301,7 +301,7 @@
         if (shouldReload) {
           let fetchedStreams = await getStreams(13);
           fetchAndRenderRandomStream(fetchedStreams[0]);
-          fetchAndRenderThumbnails(streamList = fetchedStreams.slice(1));
+          fetchAndRenderThumbnails(none, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
         }
 
         return false;
