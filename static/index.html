@@ -272,7 +272,7 @@
         streamFilter.include = include;
         streamFilter.exclude = exclude;
 
-        loadFilterFromLocalstorage();
+        setUIForFilter();
 
         if (shouldReload) {
           fetchAndRenderRandomStream();
