@@ -7,10 +7,11 @@ import functools
 import subprocess
 import sys
 
+from flask import Flask, jsonify, json, request
+
 import db_utils
 cursor = db_utils.get_cursor()
 
-from flask import Flask, jsonify, json, request
 app = Flask(__name__, static_url_path='', static_folder='static')
 app.config['JSON_AS_ASCII'] = False
 
@@ -73,10 +74,10 @@ def get_stats_json():
 @cache(ttl=datetime.timedelta(minutes=1))
 def get_motd():
     try:
-      with open('motd.txt', "r") as fh:
-        return fh.read().strip()
+        with open('motd.txt', "r") as fh:
+            return fh.read().strip()
     except IOError:
-      return ('', 204)
+        return ('', 204)
 
 @app.route('/games')
 @cache(ttl=datetime.timedelta(seconds=30))
