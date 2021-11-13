@@ -106,38 +106,6 @@
         exclude: ''
       };
 
-      // renders a stream given a stream json blob as returned by Twitch
-      function displayStream(stream) {
-        currentStream = stream;
-
-        // clear and rerender the embed div
-        document.getElementById('twitch-embed').innerHTML = '';
-        new Twitch.Embed('twitch-embed', {
-          width: '100%',
-          channel: stream.user_name,
-          theme: 'dark',
-          parent: ['nobody.live']
-        });
-
-        // load and append stream to historical streams
-        let usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
-        usernames.push(stream.user_name);
-        let trimmedUsernames = usernames.slice(-5);
-        localStorage.setItem('streamHistoryJSON', JSON.stringify(trimmedUsernames));
-
-        // rerender list of historical streams
-        document.getElementById('stream-list').innerHTML = trimmedUsernames.map(username => {
-          let a = document.createElement('a');
-          var linkText = document.createTextNode(username);
-          a.appendChild(linkText);
-          a.href = 'https://www.twitch.tv/' + username;
-          a.target = '_blank'
-          a.rel = 'noopener';
-
-          return a.outerHTML;
-        }).join(', ');
-      }
-
       async function getStreams(count=1) {
         let streamEndpoint = `${server}/stream?count=${count}&include=${streamFilter.include}&exclude=${streamFilter.exclude}`;
 
@@ -157,21 +125,43 @@
         }
       }
 
-      // wraps displayStream() and performs stream fetch/new streamer button timeout
+      // performs stream fetch/new streamer button timeout
       // accepts an optional stream object if streams have been prefetched
-      async function fetchAndRenderRandomStream(stream = null) {
+      async function fetchAndRenderRandomStream(prefetchedStream = null) {
         newStreamerButtonRateLimit();
+        currentStream = prefetchedStream || await getStreams(1);
 
-        if (stream) {
-          return displayStream(stream);
-        }
+        // clear and rerender the embed div
+        document.getElementById('twitch-embed').innerHTML = '';
+        new Twitch.Embed('twitch-embed', {
+          width: '100%',
+          channel: currentStream.user_name,
+          theme: 'dark',
+          parent: ['nobody.live']
+        });
 
-        displayStream(await getStreams(1))
+        // load and append stream to historical streams
+        let usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
+        usernames.push(currentStream.user_name);
+        let trimmedUsernames = usernames.slice(-5);
+        localStorage.setItem('streamHistoryJSON', JSON.stringify(trimmedUsernames));
+
+        // rerender list of historical streams
+        document.getElementById('stream-list').innerHTML = trimmedUsernames.map(username => {
+          let a = document.createElement('a');
+          var linkText = document.createTextNode(username);
+          a.appendChild(linkText);
+          a.href = 'https://www.twitch.tv/' + username;
+          a.target = '_blank'
+          a.rel = 'noopener';
+
+          return a.outerHTML;
+        }).join(', ');
       }
 
       // fetches a given number of thumbnails and renders them into view
       // accepts an optional list of streams to draw from instead of making an API call
-      async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch, streamList = null) {
+      async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch, prefetchedStreamList = null) {
         // hacky way to debounce this
         // unhook the event listener until we're done, and reinstate and the end
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.removeEventListener('click', fetchAndRenderThumbnails));
@@ -186,7 +176,7 @@
         // empty old thumbs
         container.innerHTML = '';
 
-        let thumbsJSON = streamList || await getStreams(thumbCount);
+        let thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
         thumbsJSON.forEach(stream => {
             // embed inside of an a element so you can ctrl+click to open in a new tab
             let a = document.createElement('a');
@@ -195,7 +185,7 @@
             a.onclick = (event) => {
               if (!event.ctrlKey && !event.metaKey) {
                 event.preventDefault();
-                displayStream(stream);
+                fetchAndRenderRandomStream(stream);
 
                 document.body.scrollTop = 0; // For Safari
                 document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
@@ -228,18 +218,6 @@
           newButton.disabled = false;
           newButton.innerText = newButton.getAttribute('data-message');
         }, 2000);
-      }
-
-      // load remembered filters into global scope if we have them
-      function loadFilterFromLocalstorage() {
-        if (localStorage.getItem('filter-include') || localStorage.getItem('filter-exclude')) {
-          streamFilter = {
-            include: localStorage.getItem('filter-include') || '',
-            exclude: localStorage.getItem('filter-exclude') || ''
-          };
-        }
-
-        setUIForFilter();
       }
 
       // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
@@ -301,7 +279,7 @@
         if (shouldReload) {
           let fetchedStreams = await getStreams(13);
           fetchAndRenderRandomStream(fetchedStreams[0]);
-          fetchAndRenderThumbnails(none, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
+          fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
         }
 
         return false;
@@ -366,7 +344,14 @@
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
         // load filters before possibly fetching a random stream in below conditional
-        loadFilterFromLocalstorage();
+        if (localStorage.getItem('filter-include') || localStorage.getItem('filter-exclude')) {
+          streamFilter = {
+            include: localStorage.getItem('filter-include') || '',
+            exclude: localStorage.getItem('filter-exclude') || ''
+          };
+
+          setUIForFilter();
+        }
 
         // prefetch 13 thumbs (main + 12 thumbnails)
         let fetchedStreams = await getStreams(13);
@@ -376,7 +361,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('stream')) {
           console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
-          displayStream(JSON.parse(urlParams.get('stream')));
+          fetchAndRenderRandomStream(JSON.parse(urlParams.get('stream')));
           window.history.pushState({}, document.title, window.location.pathname);
           newStreamerButtonRateLimit();
         } else {
