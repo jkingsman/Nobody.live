@@ -127,9 +127,11 @@
 
       // performs stream fetch/new streamer button timeout
       // accepts an optional stream object if streams have been prefetched
-      async function fetchAndRenderRandomStream(prefetchedStream = null) {
+      async function fetchAndRenderRandomStream(_event, prefetchedStream = null) {
         newStreamerButtonRateLimit();
-        currentStream = prefetchedStream || await getStreams(1);
+        currentStream = prefetchedStream || (await getStreams(1))[0];
+
+        console.log(currentStream)
 
         // clear and rerender the embed div
         document.getElementById('twitch-embed').innerHTML = '';
@@ -185,7 +187,7 @@
             a.onclick = (event) => {
               if (!event.ctrlKey && !event.metaKey) {
                 event.preventDefault();
-                fetchAndRenderRandomStream(stream);
+                fetchAndRenderRandomStream(null, stream);
 
                 document.body.scrollTop = 0; // For Safari
                 document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
@@ -278,7 +280,7 @@
         // only fetch new streams and thumbs if something changed
         if (shouldReload) {
           let fetchedStreams = await getStreams(13);
-          fetchAndRenderRandomStream(fetchedStreams[0]);
+          fetchAndRenderRandomStream(null, fetchedStreams[0]);
           fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
         }
 
@@ -361,11 +363,11 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('stream')) {
           console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
-          fetchAndRenderRandomStream(JSON.parse(urlParams.get('stream')));
+          fetchAndRenderRandomStream(null, JSON.parse(urlParams.get('stream')));
           window.history.pushState({}, document.title, window.location.pathname);
           newStreamerButtonRateLimit();
         } else {
-          fetchAndRenderRandomStream(fetchedStreams[0]);
+          fetchAndRenderRandomStream(null, fetchedStreams[0]);
         }
 
         fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
