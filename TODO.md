@@ -1,4 +1,11 @@
-* Optimize throughput (check nginx workers, query timing?)
+* Finish sanic conversion
+  * Bring DB queries inside scanner and app
+  * Integrate async pg
+  * Optimize for gunicorn
+
+* Increase criteria for filtering
+* Reduce amount of data sent in stream fetch -- only need username?
+  * Can keep existing infra if key on username instead of ID?
 * Maybe fix preconnect?
 * Make CSS not suck
 * ML classification of cam-on vs. cam-off streams
