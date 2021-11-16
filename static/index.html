@@ -131,8 +131,6 @@
         newStreamerButtonRateLimit();
         currentStream = prefetchedStream || (await getStreams(1))[0];
 
-        console.log(currentStream)
-
         // clear and rerender the embed div
         document.getElementById('twitch-embed').innerHTML = '';
         new Twitch.Embed('twitch-embed', {
