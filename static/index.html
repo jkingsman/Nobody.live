@@ -39,8 +39,8 @@
         <span id="dev-mode">streams with nobody watching</span>
       </div>
       <div class="right-pane">
-        <button id="new-streamer-button" data-message="new streamer" disabled>please wait...</button><br />
-        <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">click to filter</button>
+        <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br />
+        <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">filter streams</button>
       </div>
     </div>
     <div id="twitch-embed-wrapper" class="container">
@@ -54,9 +54,9 @@
       </div>
     </div>
     <div class="thumbnails container center-text">
-      <button role="button" class="new-thumbnails fake-link">Get new thumbnails</button>
+      <button role="button" class="new-thumbnails fake-link">Get new thumbnails<svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg></button>
       <div id="thumbnails" class="thumbnail-container"></div>
-      <button role="button" class="new-thumbnails fake-link">Get new thumbnails</button>
+      <button role="button" class="new-thumbnails fake-link">Get new thumbnails<svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg></button>
     </div>
     <div id="footer">
       last watched streams: <span id="stream-list"></span>
@@ -175,10 +175,11 @@
           container.style.height = `${container.offsetHeight}px`;
         }
 
-        // empty old thumbs
+        // fetch or use prefetched thumbs, clear existing thumbs, and render new ones
+        document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.remove('hidden'));
+        let thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
         container.innerHTML = '';
 
-        let thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
         thumbsJSON.forEach(stream => {
             // embed inside of an a element so you can ctrl+click to open in a new tab
             let a = document.createElement('a');
@@ -203,6 +204,8 @@
             a.appendChild(thumb);
             container.appendChild(a);
           });
+
+          document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.add('hidden'));
 
           // restore any height locking we did after the thumbs have had a chance to load
           setTimeout(() => container.style.height = 'auto', 1000);
@@ -241,7 +244,7 @@
         if (!streamFilter.include && !streamFilter.exclude) {
           // we have no filter active; restore things to normal text
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
-          document.querySelector('#filter').innerText = 'click to filter';
+          document.querySelector('#filter').innerText = 'filter streams';
           document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
         } else {
           let searchString = generateFilterString();

@@ -119,6 +119,12 @@ a,
   background-color: #efefef;
 }
 
+.loading-throbber {
+  width: 17px;
+  height: 17px;
+  margin-left: 4px;
+}
+
 .search-input {
   margin-top: 10px;
   width: 100%;
@@ -163,4 +169,8 @@ a,
 #footer {
   text-align: center;
   margin-top: 13px;
+}
+
+.hidden {
+  display: none;
 }
