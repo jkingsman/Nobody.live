@@ -8,7 +8,7 @@ import psycopg2.extras
 
 SCHEMA = """
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
-CREATE EXTENSION  IF NOT EXISTS tsm_system_rows;
+CREATE EXTENSION IF NOT EXISTS tsm_system_rows;
 
 CREATE TABLE IF NOT EXISTS streams (
     id   TEXT UNIQUE PRIMARY KEY,
