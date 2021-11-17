@@ -105,7 +105,6 @@
     <script type="text/javascript">
       let numberOfThumbnailsToFetch = 12;
       let server = document.location.origin;
-      let devMode = false;
       let currentStream; // holds JSON blob of currently displayed stream
       let streamFilter = {
         include: '',
@@ -294,39 +293,6 @@
         return false;
       }
 
-      // little treat for the readers :)
-      async function enterDevMode() {
-        if (devMode) {
-            return;
-        }
-        devMode = true;
-
-        numberOfThumbnailsToFetch = 64;
-
-        // alt + t triggers thumbnail refresh
-        document.addEventListener("keydown", event => {
-          console.log(event)
-          if (event.keyCode === 84 && event.altKey) {
-            fetchAndRenderThumbnails();
-          }
-        });
-
-        // refresh stats bar once a second
-        // it's ugly, I know
-        setInterval(async () => {
-          let statsResponse = await fetch(`${server}/stats`);
-          let statsJson = await statsResponse.json();
-          let minutes = Math.floor((Math.round(new Date().getTime() / 1000  - currentStream.fetched)) / 60);
-
-          let apiUsage = Math.round((1 - statsJson.ratelimit_remaining / statsJson.ratelimit_limit) * 10000) / 100;
-          document.getElementById('dev-mode').innerHTML = `API consumption: ${apiUsage}%. Load is ${statsJson.load.join(' ')}.
-          Stream count: ${statsJson.streams - 1}.
-          Last update: ${new Date(statsJson.time_of_ratelimit * 1000).toLocaleTimeString()}.
-          <a onclick="showStreamDetails();">Stream details</a>.
-          <code>${statsJson.rev}</code>`
-        }, 1500);
-      }
-
       // dump all available stream data into an alert for debugging
       async function showStreamDetails() {
         let details = await fetch(`${server}/stream/${currentStream.id}`);
@@ -345,7 +311,7 @@
 
       async function initPage() {
         // hook up all event listeners
-        document.getElementById('dev-mode').addEventListener('click', enterDevMode);
+        document.getElementById('dev-mode').addEventListener('click', () => {numberOfThumbnailsToFetch = 64});
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
         document.getElementById('save-filter').addEventListener('click', setFilterFromForm);
         document.getElementById('save-filter').addEventListener('touchstart', setFilterFromForm);

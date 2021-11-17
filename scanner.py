@@ -67,7 +67,6 @@ def populate_streamers(client_id, client_secret):
 
     requests_sent = 1
     streams_grabbed = 0
-    db_utils.set_populate_started()
 
     # eat page after page of API results until we hit our request limit
     stream_list = get_stream_list_response(requests_session, client_id, token)
@@ -96,8 +95,6 @@ def populate_streamers(client_id, client_secret):
             logging.info((f"{requests_sent} requests sent ({streams_grabbed} streams found); "
                           f"{stream_list.headers['Ratelimit-Remaining']} of {stream_list.headers['Ratelimit-Limit']} "
                           f"API tokens remaining ({rate_limit_usage}% utilized)"))
-            db_utils.set_ratelimit_data(stream_list.headers['Ratelimit-Limit'],
-                                        stream_list.headers['Ratelimit-Remaining'])
             time.sleep(1)
 
         # aaaaand do it again
