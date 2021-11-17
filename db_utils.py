@@ -21,13 +21,6 @@ CREATE TABLE IF NOT EXISTS streams (
 CREATE INDEX IF NOT EXISTS lowercase_game ON streams (lower(game));
 CREATE INDEX IF NOT EXISTS lowercase_lang ON streams (lower(lang));
 CREATE INDEX IF NOT EXISTS game_trgm ON streams USING gin (lower(game) gin_trgm_ops);
-
-CREATE TABLE IF NOT EXISTS metadata (
-    populate_started    INTEGER,
-    time_of_ratelimit   INTEGER,
-    ratelimit_limit     INTEGER,
-    ratelimit_remaining INTEGER
-);
 """
 
 conn = psycopg2.connect(f"dbname='{os.environ.get('NOBODY_DATABASE')}' user='{os.environ.get('NOBODY_USER')}' host='{os.environ.get('NOBODY_HOST')}' password='{os.environ.get('NOBODY_PASSWORD')}'")
@@ -38,10 +31,6 @@ def migrate():
     with conn.cursor() as cursor:
         print("Migrating schema")
         cursor.execute(SCHEMA)
-
-        print("Dropping and reloading metadata row")
-        cursor.execute("TRUNCATE metadata;")
-        cursor.execute("INSERT INTO metadata VALUES (extract(epoch from now() at time zone 'utc'), extract(epoch from now() at time zone 'utc'), 0, 0);")
 
 
 def bulk_insert_streams(streams):

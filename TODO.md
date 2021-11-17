@@ -1,8 +1,5 @@
-* Finish sanic conversion
-  * Bring DB queries inside scanner and app
-  * Integrate async pg
-  * Optimize for gunicorn
-
+* Add debug mode more holistically -- show stream details, increase thumb count
+  * Figure out why URLs are being escaped in stream data
 * Increase criteria for filtering
 * Reduce amount of data sent in stream fetch -- only need username?
   * Can keep existing infra if key on username instead of ID?
