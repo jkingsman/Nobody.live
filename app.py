@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
 
+from functools import partial
 import json
 import os
 import datetime
 
 from asyncpg import create_pool
 from sanic import Sanic
-from sanic.response import json as jsonify, text
+from sanic.response import json as sanic_json, text
 
 app = Sanic(__name__)
+
+json_dumps = partial(json.dumps, separators=(",", ":"), ensure_ascii=False)
+
+def jsonify(input):
+    return sanic_json(input, dumps=json_dumps)
 
 @app.listener('before_server_start')
 async def register_db(app, loop):
@@ -106,6 +112,6 @@ async def get_stream_details(request, id):
 
 if __name__ == "__main__":
     if os.environ.get('NOBODY_DEBUG'):
-        app.run(host='0.0.0.0', port=5000, access_log=False, debug=True)
+        app.run(host='0.0.0.0', port=5000, access_log=False, debug=True, auto_reload=True)
     else:
         app.run(host='0.0.0.0', port=8000, access_log=False, debug=False)
