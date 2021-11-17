@@ -4,6 +4,7 @@ from functools import partial
 import json
 import os
 import datetime
+import pprint
 
 from asyncpg import create_pool
 from sanic import Sanic
@@ -107,7 +108,7 @@ async def get_stream_details(request, id):
 
         twitch_data['scraped_at'] = stream_details[0]['time']
         twitch_data['scraped_at_seconds_ago'] = age.total_seconds()
-        return jsonify(twitch_data)
+        return text(pprint.pformat(twitch_data))
 
 
 if __name__ == "__main__":
