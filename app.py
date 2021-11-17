@@ -43,6 +43,7 @@ async def get_streams(request):
     count = int(request.args.get('count', 1))
     include = request.args.get('include', '')
     exclude = request.args.get('exclude', '')
+    min_age = int(request.args.get('min_age', 0))
 
     # do a moderate approximation of not falling over
     if count > 64 or len(include) + len(exclude) > 64:
@@ -51,7 +52,7 @@ async def get_streams(request):
     include_list = include.split()
     exclude_list = exclude.split()
 
-    if not include_list and not exclude_list:
+    if not include_list and not exclude_list and not min_age:
         # if we have no criteria we can optimize
         games_query = "SELECT data FROM streams TABLESAMPLE system_rows($1)"
 
