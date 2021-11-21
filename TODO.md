@@ -1,3 +1,4 @@
+* set static dir
 * Increase criteria for filtering
   * Don't show streams started in last N minutes (decrease incidence of just-started streams that will be shortly popular) (advanced section)
   * Allow lang filtering in advanced section
