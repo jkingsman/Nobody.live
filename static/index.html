@@ -326,7 +326,7 @@
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
         document.getElementById('save-filter').addEventListener('click', setFilterFromForm);
-        document.getElementById('save-filter').addEventListener('touchstart', setFilterFromForm);
+        document.getElementById('save-filter').addEventListener('touchstart', setFilterFromForm, {passive: true});
         document.getElementById('search-form').addEventListener('submit', setFilterFromForm);
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
