@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS streams (
     id   TEXT UNIQUE PRIMARY KEY,
     time INTEGER NOT NULL DEFAULT extract(epoch from now() at time zone 'utc'),
     game TEXT,
-    streamstart BIGINT,
+    streamstart TIMESTAMP,
     lang TEXT,
     data TEXT
 );
@@ -36,7 +36,7 @@ def migrate():
 
 
 def bulk_insert_streams(streams):
-    formatted_rows = [(stream['id'], stream['game_name'], parser.parse(stream['started_at']).timestamp(), stream['language'], json.dumps(stream)) for stream in streams]
+    formatted_rows = [(stream['id'], stream['game_name'], parser.parse(stream['started_at']), stream['language'], json.dumps(stream)) for stream in streams]
     insert_query = """
         INSERT INTO streams (id, game, streamstart, lang, data) values %s
         ON CONFLICT(id) DO UPDATE

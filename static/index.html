@@ -82,12 +82,26 @@
             <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
           </header>
           <form id="search-form">
-            <main class="modal__content" id="filter-modal-content">
-              <label for="include" class="search-input">Search phrase:</label> <input class="search-input" type="text" id="include">
-              <span class="field-description">Only show games/categories which include <strong>all</strong> these terms</span>
-              <label for="exclude" class="search-input">Exclude Keywords:</label> <input class="search-input" type="text" id="exclude">
-              <span class="field-description">Exclude games/categories containing <strong>any</strong> of these terms (separate with spaces)</span>
-              <span id="remember-container"><input type="checkbox" id="remember"><label for="remember">Remember my filters</label></span>
+            <main class="modal__content">
+              <div class="options-columns">
+                <label for="include" class="search-input">Search phrase:</label> <input class="search-input" type="text" id="include">
+                <span class="field-description">Only show games/categories which include <strong>all</strong> these terms</span>
+                <label for="exclude" class="search-input">Exclude Keywords:</label> <input class="search-input" type="text" id="exclude">
+                <span class="field-description">Exclude games/categories containing <strong>any</strong> of these terms (separate with spaces)</span>
+                <span id="remember-container"><input type="checkbox" id="remember"><label for="remember">Remember my filters</label></span>
+              </div>
+              <details>
+                <summary>Advanced</summary>
+                <div class="options-columns">
+                  <label for="start-lag-time" class="search-input">Min. stream run time:</label>
+                  <select id="min-age">
+                    <option value="0">0 minutes/none</option>
+                    <option value="3">3 minutes</option>
+                    <option value="5">5 minutes</option>
+                  </select>
+                  <span class="field-description">Avoid streams in "starting soon" mode.</span>
+                </div>
+              </details>
             </main>
             <footer class="modal__footer">
               <button class="modal__btn modal__btn-primary" data-micromodal-close aria-label="Save filter" id="save-filter" type="submit">Save & Apply</button>
@@ -108,11 +122,12 @@
       let currentStream; // holds JSON blob of currently displayed stream
       let streamFilter = {
         include: '',
-        exclude: ''
+        exclude: '',
+        minAge: 0,
       };
 
       async function getStreams(count=1) {
-        let streamEndpoint = `${server}/stream?count=${count}&include=${streamFilter.include}&exclude=${streamFilter.exclude}`;
+        let streamEndpoint = `${server}/stream?count=${count}&include=${streamFilter.include}&exclude=${streamFilter.exclude}&min_age=${streamFilter.minAge}`;
 
         let streamResponse = await fetch(streamEndpoint);
         if (streamResponse.status >= 400) {
@@ -242,6 +257,7 @@
       function setUIForFilter() {
         document.getElementById('include').value = streamFilter.include;
         document.getElementById('exclude').value = streamFilter.exclude;
+        document.getElementById('min-age').value = streamFilter.minAge;
         document.getElementById('remember').checked = true;
 
         if (!streamFilter.include && !streamFilter.exclude) {
@@ -268,18 +284,22 @@
 
         let include = document.getElementById('include').value.trim();
         let exclude = document.getElementById('exclude').value.trim();
+        let minAge = document.getElementById('min-age').value;
 
         if (document.getElementById('remember').checked) {
           localStorage.setItem('filter-include', include);
           localStorage.setItem('filter-exclude', exclude);
+          localStorage.setItem('minAge', minAge);
         } else {
           localStorage.setItem('filter-include', '');
           localStorage.setItem('filter-exclude', '');
+          localStorage.setItem('minAge', '0');
         }
 
         let shouldReload = streamFilter.include !== include || streamFilter.exclude !== exclude;
         streamFilter.include = include;
         streamFilter.exclude = exclude;
+        streamFilter.minAge = minAge;
 
         setUIForFilter();
 
@@ -324,10 +344,13 @@
         });
 
         // load filters before possibly fetching a random stream in below conditional
-        if (localStorage.getItem('filter-include') || localStorage.getItem('filter-exclude')) {
+        if (localStorage.getItem('filter-include') ||
+            localStorage.getItem('filter-exclude') ||
+            localStorage.getItem('minAge')) {
           streamFilter = {
             include: localStorage.getItem('filter-include') || '',
-            exclude: localStorage.getItem('filter-exclude') || ''
+            exclude: localStorage.getItem('filter-exclude') || '',
+            minAge: localStorage.getItem('minAge') || 0
           };
 
           setUIForFilter();

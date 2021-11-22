@@ -131,7 +131,7 @@ a,
   font-weight: bold;
 }
 
-#filter-modal-content {
+.options-columns {
   display: grid;
   grid-gap: 5px;
 }
