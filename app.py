@@ -82,7 +82,6 @@ async def get_streams(request):
         wildcarded_exclusions = [f"%{exclude.lower()}%" for exclude in exclude_list]
         wildcarded_inclusions = [f"%{include.lower()}%" for include in include_list]
 
-        print(games_query)
         async with pool.acquire() as conn:
             streams = await conn.fetch(games_query, *(wildcarded_exclusions + wildcarded_inclusions), min_age, count)
 
