@@ -60,7 +60,7 @@ a,
   display: none;
 }
 
-@media only screen and (min-width: 750px) {
+@media only screen and (min-width: 600px) {
   .grid-container {
     min-height: 20px;
     display: grid;
@@ -91,13 +91,18 @@ a,
   grid-template-columns: 25% 25% 25% 25%;
 }
 
-@media only screen and (max-width: 750px) {
+@media only screen and (max-width: 600px) {
   .thumbnail-container {
     display: grid;
     grid-template-columns: 50% 50%;
   }
+
   #new-streamer-button {
-    margin-top: 20px;
+    margin-top: 10px;
+  }
+
+  h1 {
+    font-size: 1.5em;
   }
 }
 
