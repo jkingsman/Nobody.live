@@ -107,9 +107,10 @@ async def get_stream_details(request, id):
         now = datetime.datetime.now()
         scraped_at = datetime.datetime.fromtimestamp(stream_details[0]['time'])
         age = now - scraped_at
+        start_age = now - stream_details[0]['streamstart']
 
-        twitch_data['scraped_at'] = stream_details[0]['time']
         twitch_data['scraped_at_seconds_ago'] = age.total_seconds()
+        twitch_data['streamstart_seconds_ago'] = start_age.total_seconds()
         return text(pprint.pformat(twitch_data))
 
 
