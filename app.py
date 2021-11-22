@@ -43,6 +43,7 @@ async def get_streams(request):
     count = int(request.args.get('count', 1))
     include = request.args.get('include', '')
     exclude = request.args.get('exclude', '')
+    min_age = int(request.args.get('min_age', 0))
 
     # do a moderate approximation of not falling over
     if count > 64 or len(include) + len(exclude) > 64:
@@ -51,7 +52,7 @@ async def get_streams(request):
     include_list = include.split()
     exclude_list = exclude.split()
 
-    if not include_list and not exclude_list:
+    if not include_list and not exclude_list and min_age == 0:
         # if we have no criteria we can optimize
         games_query = "SELECT data FROM streams TABLESAMPLE system_rows($1)"
 
@@ -74,14 +75,16 @@ async def get_streams(request):
             SELECT data FROM streams
             WHERE 1=1
             {query_arg_string}
+            AND streamstart < (NOW() - interval '1 minute' * ${query_arg_index})
             ORDER BY RANDOM()
-            LIMIT ${query_arg_index}"""
+            LIMIT ${query_arg_index + 1}"""
 
         wildcarded_exclusions = [f"%{exclude.lower()}%" for exclude in exclude_list]
         wildcarded_inclusions = [f"%{include.lower()}%" for include in include_list]
 
+        print(games_query)
         async with pool.acquire() as conn:
-            streams = await conn.fetch(games_query, *(wildcarded_exclusions + wildcarded_inclusions), count)
+            streams = await conn.fetch(games_query, *(wildcarded_exclusions + wildcarded_inclusions), min_age, count)
 
     if not streams:
         return jsonify([])
