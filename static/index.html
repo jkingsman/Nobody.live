@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#6441a5">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+    <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#6441a5">
     <meta name="msapplication-TileColor" content="#6441a5">
     <meta name="theme-color" content="#6441a5">
 
@@ -28,8 +28,8 @@
     <meta name="author" content="Jack Kingsman">
 
     <title>Nobody.live | Lonely streams and streamers with zero viewers</title>
-    <link rel="stylesheet" href="styles.css" type="text/css">
-    <link rel="stylesheet" href="modal.css" type="text/css">
+    <link rel="stylesheet" href="/static/styles.css" type="text/css">
+    <link rel="stylesheet" href="/static/modal.css" type="text/css">
 
     <link rel="preconnect" href="https://embed.twitch.tv">
     <link rel="preconnect" href="https://static-cdn.jtvnw.net">
@@ -112,7 +112,7 @@
     </div>
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
-    <script src="/micromodal.min.js"></script>
+    <script src="/static/micromodal.min.js"></script>
     <script type="text/javascript">
       MicroModal.init();
     </script>
@@ -314,7 +314,7 @@
       }
 
       async function fetchAndRenderMOTD() {
-        let motd = await fetch(`${server}/motd`);
+        let motd = await fetch(`${server}/static/motd`);
         // only render if one exists
         if (motd.status == 200) {
           let motdText = await motd.text();

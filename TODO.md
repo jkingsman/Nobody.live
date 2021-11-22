@@ -1,4 +1,3 @@
-* set static dir
 * Increase criteria for filtering
   * Allow lang filtering in advanced section
 * Write unit tests

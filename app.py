@@ -34,7 +34,7 @@ async def close_connection(app, loop):
         await conn.close()
 
 app.static('/', './static/index.html')
-app.static('/', './static')
+app.static('/static', './static')
 
 @app.get('/stream')
 async def get_streams(request):
