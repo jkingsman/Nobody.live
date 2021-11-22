@@ -117,7 +117,7 @@
       MicroModal.init();
     </script>
     <script type="text/javascript">
-      let numberOfThumbnailsToFetch = 12;
+      let numberOfThumbnailsToFetch = 16;
       let server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
       let streamFilter = {
@@ -356,8 +356,8 @@
           setUIForFilter();
         }
 
-        // prefetch 13 thumbs (main + 12 thumbnails)
-        let fetchedStreams = await getStreams(13);
+        // prefetch 17 thumbs (main + 16 thumbnails)
+        let fetchedStreams = await getStreams(17);
 
         // if we have /?stream=... then render the specified stream
         // otherwise grab a random one

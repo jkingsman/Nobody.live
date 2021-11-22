@@ -94,7 +94,7 @@ a,
 @media only screen and (max-width: 750px) {
   .thumbnail-container {
     display: grid;
-    grid-template-columns: 33.33% 33.33% 33.33%;
+    grid-template-columns: 50% 50%;
   }
   #new-streamer-button {
     margin-top: 20px;
