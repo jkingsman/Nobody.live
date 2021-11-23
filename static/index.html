@@ -120,11 +120,21 @@
       let numberOfThumbnailsToFetch = 16;
       let server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
-      let streamFilter = {
+      const defaultStreamFilter = {
         include: '',
         exclude: '',
-        minAge: 0,
+        minAge: 0
       };
+
+      // use stored filters if we're supposed to remember; otherwise use defaults
+      // don't get confused by the ||'s since we want to fallback gracefully if in weird localstorage state
+      let streamFilterRemember = JSON.parse(localStorage.getItem('streamFilterRemember')) || false;
+      let streamFilter;
+      if (streamFilterRemember) {
+        streamFilter = JSON.parse(localStorage.getItem('streamFilter')) || defaultStreamFilter;
+      } else {
+        streamFilter = defaultStreamFilter;
+      }
 
       async function getStreams(count=1) {
         let streamEndpoint = `${server}/stream?count=${count}&include=${streamFilter.include}&exclude=${streamFilter.exclude}&min_age=${streamFilter.minAge}`;
@@ -254,11 +264,11 @@
       }
 
       // populates the filter UI with remembered values and sets thumbnail + new streamer button text
-      function setUIForFilter() {
+      function setUIFromGlobalFilterObject() {
+        document.getElementById('remember').checked = streamFilterRemember;
         document.getElementById('include').value = streamFilter.include;
         document.getElementById('exclude').value = streamFilter.exclude;
         document.getElementById('min-age').value = streamFilter.minAge;
-        document.getElementById('remember').checked = true;
 
         if (!streamFilter.include && !streamFilter.exclude) {
           // we have no filter active; restore things to normal text
@@ -276,7 +286,7 @@
       }
 
       // called after the filter form is updated and persists or clears filters to localstorage
-      async function setFilterFromForm(e) {
+      async function setGlobalFilterObjectFromForm(e) {
         if (e) {
           e.preventDefault();
         }
@@ -284,23 +294,23 @@
         let include = document.getElementById('include').value.trim();
         let exclude = document.getElementById('exclude').value.trim();
         let minAge = document.getElementById('min-age').value;
-
-        if (document.getElementById('remember').checked) {
-          localStorage.setItem('filter-include', include);
-          localStorage.setItem('filter-exclude', exclude);
-          localStorage.setItem('minAge', minAge);
-        } else {
-          localStorage.setItem('filter-include', '');
-          localStorage.setItem('filter-exclude', '');
-          localStorage.setItem('minAge', '0');
-        }
+        streamFilterRemember = document.getElementById('remember').checked;
 
         let shouldReload = streamFilter.include !== include || streamFilter.exclude !== exclude;
+
         streamFilter.include = include;
         streamFilter.exclude = exclude;
         streamFilter.minAge = minAge;
 
-        setUIForFilter();
+        if (streamFilterRemember) {
+          localStorage.setItem('streamFilter', JSON.stringify(streamFilter));
+          localStorage.setItem('streamFilterRemember', true);
+        } else {
+          localStorage.setItem('streamFilter', JSON.stringify(defaultStreamFilter));
+          localStorage.setItem('streamFilterRemember', false);
+        }
+
+        setUIFromGlobalFilterObject();
 
         // only fetch new streams and thumbs if something changed
         if (shouldReload) {
@@ -324,9 +334,9 @@
       async function initPage() {
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
-        document.getElementById('save-filter').addEventListener('click', setFilterFromForm);
-        document.getElementById('save-filter').addEventListener('touchstart', setFilterFromForm, {passive: true});
-        document.getElementById('search-form').addEventListener('submit', setFilterFromForm);
+        document.getElementById('save-filter').addEventListener('click', setGlobalFilterObjectFromForm);
+        document.getElementById('save-filter').addEventListener('touchstart', setGlobalFilterObjectFromForm, {passive: true});
+        document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
         // debug mode listener for ctrl+alt+d
@@ -342,18 +352,7 @@
           }
         });
 
-        // load filters before possibly fetching a random stream in below conditional
-        if (localStorage.getItem('filter-include') ||
-            localStorage.getItem('filter-exclude') ||
-            localStorage.getItem('minAge')) {
-          streamFilter = {
-            include: localStorage.getItem('filter-include') || '',
-            exclude: localStorage.getItem('filter-exclude') || '',
-            minAge: localStorage.getItem('minAge') || 0
-          };
-
-          setUIForFilter();
-        }
+        setUIFromGlobalFilterObject();
 
         // prefetch 17 thumbs (main + 16 thumbnails)
         let fetchedStreams = await getStreams(17);
