@@ -86,8 +86,10 @@
               <div class="options-columns">
                 <label for="include" class="search-input">Search phrase:</label> <input class="search-input" type="text" id="include">
                 <span class="field-description">Only show games/categories which include <strong>all</strong> these terms</span>
+
                 <label for="exclude" class="search-input">Exclude Keywords:</label> <input class="search-input" type="text" id="exclude">
                 <span class="field-description">Exclude games/categories containing <strong>any</strong> of these terms (separate with spaces)</span>
+
                 <span id="remember-container"><input type="checkbox" id="remember"><label for="remember">Remember my filters</label></span>
               </div>
               <details>
@@ -100,6 +102,9 @@
                     <option value="5">Only show &gt;5 minutes on-air</option>
                   </select>
                   <span class="field-description">Avoid streams in "starting soon" mode by hiding streams which have just started.</span>
+
+                  <label for="lang" class="search-input">Language:</label> <input class="search-input" type="text" id="lang">
+                  <span class="field-description">Only show streams with the given <a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" target="_new" rel="noreferrer noopener">ISO-639-1</a> language code. Note that 99% zero-viewer streams are <code>en</code> only.</span>
                 </div>
               </details>
             </main>
@@ -123,7 +128,8 @@
       const defaultStreamFilter = {
         include: '',
         exclude: '',
-        minAge: 0
+        minAge: 0,
+        lang: '',
       };
 
       // use stored filters if we're supposed to remember; otherwise use defaults
@@ -137,7 +143,7 @@
       }
 
       async function getStreams(count=1) {
-        let streamEndpoint = `${server}/stream?count=${count}&include=${streamFilter.include}&exclude=${streamFilter.exclude}&min_age=${streamFilter.minAge}`;
+        let streamEndpoint = `${server}/stream?count=${count}&include=${streamFilter.include}&exclude=${streamFilter.exclude}&min_age=${streamFilter.minAge}&lang=${streamFilter.lang}`;
 
         let streamResponse = await fetch(streamEndpoint);
         if (streamResponse.status >= 400) {
@@ -260,7 +266,12 @@
           excludeString = streamFilter.exclude.split(' ').map((term) => `not:${term}`).join(" ");
         }
 
-        return `${streamFilter.include} ${excludeString}`.trim();
+        let langString = '';
+        if (streamFilter.lang) {
+          langString = `lang:${streamFilter.lang}`;
+        }
+
+        return `${streamFilter.include} ${excludeString} ${langString}`.trim();
       }
 
       // populates the filter UI with remembered values and sets thumbnail + new streamer button text
@@ -269,8 +280,9 @@
         document.getElementById('include').value = streamFilter.include;
         document.getElementById('exclude').value = streamFilter.exclude;
         document.getElementById('min-age').value = streamFilter.minAge;
+        document.getElementById('lang').value = streamFilter.lang;
 
-        if (!streamFilter.include && !streamFilter.exclude) {
+        if (!streamFilter.include && !streamFilter.exclude && !streamFilter.lang) {
           // we have no filter active; restore things to normal text
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
           document.querySelector('#filter').innerText = 'filter streams';
@@ -294,13 +306,17 @@
         let include = document.getElementById('include').value.trim();
         let exclude = document.getElementById('exclude').value.trim();
         let minAge = document.getElementById('min-age').value;
+        let lang = document.getElementById('lang').value;
         streamFilterRemember = document.getElementById('remember').checked;
 
-        let shouldReload = streamFilter.include !== include || streamFilter.exclude !== exclude;
+        let shouldReload = streamFilter.include !== include ||
+                           streamFilter.exclude !== exclude ||
+                           streamFilter.lang !== lang;
 
         streamFilter.include = include;
         streamFilter.exclude = exclude;
         streamFilter.minAge = minAge;
+        streamFilter.lang = lang;
 
         if (streamFilterRemember) {
           localStorage.setItem('streamFilter', JSON.stringify(streamFilter));

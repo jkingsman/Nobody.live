@@ -43,6 +43,7 @@ async def get_streams(request):
     count = int(request.args.get('count', 1))
     include = request.args.get('include', '')
     exclude = request.args.get('exclude', '')
+    lang = request.args.get('lang', '')
     min_age = int(request.args.get('min_age', 0))
 
     # do a moderate approximation of not falling over
@@ -52,7 +53,7 @@ async def get_streams(request):
     include_list = include.split()
     exclude_list = exclude.split()
 
-    if not include_list and not exclude_list and min_age == 0:
+    if not include_list and not exclude_list and not lang and min_age == 0:
         # if we have no criteria we can optimize
         games_query = "SELECT data FROM streams TABLESAMPLE system_rows($1)"
 
@@ -60,30 +61,43 @@ async def get_streams(request):
             streams = await conn.fetch(games_query, count)
     else:
         # this is so hacky but it looks like how we have to do things for asyncpg.
-        # if anyone knows of an easier way to do LIKE on ALL elements of a list than this
-        # please tell me
+        # if anyone knows of an easier way to do LIKE on ALL elements of a list (and inverse)
+        # than this please tell me
         query_arg_string = ''
         query_arg_index = 1
-        for _exclusion in exclude_list:
+        query_arg_list = []
+
+        for exclusion in exclude_list:
             query_arg_string += f"AND lower(game) NOT LIKE ${query_arg_index} "
             query_arg_index += 1
-        for _inclusion in include_list:
+            query_arg_list.append(f"%{exclusion.lower()}%")
+
+        for inclusion in include_list:
             query_arg_string += f"AND lower(game) LIKE ${query_arg_index} "
             query_arg_index += 1
+            query_arg_list.append(f"%{inclusion.lower()}%")
+
+        if min_age:
+            query_arg_string += f"AND streamstart < (NOW() - interval '1 minute' * ${query_arg_index})"
+            query_arg_index += 1
+            query_arg_list.append(min_age)
+
+        if lang:
+            query_arg_string += f"AND lang = ${query_arg_index}"
+            query_arg_index += 1
+            query_arg_list.append(lang)
+
+        query_arg_list.append(count)
 
         games_query = f"""
             SELECT data FROM streams
             WHERE 1=1
             {query_arg_string}
-            AND streamstart < (NOW() - interval '1 minute' * ${query_arg_index})
             ORDER BY RANDOM()
-            LIMIT ${query_arg_index + 1}"""
-
-        wildcarded_exclusions = [f"%{exclude.lower()}%" for exclude in exclude_list]
-        wildcarded_inclusions = [f"%{include.lower()}%" for include in include_list]
+            LIMIT ${query_arg_index}"""
 
         async with pool.acquire() as conn:
-            streams = await conn.fetch(games_query, *(wildcarded_exclusions + wildcarded_inclusions), min_age, count)
+            streams = await conn.fetch(games_query, *query_arg_list)
 
     if not streams:
         return jsonify([])
