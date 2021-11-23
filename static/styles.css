@@ -131,7 +131,6 @@ a,
 }
 
 .search-input {
-  margin-top: 10px;
   width: 100%;
   font-weight: bold;
 }
@@ -139,6 +138,7 @@ a,
 .options-columns {
   display: grid;
   grid-gap: 5px;
+  align-items: center;
 }
 
 .field-description {
