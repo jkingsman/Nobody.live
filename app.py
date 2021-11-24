@@ -12,10 +12,8 @@ from sanic.response import json as sanic_json, text
 
 app = Sanic(__name__)
 
+# use builtin json with unicode instead of sanic's
 json_dumps = partial(json.dumps, separators=(",", ":"), ensure_ascii=False)
-
-def jsonify(input):
-    return sanic_json(input, dumps=json_dumps)
 
 @app.listener('before_server_start')
 async def register_db(app, loop):
@@ -100,18 +98,18 @@ async def get_streams(request):
             streams = await conn.fetch(games_query, *query_arg_list)
 
     if not streams:
-        return jsonify([])
+        return sanic_json([], dumps=json_dumps)
 
     extracted_streams = [json.loads(stream[0]) for stream in streams]
-    return jsonify(extracted_streams)
+    return sanic_json(extracted_streams, dumps=json_dumps)
 
 
-@app.get('/stream/<id>')
-async def get_stream_details(request, id):
+@app.get('/stream/<stream_id>')
+async def get_stream_details(request, stream_id):
     pool = request.app.config['pool']
     async with pool.acquire() as conn:
-        stream_details_query = f"SELECT * FROM streams WHERE id = $1"
-        stream_details = await conn.fetch(stream_details_query, id)
+        stream_details_query = "SELECT * FROM streams WHERE id = $1"
+        stream_details = await conn.fetch(stream_details_query, stream_id)
 
         if not stream_details:
             return text('No such stream.', 410)
