@@ -28,6 +28,8 @@ a,
     margin-top: 0.2em;
     background-color: #202020;
     padding: 0.2em;
+    border-radius: 12pt;
+    margin: .2em;
 }
 
 .thumbnails,
@@ -46,6 +48,7 @@ a,
     margin-bottom: 0.4em;
     padding: 0.4em;
     border-radius: 6pt;
+    border: 2pt solid white;
 }
 
 a {
@@ -54,21 +57,6 @@ a {
 
 a:hover {
     color: hsl(323, 14%, 53%);
-}
-
-#motd:empty {
-    display: none;
-}
-
-@media only screen and (min-width: 600px) {
-    .grid-container {
-        min-height: 20px;
-        display: grid;
-        grid-template-columns: 80% 20%;
-        grid-template-rows: 1fr;
-        gap: 0px 0px;
-        grid-template-areas: "left-pane right-pane";
-    }
 }
 
 .left-pane {
@@ -91,22 +79,9 @@ a:hover {
     grid-template-columns: 25% 25% 25% 25%;
 }
 
-@media only screen and (max-width: 600px) {
-    .thumbnail-container {
-        display: grid;
-        grid-template-columns: 50% 50%;
-    }
-    #new-streamer-button {
-        margin-top: 10px;
-    }
-    h1 {
-        font-size: 1.5em;
-    }
-}
-
 .fake-link {
     background-color: hsl(170, 80%, 27%);
-    border: none;
+    border: 2pt solid white;
     color: white;
     padding: 0.3em 0.2em;
     text-align: center;
@@ -124,7 +99,7 @@ a:hover {
 
 #new-streamer-button {
     background-color: hsl(123, 100%, 27%);
-    border: none;
+    border: 2pt solid white;
     color: white;
     margin: 0.2em;
     padding: 0.5em 0.2em;
@@ -135,11 +110,12 @@ a:hover {
     width: 100%;
     cursor: pointer;
     border-radius: 6pt;
+    font-size: 1.2em;
 }
 
 .fake-link {
     background-color: hsl(170, 80%, 27%);
-    border: none;
+    border: 2pt solid white;
     color: white;
     margin: 0.2em;
     padding: 0.2em 0.2em;
@@ -150,6 +126,7 @@ a:hover {
     width: 100%;
     cursor: pointer;
     border-radius: 6pt;
+    font-size: 1em;
 }
 
 #new-streamer-button:hover {
@@ -216,7 +193,7 @@ a:hover {
 }
 
 .thumbnail-item {
-    border: 1pt solid rgba(0, 0, 0, 0.8);
+    border: 2pt solid white;
     font-size: 2em;
     text-align: center;
     margin: 10pt;
@@ -237,6 +214,64 @@ a:hover .thumbnail-item {
     margin-top: 13pt;
 }
 
-.hidden {
+.left-pane h1 {
+    font-weight: bolder;
+    font-variant-caps: all-small-caps;
+    display: inline-flex;
+    font-size: 4em;
+}
+
+.left-pane span {
+    display: inline-block;
+    padding-bottom: 1em;
+    font-size: 2em;
+}
+
+.hidden,
+span.hidden {
     display: none;
+}
+
+#motd:empty {
+    display: none;
+}
+
+#twitch-embed iframe {
+    border-radius: 12pt;
+    box-shadow: rgba(0, 0, 0, 0.6) 4pt 4pt;
+}
+
+#twitch-embed-wrapper {
+    border-radius: 12pt;
+    padding: 0.4em;
+    background-color: #202020;
+    border: 2pt solid white;
+}
+
+@media only screen and (max-width: 700pt) {
+    .thumbnail-container {
+        display: grid;
+        grid-template-columns: 50% 50%;
+    }
+    #new-streamer-button {
+        margin-top: 10px;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+}
+
+@media only screen and (min-width: 800pt) {
+    .grid-container {
+        min-height: 20px;
+        display: grid;
+        grid-template-columns: 70% 30%;
+        grid-template-rows: 1fr;
+        gap: 0px 0px;
+        grid-template-areas: "left-pane right-pane";
+    }
+    .left-pane h1:after {
+        content: "-";
+        padding: 0 0.6rem 0 0.6rem;
+    }
 }
