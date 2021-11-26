@@ -1,6 +1,7 @@
 body {
     margin: 10px;
     font-family: Arial, Helvetica, sans-serif;
+    /* background-color: Canvas; */
     background: #131313;
     color: #eeebff;
     font-size: 14pt;
@@ -125,7 +126,8 @@ a:hover {
     background-color: hsl(123, 100%, 27%);
     border: none;
     color: white;
-    padding: 0.3em 0.2em;
+    margin: 0.2em;
+    padding: 0.5em 0.2em;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -139,7 +141,8 @@ a:hover {
     background-color: hsl(170, 80%, 27%);
     border: none;
     color: white;
-    padding: 0.3em 0.2em;
+    margin: 0.2em;
+    padding: 0.2em 0.2em;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -157,9 +160,17 @@ a:hover {
     background-color: hsl(170, 60%, 17%);
 }
 
+.new-thumbnails.fake-link {
+    margin: 0.4em;
+    padding: 0.5em 0.2em;
+}
+
 #new-streamer-button:disabled,
 #new-streamer-button[disabled] {
-    background-color: #efefef;
+    background-color: hsl(123, 100%, 27%);
+    color: white;
+    cursor: default;
+    filter: saturate(30%);
 }
 
 .loading-throbber {
@@ -215,6 +226,10 @@ a:hover {
     justify-self: center;
     border-radius: 6pt;
     box-shadow: rgba(0, 0, 0, 0.6) 4pt 4pt;
+}
+
+a:hover .thumbnail-item {
+    filter: brightness(0.8);
 }
 
 #footer {
