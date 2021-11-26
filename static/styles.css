@@ -23,13 +23,6 @@ a,
     color: #8a8a8a;
 }
 
-.fake-link {
-    background: none !important;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
 .container {
     margin-top: 0.2em;
     background-color: #202020;
@@ -108,6 +101,24 @@ a:hover {
     h1 {
         font-size: 1.5em;
     }
+}
+
+.fake-link {
+    background-color: hsl(170, 80%, 27%);
+    border: none;
+    color: white;
+    padding: 0.3em 0.2em;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1em;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 6pt;
+}
+
+.filter {
+    text-align: center;
 }
 
 #new-streamer-button {
