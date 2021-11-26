@@ -17,8 +17,17 @@ p {
 }
 
 a,
-.center-container {
-    text-align: center;
+.fake-link {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #8a8a8a;
+}
+
+.fake-link {
+    background: none !important;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
 }
 
 .container {
@@ -57,13 +66,13 @@ a:hover {
     display: none;
 }
 
-@media only screen and (min-width: 600pt) {
+@media only screen and (min-width: 600px) {
     .grid-container {
-        min-height: 20pt;
+        min-height: 20px;
         display: grid;
         grid-template-columns: 80% 20%;
         grid-template-rows: 1fr;
-        gap: 0 0;
+        gap: 0px 0px;
         grid-template-areas: "left-pane right-pane";
     }
 }
@@ -88,13 +97,13 @@ a:hover {
     grid-template-columns: 25% 25% 25% 25%;
 }
 
-@media only screen and (max-width: 600pt) {
+@media only screen and (max-width: 600px) {
     .thumbnail-container {
         display: grid;
         grid-template-columns: 50% 50%;
     }
     #new-streamer-button {
-        margin-top: 10pt;
+        margin-top: 10px;
     }
     h1 {
         font-size: 1.5em;
@@ -148,6 +157,12 @@ a:hover {
     margin-left: 4pt;
 }
 
+.loading-throbber {
+    width: 17px;
+    height: 17px;
+    margin-left: 4px;
+}
+
 .search-input {
     width: 100%;
     font-weight: bold;
@@ -155,7 +170,7 @@ a:hover {
 
 .options-columns {
     display: grid;
-    grid-gap: 0.1em;
+    grid-gap: 5px;
     align-items: center;
 }
 
@@ -198,32 +213,4 @@ a:hover {
 
 .hidden {
     display: none;
-}
-
-.light {
-    background: #eee;
-    color: black;
-}
-
-.dark {
-    background: #333;
-    color: white;
-}
-
-input[type="text"] {
-    background-color: #e3e3e3;
-    border-radius: 6pt;
-    padding: 0.6em;
-    border: #333 2pt solid;
-}
-
-label.search-input {
-    font-size: 0.8em;
-    text-align: right;
-    padding: 0;
-}
-
-div.options-columns {
-    animation: both;
-    animation-duration: 3s;
 }

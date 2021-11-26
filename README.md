@@ -69,3 +69,8 @@ This is obviously not production ready; you'll need to make sure all services ar
 ## Dependencies
 
 Update direct dependencies in `requirements.in`; use `pip-compile` to compile them down to `requirements.txt` if you update them.
+
+## Components
+
+* [Loading throbber Copyright (c) 2014 Sam Herbert](https://github.com/SamHerbert/SVG-Loaders)
+* [Micromodal Copyright (c) 2017 Indrashish Ghosh](https://github.com/Ghosh/micromodal)
