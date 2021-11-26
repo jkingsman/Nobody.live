@@ -6,29 +6,39 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(32, 32, 32, 0.4);
     display: flex;
     justify-content: center;
     align-items: center;
-  }
+}
 
-  .modal__container {
-    background-color: #fff;
-    padding: 30px;
-    max-width: 500px;
+
+/* .modal__overlay:after {
+    filter: unset;
+} */
+
+.modal__container {
+    backdrop-filter: blur(6pt);
+    -webkit-backdrop-filter: blur(6pt);
+    background-color: rgba(255, 255, 255, 0.78);
+    padding: 30pt;
+    max-width: 500pt;
+    max-width: min(100vw, 500pt);
+    min-width: min(500px, 100vw);
     max-height: 100vh;
-    border-radius: 4px;
+    border-radius: 4pt;
     overflow-y: auto;
     box-sizing: border-box;
-  }
+}
 
-  .modal__header {
+.modal__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
+    margin-bottom: 20px;
+}
 
-  .modal__title {
+.modal__title {
     margin-top: 0;
     margin-bottom: 0;
     font-weight: 600;
@@ -36,24 +46,34 @@
     line-height: 1.25;
     color: #00449e;
     box-sizing: border-box;
-  }
+}
 
-  .modal__close {
-    background: transparent;
+.modal__close {
+    font-size: 1.3em;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 6pt;
     border: 0;
-  }
+    cursor: pointer;
+    width: 1.5em;
+    height: 1.5em;
+    align-items: center;
+}
 
-  .modal__header .modal__close:before {
+.modal__close:hover {
+    background: rgba(211, 211, 211, 0.8);
+}
+
+.modal__header .modal__close:before {
     content: "\2715";
-  }
+}
 
-  .modal__content {
+.modal__content {
     margin-bottom: 2rem;
     line-height: 1.5;
     color: rgba(0, 0, 0, 0.8);
-  }
+}
 
-  .modal__btn {
+.modal__btn {
     float: right;
     font-size: 0.875rem;
     padding-left: 1rem;
@@ -77,18 +97,25 @@
     backface-visibility: hidden;
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
-  }
+}
 
-  .modal__btn-primary {
-    background-color: #00449e;
+.modal__btn-primary {
+    background-color: hsl(214, 100%, 31%);
     color: #fff;
-  }
+}
 
-  .micromodal-slide {
+.micromodal-slide {
     display: none;
-  }
+}
 
-  .micromodal-slide.is-open {
+.micromodal-slide.is-open {
     display: block;
-  }
+}
 
+.modal__btn:hover {
+    background-color: hsl(214, 80%, 21%);
+}
+
+.modal__btn-primary {}
+
+.modal__btn-primary:hover {}
