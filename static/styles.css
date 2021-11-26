@@ -67,6 +67,13 @@ a,
   }
 }
 
+@media only screen and (min-width: 1500px) {
+  #page-container {
+    width: 90%;
+    margin: auto;
+  }
+}
+
 .left-pane {
   grid-area: left-pane;
 }
@@ -153,7 +160,7 @@ a,
 
 #twitch-embed,
 #twitch-embed > iframe {
-  min-height: 85vh;
+  min-height: 77vh;
 }
 
 .thumbnail-item {
