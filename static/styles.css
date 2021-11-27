@@ -143,11 +143,11 @@ a,
   font-size: 95%;
 }
 
-#remember-container {
+.grid-right {
   grid-column: 2;
 }
 
-#remember-container > input {
+.gird-right > input {
   margin-left: 0;
 }
 
@@ -174,4 +174,15 @@ a,
 
 .hidden {
   display: none;
+}
+
+@media only screen and (min-width: 1200px) {
+  .skinny #page-container {
+    max-width: 70vw;
+    margin: auto;
+  }
+
+  .skinny #twitch-embed, .skinny #twitch-embed > iframe {
+    min-height: 60vh;
+  }
 }

@@ -38,38 +38,40 @@
     <link rel="preconnect" href="https://gql.twitch.tv">
   </head>
   <body>
-    <div id="motd"></div>
-    <div class="grid-container">
-      <div class="left-pane">
-        <h1>nobody.live</h1>
-        <span>streams with nobody watching <span id="stream-debug" class="hidden"> | <a href="#">show stream debug</a></span></span>
-      </div>
-      <div class="right-pane">
-        <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br />
-        <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">filter streams</button>
-      </div>
-    </div>
-    <div id="twitch-embed-wrapper" class="container">
-      <div id="twitch-embed"></div>
+    <div id="page-container">
+      <div id="motd"></div>
       <div class="grid-container">
         <div class="left-pane">
+          <h1>nobody.live</h1>
+          <span>streams with nobody watching <span id="stream-debug" class="hidden"> | <a href="#">show stream debug</a></span></span>
         </div>
         <div class="right-pane">
-          <p class="cookie-check">Trouble logging into chat? Try enabling third party cookies.</p>
+          <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br />
+          <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">filter streams</button>
         </div>
       </div>
-    </div>
-    <div class="thumbnails container center-text">
-      <button role="button" class="new-thumbnails fake-link">Get new thumbnails<svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg></button>
-      <div id="thumbnails" class="thumbnail-container"></div>
-      <button role="button" class="new-thumbnails fake-link">Get new thumbnails<svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg></button>
-    </div>
-    <div id="footer">
-      last watched streams: <span id="stream-list"></span>
-      <br><br>
-      made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by jack kingsman, with much appreciation for carsten hoffrichter's <i>lonely streams</i>
-      <br><br>
-      this site is free, and ad-free, forever; <a href="https://ko-fi.com/jackkingsman" target="_blank" rel="noopener">donations to help offset server costs</a> are much appreciated :)
+      <div id="twitch-embed-wrapper" class="container">
+        <div id="twitch-embed"></div>
+        <div class="grid-container">
+          <div class="left-pane">
+          </div>
+          <div class="right-pane">
+            <p class="cookie-check">Trouble logging into chat? Try enabling third party cookies.</p>
+          </div>
+        </div>
+      </div>
+      <div class="thumbnails container center-text">
+        <button role="button" class="new-thumbnails fake-link">Get new thumbnails<svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg></button>
+        <div id="thumbnails" class="thumbnail-container"></div>
+        <button role="button" class="new-thumbnails fake-link">Get new thumbnails<svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg></button>
+      </div>
+      <div id="footer">
+        last watched streams: <span id="stream-list"></span>
+        <br><br>
+        made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by jack kingsman, with much appreciation for carsten hoffrichter's <i>lonely streams</i>
+        <br><br>
+        this site is free, and ad-free, forever; <a href="https://ko-fi.com/jackkingsman" target="_blank" rel="noopener">donations to help offset server costs</a> are much appreciated :)
+      </div>
     </div>
 
     <div class="modal micromodal-slide" id="filter-modal" aria-hidden="true">
@@ -90,7 +92,7 @@
                 <label for="exclude" class="search-input">Exclude Keywords:</label> <input class="search-input" type="text" id="exclude">
                 <span class="field-description">Exclude games/categories containing <strong>any</strong> of these terms (separate with spaces)</span>
 
-                <span id="remember-container"><input type="checkbox" id="remember"><label for="remember">Remember my filters</label></span>
+                <span class="grid-right"><input type="checkbox" id="remember"><label for="remember">Remember my filters</label></span>
               </div>
               <details>
                 <summary>Advanced</summary>
@@ -106,6 +108,8 @@
 
                   <label for="lang" class="search-input">Language:</label> <input class="search-input" type="text" id="lang">
                   <span class="field-description">Only show streams with the given <a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" target="_new" rel="noreferrer noopener">ISO-639-1</a> language code. Note that 99% zero-viewer streams are <code>en</code> only.</span>
+
+                  <span class="grid-right"><input type="checkbox" id="skinny"><label for="skinny">Skinny page</label></span>
                 </div>
               </details>
             </main>
@@ -283,6 +287,16 @@
         document.getElementById('min-age').value = streamFilter.minAge;
         document.getElementById('lang').value = streamFilter.lang;
 
+        if (localStorage.getItem('skinnyPage')) {
+          if (JSON.parse(localStorage.getItem('skinnyPage'))) {
+            document.body.classList.add('skinny');
+            document.getElementById('skinny').checked = true;
+          } else {
+            document.body.classList.remove('skinny');
+              document.getElementById('skinny').checked = false;
+          }
+        }
+
         if (!streamFilter.include && !streamFilter.exclude && !streamFilter.lang) {
           // we have no filter active; restore things to normal text
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
@@ -348,12 +362,23 @@
         }
       }
 
+      function toggleSkinny() {
+        if (localStorage.getItem('skinnyPage')) {
+          localStorage.setItem('skinnyPage', !JSON.parse(localStorage.getItem('skinnyPage')));
+          document.body.classList.toggle('skinny');
+        } else {
+          localStorage.setItem('skinnyPage', true);
+          document.body.classList.add('skinny');
+        }
+      }
+
       async function initPage() {
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
         document.getElementById('save-filter').addEventListener('click', setGlobalFilterObjectFromForm);
         document.getElementById('save-filter').addEventListener('touchstart', setGlobalFilterObjectFromForm, {passive: true});
         document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
+        document.getElementById('skinny').addEventListener('change', toggleSkinny);
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
 
         // debug mode listener for ctrl+alt+d
