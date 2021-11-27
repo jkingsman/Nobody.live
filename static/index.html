@@ -276,6 +276,11 @@
           langString = `lang:${streamFilter.lang}`;
         }
 
+        let timeString = '';
+        if (streamFilter.minAge > 0) {
+          langString = `⏱>${streamFilter.minAge}m`;
+        }
+
         return `${streamFilter.include} ${excludeString} ${langString}`.trim();
       }
 
@@ -287,17 +292,7 @@
         document.getElementById('min-age').value = streamFilter.minAge;
         document.getElementById('lang').value = streamFilter.lang;
 
-        if (localStorage.getItem('skinnyPage')) {
-          if (JSON.parse(localStorage.getItem('skinnyPage'))) {
-            document.body.classList.add('skinny');
-            document.getElementById('skinny').checked = true;
-          } else {
-            document.body.classList.remove('skinny');
-              document.getElementById('skinny').checked = false;
-          }
-        }
-
-        if (!streamFilter.include && !streamFilter.exclude && !streamFilter.lang) {
+        if (!streamFilter.include && !streamFilter.exclude && !streamFilter.lang && streamFilter.minAge == 0) {
           // we have no filter active; restore things to normal text
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
           document.querySelector('#filter').innerText = 'filter streams';
@@ -309,6 +304,17 @@
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = `Get new thumbnails ('${searchString}')`);
           document.querySelector('#filter').innerText = 'filter active';
           document.getElementById('new-streamer-button').setAttribute('data-message', `new streamer ('${searchString}')`);
+        }
+
+        // nowhere better to handle this
+        if (localStorage.getItem('skinnyPage')) {
+          if (JSON.parse(localStorage.getItem('skinnyPage'))) {
+            document.body.classList.add('skinny');
+            document.getElementById('skinny').checked = true;
+          } else {
+            document.body.classList.remove('skinny');
+              document.getElementById('skinny').checked = false;
+          }
         }
       }
 
