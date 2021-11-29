@@ -1,0 +1,23 @@
+:root {
+    /** Global Variables **/
+    --border-radius: 4pt;
+    --font-size: 13pt;
+    --blur-amount: 6pt;
+    --transparency-more: 0.4;
+    --transparency-less: 0.96;
+    --border-size: 1pt;
+    /** Global Color Definitions **/
+    --secondary-light: hsl(318, 67%, 84%);
+    --secondary-dark: hsl(335, 28%, 46%);
+    --font-light: rgba(255, 255, 255, var(--transparency-less));
+    --font-dark: rgba(0, 0, 0, var(--transparency-less));
+    --primary-dark: rgba(32, 32, 32, var(--transparency-more));
+    --light-color: hsl(240, 47%, 81%);
+    --dark-color: hsl(240, 16%, 34%);
+    --lighter-color: hsl(0, 0%, 100%);
+    --darker-color: hsl(260, 15%, 24%);
+    --light-color-transparent: hsl(240, 49%, 83%, var(--transparency-less));
+    --dark-color-transparent: hsl(268, 19%, 29%, var(--transparency-less));
+    --border-light: var(--border-size) solid var(--light-color);
+    --border-dark: var(--border-size) solid var(--dark-color);
+}

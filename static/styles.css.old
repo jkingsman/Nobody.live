@@ -1,0 +1,188 @@
+body {
+  margin: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #131313;
+  color: #eeebff;
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+p {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+a,
+.fake-link {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #8a8a8a;
+}
+
+.fake-link {
+  background: none !important;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.container {
+  margin-top: 10px;
+  background-color: #202020;
+  padding: 10px;
+}
+
+.thumbnails,
+.filter {
+  text-align: center;
+}
+
+.filter {
+  padding-top: 10px;
+}
+
+#motd {
+  background-color: #003403;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 5px;
+  padding: 10px;
+}
+
+#motd:empty {
+  display: none;
+}
+
+@media only screen and (min-width: 600px) {
+  .grid-container {
+    min-height: 20px;
+    display: grid;
+    grid-template-columns: 80% 20%;
+    grid-template-rows: 1fr;
+    gap: 0px 0px;
+    grid-template-areas: "left-pane right-pane";
+  }
+}
+
+.left-pane {
+  grid-area: left-pane;
+}
+
+.right-pane {
+  grid-area: right-pane;
+  align-self: center;
+  text-align: center;
+}
+
+.left-pane,
+.cookie-check {
+  font-style: italic;
+}
+
+.thumbnail-container {
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+}
+
+@media only screen and (max-width: 600px) {
+  .thumbnail-container {
+    display: grid;
+    grid-template-columns: 50% 50%;
+  }
+
+  #new-streamer-button {
+    margin-top: 10px;
+  }
+
+  h1 {
+    font-size: 1.5em;
+  }
+}
+
+#new-streamer-button {
+  background-color: #008a07;
+  border: none;
+  color: white;
+  padding: 10px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  width: 100%;
+  cursor: pointer;
+}
+
+#new-streamer-button:disabled,
+#new-streamer-button[disabled] {
+  background-color: #efefef;
+}
+
+.loading-throbber {
+  width: 17px;
+  height: 17px;
+  margin-left: 4px;
+}
+
+.search-input {
+  width: 100%;
+  font-weight: bold;
+}
+
+.options-columns {
+  display: grid;
+  grid-gap: 5px;
+  align-items: center;
+}
+
+.field-description {
+  grid-column: 2;
+  font-style: italic;
+  font-size: 95%;
+}
+
+.grid-right {
+  grid-column: 2;
+}
+
+.gird-right > input {
+  margin-left: 0;
+}
+
+#twitch-embed,
+#twitch-embed > iframe {
+  min-height: 85vh;
+}
+
+.thumbnail-item {
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  font-size: 30px;
+  text-align: center;
+  margin: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  width: 90%;
+  justify-self: center;
+}
+
+#footer {
+  text-align: center;
+  margin-top: 13px;
+}
+
+.hidden {
+  display: none;
+}
+
+@media only screen and (min-width: 1200px) {
+  .skinny #page-container {
+    max-width: 70vw;
+    margin: auto;
+  }
+
+  .skinny #twitch-embed, .skinny #twitch-embed > iframe {
+    min-height: 60vh;
+  }
+}

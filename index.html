@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link rel="manifest" href="/static/site.webmanifest">
+    <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#6441a5">
+    <meta name="msapplication-TileColor" content="#6441a5">
+    <meta name="theme-color" content="#6441a5">
+
+    <meta property="og:title" content="Watch streamers with no audience">
+    <meta property="og:site_name" content="Nobody.Live">
+    <meta property="og:url" content="https://nobody.live/">
+    <meta property="og:description" content="Become the entire audience of a lonely streamer broadcasting to zero viewers">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://nobody.live/og.png">
+
+    <meta name="title" content="Nobody.Live -- Lonely Streams with No Audience">
+    <meta name="description" content="Become the entire audience of a lonely streamer broadcasting to zero viewers">
+    <meta name="keywords" content="stream, no viewers stream, streams with no audience, twitch no viewers">
+    <meta name="robots" content="index, follow">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="language" content="English">
+    <meta name="author" content="Jack Kingsman">
+
+    <title>Nobody.live | Lonely streams and streamers with zero viewers</title>
+    <link rel="stylesheet" href="/static/styles.css" type="text/css">
+    <link rel="stylesheet" href="/static/modal.css" type="text/css">
+
+    <link rel="preconnect" href="https://embed.twitch.tv">
+    <link rel="preconnect" href="https://static-cdn.jtvnw.net">
+    <link rel="preconnect" href="https://p.twitchcdn.net">
+    <link rel="preconnect" href="https://static.twitchcdn.net">
+    <link rel="preconnect" href="https://gql.twitch.tv">
+</head>
+
+<body>
+    <div id="page-container">
+        <div id="motd"></div>
+        <div class="grid-container">
+            <div class="left-pane">
+                <h1>nobody.live</h1>
+                <span>streams with nobody watching <span id="stream-debug" class="hidden"> | <a href="#">show stream debug</a></span></span>
+            </div>
+            <div class="right-pane">
+                <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br />
+                <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">filter streams</button>
+            </div>
+        </div>
+        <div id="twitch-embed-wrapper" class="container">
+            <div id="twitch-embed"><iframe src="https://embed.twitch.tv/?channel=topnews360&amp;parent=nobody.live&amp;referrer=https%3A%2F%2Fnobody.live%2F&amp;theme=dark&amp;width=100%25" allowfullscreen="" scrolling="no" allow="autoplay; fullscreen" title="Twitch" sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"
+                    width="100%" frameborder="0"></iframe></div>
+
+            <div class="grid-container">
+                <div class="left-pane">
+                </div>
+                <div class="right-pane">
+                    <p class="cookie-check">Trouble logging into chat? Try enabling third party cookies.</p>
+                </div>
+            </div>
+        </div>
+        <div class="thumbnails container center-text">
+            <button role="button" class="new-thumbnails fake-link">Get new thumbnails<svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg></button>
+            <div id="thumbnails" class="thumbnail-container">
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+                <a href="image/image_00001.png" rel="noopener"><img class="thumbnail-item" title="Image" alt="Image" src="image/image_00001.png"></a>
+
+            </div>
+            <button role="button" class="new-thumbnails fake-link">Get new thumbnails<svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg></button>
+        </div>
+        <div id="footer">
+            last watched streams: <span id="stream-list"></span>
+            <br><br> made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by jack kingsman, with much appreciation for carsten hoffrichter's <i>lonely streams</i>
+            <br><br> this site is free, and ad-free, forever; <a href="https://ko-fi.com/jackkingsman" target="_blank" rel="noopener">donations to help offset server costs</a> are much appreciated :)
+        </div>
+    </div>
+
+    <div class="modal micromodal-slide" id="filter-modal" aria-hidden="true">
+        <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+            <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="filter-modal-title">
+                <header class="modal__header">
+                    <h2 class="modal__title" id="filter-modal-title">
+                        Filter Streams
+                    </h2>
+                    <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+                </header>
+                <form id="search-form">
+                    <main class="modal__content">
+                        <div class="options-columns">
+                            <label for="include" class="search-input">Search phrase:</label> <input class="search-input" type="text" id="include">
+                            <span class="field-description">Only show games/categories which include <strong>all</strong> these terms</span>
+
+                            <label for="exclude" class="search-input">Exclude Keywords:</label> <input class="search-input" type="text" id="exclude">
+                            <span class="field-description">Exclude games/categories containing <strong>any</strong> of these terms (separate with spaces)</span>
+
+                            <span class="grid-right"><input type="checkbox" id="remember"><label for="remember">Remember my filters</label></span>
+                        </div>
+                        <details>
+                            <summary>Advanced</summary>
+                            <div class="options-columns">
+                                <label for="start-lag-time" class="search-input">Min. duration:</label>
+                                <select id="min-age">
+                    <option value="0">Show all streams</option>
+                    <option value="3">Only show &gt;3 minutes on-air</option>
+                    <option value="5">Only show &gt;5 minutes on-air</option>
+                    <option value="10">Only show &gt;10 minutes on-air</option>
+                  </select>
+                                <span class="field-description">Avoid streams in "starting soon" mode by hiding streams which have just started.</span>
+
+                                <label for="lang" class="search-input">Language:</label> <input class="search-input" type="text" id="lang">
+                                <span class="field-description">Only show streams with the given <a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes" target="_new" rel="noreferrer noopener">ISO-639-1</a> language code. Note that 99% zero-viewer streams are <code>en</code> only.</span>
+
+                                <span class="grid-right"><input type="checkbox" id="skinny"><label for="skinny">Skinny page</label></span>
+                            </div>
+                        </details>
+                    </main>
+                    <footer class="modal__footer">
+                        <button class="modal__btn modal__btn-primary" data-micromodal-close aria-label="Save filter" id="save-filter" type="submit">Save & Apply</button>
+                    </footer>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://embed.twitch.tv/embed/v1.js"></script>
+    <script src="/static/micromodal.min.js"></script>
+    <script type="text/javascript">
+        MicroModal.init();
+    </script>
+    <script type="text/javascript">
+        let numberOfThumbnailsToFetch = 16;
+        let server = document.location.origin;
+        let currentStream; // holds JSON blob of currently displayed stream
+        const defaultStreamFilter = {
+            include: '',
+            exclude: '',
+            minAge: 0,
+            lang: '',
+        };
+
+        // use stored filters if we're supposed to remember; otherwise use defaults
+        // don't get confused by the ||'s since we want to fallback gracefully if in weird localstorage state
+        let streamFilterRemember = JSON.parse(localStorage.getItem('streamFilterRemember')) || false;
+        let streamFilter;
+        if (streamFilterRemember) {
+            streamFilter = JSON.parse(localStorage.getItem('streamFilter')) || defaultStreamFilter;
+        } else {
+            streamFilter = defaultStreamFilter;
+        }
+
+        async function getStreams(count = 1) {
+            let streamEndpoint = `${server}/stream?count=${count}&include=${streamFilter.include}&exclude=${streamFilter.exclude}&min_age=${streamFilter.minAge}&lang=${streamFilter.lang}`;
+
+            let streamResponse = await fetch(streamEndpoint);
+            if (streamResponse.status >= 400) {
+                alert('Search error! Please use a shorter search phrase.');
+                MicroModal.show('filter-modal');
+                return;
+            }
+
+            let streamJson = await streamResponse.json();
+            if (streamJson.length === 0) {
+                alert(`Uh oh! No streams found. Please broaden your filter (currently '${generateFilterString()}').`);
+                MicroModal.show('filter-modal');
+            } else {
+                return streamJson;
+            }
+        }
+
+        // performs stream fetch/new streamer button timeout
+        // accepts an optional stream object if streams have been prefetched
+        async function fetchAndRenderRandomStream(_event, prefetchedStream = null) {
+            newStreamerButtonRateLimit();
+            currentStream = prefetchedStream || (await getStreams(1))[0];
+
+            // clear and rerender the embed div
+            document.getElementById('twitch-embed').innerHTML = '';
+            new Twitch.Embed('twitch-embed', {
+                width: '100%',
+                channel: currentStream.user_name,
+                theme: 'dark',
+                parent: ['nobody.live']
+            });
+
+            // load and append stream to historical streams
+            let usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
+            usernames.push(currentStream.user_name);
+            let trimmedUsernames = usernames.slice(-5);
+            localStorage.setItem('streamHistoryJSON', JSON.stringify(trimmedUsernames));
+
+            // rerender list of historical streams
+            document.getElementById('stream-list').innerHTML = trimmedUsernames.map(username => {
+                let a = document.createElement('a');
+                var linkText = document.createTextNode(username);
+                a.appendChild(linkText);
+                a.href = 'https://www.twitch.tv/' + username;
+                a.target = '_blank'
+                a.rel = 'noopener';
+
+                return a.outerHTML;
+            }).join(', ');
+        }
+
+        // fetches a given number of thumbnails and renders them into view
+        // accepts an optional list of streams to draw from instead of making an API call
+        async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch, prefetchedStreamList = null) {
+            // hacky way to debounce this
+            // unhook the event listener until we're done, and reinstate and the end
+            document.querySelectorAll('.new-thumbnails').forEach((button) => button.removeEventListener('click', fetchAndRenderThumbnails));
+
+            let container = document.getElementById('thumbnails');
+
+            // if this is not our first load, lock elem height so there's no reflow as we load new ones
+            if (container.childNodes.length != 0) {
+                container.style.height = `${container.offsetHeight}px`;
+            }
+
+            // fetch or use prefetched thumbs, clear existing thumbs, and render new ones
+            document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.remove('hidden'));
+            let thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
+            container.innerHTML = '';
+
+            thumbsJSON.forEach(stream => {
+                // embed inside of an a element so you can ctrl+click to open in a new tab
+                let a = document.createElement('a');
+                a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
+                // override the default so on-page clicks just run the render code
+                a.onclick = (event) => {
+                    if (!event.ctrlKey && !event.metaKey) {
+                        event.preventDefault();
+                        fetchAndRenderRandomStream(null, stream);
+
+                        document.body.scrollTop = 0; // For Safari
+                        document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+                    }
+                };
+                a.rel = 'noopener';
+
+                let thumb = document.createElement('img');
+                thumb.className = "thumbnail-item";
+                thumb.alt = thumb.title = `${stream.user_name}: ${stream.title || '[No title]'}`
+                thumb.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
+
+                a.appendChild(thumb);
+                container.appendChild(a);
+            });
+
+            document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.add('hidden'));
+
+            // restore any height locking we did after the thumbs have had a chance to load
+            setTimeout(() => container.style.height = 'auto', 1000);
+
+            // restore our button listener from our hacky debounce
+            document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
+        }
+
+        function newStreamerButtonRateLimit() {
+            document.getElementById('new-streamer-button').disabled = true;
+            document.getElementById('new-streamer-button').innerText = 'please wait...';
+
+            setTimeout(() => {
+                let newButton = document.getElementById('new-streamer-button');
+                newButton.disabled = false;
+                newButton.innerText = newButton.getAttribute('data-message');
+            }, 2000);
+        }
+
+        // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
+        function generateFilterString() {
+            let excludeString = '';
+            if (streamFilter.exclude) {
+                excludeString = streamFilter.exclude.split(' ').map((term) => `not:${term}`).join(" ");
+            }
+
+            let langString = '';
+            if (streamFilter.lang) {
+                langString = `lang:${streamFilter.lang}`;
+            }
+
+            let timeString = '';
+            if (streamFilter.minAge > 0) {
+                langString = `⏱>${streamFilter.minAge}m`;
+            }
+
+            return `${streamFilter.include} ${excludeString} ${langString}`.trim();
+        }
+
+        // populates the filter UI with remembered values and sets thumbnail + new streamer button text
+        function setUIFromGlobalFilterObject() {
+            document.getElementById('remember').checked = streamFilterRemember;
+            document.getElementById('include').value = streamFilter.include;
+            document.getElementById('exclude').value = streamFilter.exclude;
+            document.getElementById('min-age').value = streamFilter.minAge;
+            document.getElementById('lang').value = streamFilter.lang;
+
+            if (!streamFilter.include && !streamFilter.exclude && !streamFilter.lang && streamFilter.minAge == 0) {
+                // we have no filter active; restore things to normal text
+                document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
+                document.querySelector('#filter').innerText = 'filter streams';
+                document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
+            } else {
+                let searchString = generateFilterString();
+
+                // set thumbnail text, filter status, and new streamer button text
+                document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = `Get new thumbnails ('${searchString}')`);
+                document.querySelector('#filter').innerText = 'filter active';
+                document.getElementById('new-streamer-button').setAttribute('data-message', `new streamer ('${searchString}')`);
+            }
+
+            // nowhere better to handle this
+            if (localStorage.getItem('skinnyPage')) {
+                if (JSON.parse(localStorage.getItem('skinnyPage'))) {
+                    document.body.classList.add('skinny');
+                    document.getElementById('skinny').checked = true;
+                } else {
+                    document.body.classList.remove('skinny');
+                    document.getElementById('skinny').checked = false;
+                }
+            }
+        }
+
+        // called after the filter form is updated and persists or clears filters to localstorage
+        async function setGlobalFilterObjectFromForm(e) {
+            if (e) {
+                e.preventDefault();
+            }
+
+            let include = document.getElementById('include').value.trim();
+            let exclude = document.getElementById('exclude').value.trim();
+            let minAge = document.getElementById('min-age').value;
+            let lang = document.getElementById('lang').value;
+            streamFilterRemember = document.getElementById('remember').checked;
+
+            let shouldReload = streamFilter.include !== include ||
+                streamFilter.exclude !== exclude ||
+                streamFilter.lang !== lang;
+
+            streamFilter.include = include;
+            streamFilter.exclude = exclude;
+            streamFilter.minAge = minAge;
+            streamFilter.lang = lang;
+
+            if (streamFilterRemember) {
+                localStorage.setItem('streamFilter', JSON.stringify(streamFilter));
+                localStorage.setItem('streamFilterRemember', true);
+            } else {
+                localStorage.setItem('streamFilter', JSON.stringify(defaultStreamFilter));
+                localStorage.setItem('streamFilterRemember', false);
+            }
+
+            setUIFromGlobalFilterObject();
+
+            // only fetch new streams and thumbs if something changed
+            if (shouldReload) {
+                let fetchedStreams = await getStreams(13);
+                fetchAndRenderRandomStream(null, fetchedStreams[0]);
+                fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
+            }
+
+            return false;
+        }
+
+        async function fetchAndRenderMOTD() {
+            let motd = await fetch(`${server}/static/motd`);
+            // only render if one exists
+            if (motd.status == 200) {
+                let motdText = await motd.text();
+                document.getElementById('motd').innerHTML = motdText;
+            }
+        }
+
+        function toggleSkinny() {
+            if (localStorage.getItem('skinnyPage')) {
+                localStorage.setItem('skinnyPage', !JSON.parse(localStorage.getItem('skinnyPage')));
+                document.body.classList.toggle('skinny');
+            } else {
+                localStorage.setItem('skinnyPage', true);
+                document.body.classList.add('skinny');
+            }
+        }
+
+        async function initPage() {
+            // hook up all event listeners
+            document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
+            document.getElementById('save-filter').addEventListener('click', setGlobalFilterObjectFromForm);
+            document.getElementById('save-filter').addEventListener('touchstart', setGlobalFilterObjectFromForm, {
+                passive: true
+            });
+            document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
+            document.getElementById('skinny').addEventListener('change', toggleSkinny);
+            document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
+
+            // debug mode listener for ctrl+alt+d
+            document.addEventListener("keydown", async function(e) {
+                if (e.ctrlKey && e.altKey && e.key === "d") { // case sensitive
+                    numberOfThumbnailsToFetch = 64;
+
+                    let debugButton = document.getElementById('stream-debug');
+
+                    debugButton.classList.remove('hidden');
+                    debugButton.addEventListener('click', () => {
+                        window.open(`${server}/stream/${currentStream.id}`, '_blank')
+                    });
+                    debugButton.addEventListener('touchstart', () => {
+                        window.open(`${server}/stream/${currentStream.id}`, '_blank')
+                    });
+                }
+            });
+
+            setUIFromGlobalFilterObject();
+
+            // prefetch 17 thumbs (main + 16 thumbnails)
+            let fetchedStreams = await getStreams(17);
+
+            // if we have /?stream=... then render the specified stream
+            // otherwise grab a random one
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('stream')) {
+                console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
+                fetchAndRenderRandomStream(null, JSON.parse(urlParams.get('stream')));
+                window.history.pushState({}, document.title, window.location.pathname);
+                newStreamerButtonRateLimit();
+            } else {
+                fetchAndRenderRandomStream(null, fetchedStreams[0]);
+            }
+
+            fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
+            fetchAndRenderMOTD();
+        }
+
+        initPage();
+    </script>
+    <script defer src="https://www.googletagmanager.com/gtag/js?id=G-7JF3B0HFYJ"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-7JF3B0HFYJ');
+    </script>
+</body>
+
+</html>
