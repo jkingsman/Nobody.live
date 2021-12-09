@@ -43,7 +43,7 @@
       <div class="grid-container">
         <div class="left-pane">
           <h1>nobody.live</h1>
-          <span>streams with nobody watching <span id="stream-debug" class="hidden"> | <a href="#">show stream debug</a></span></span>
+          <span id="tagline">streams with nobody watching <span id="stream-debug" class="hidden"> | <a href="#">show stream debug</a></span></span>
         </div>
         <div class="right-pane">
           <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br />
@@ -284,7 +284,9 @@
         return `${streamFilter.include} ${excludeString} ${langString}`.trim();
       }
 
-      // populates the filter UI with remembered values and sets thumbnail + new streamer button text
+      // populates the filter UI and sets thumbnail + new streamer button text
+      // values sourced from global streamFilter object
+      // which is either default/empty or populated from localstorage on page load
       function setUIFromGlobalFilterObject() {
         document.getElementById('remember').checked = streamFilterRemember;
         document.getElementById('include').value = streamFilter.include;
@@ -378,6 +380,16 @@
         }
       }
 
+      async function enableDebug() {
+        numberOfThumbnailsToFetch = 64;
+
+        let debugButton = document.getElementById('stream-debug');
+
+        debugButton.classList.remove('hidden');
+        debugButton.addEventListener('click', () => {window.open(`${server}/stream/${currentStream.id}`, '_blank')});
+        debugButton.addEventListener('touchstart', () => {window.open(`${server}/stream/${currentStream.id}`, '_blank')});
+      }
+
       async function initPage() {
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
@@ -386,19 +398,8 @@
         document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
         document.getElementById('skinny').addEventListener('change', toggleSkinny);
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
-
-        // debug mode listener for ctrl+alt+d
-        document.addEventListener("keydown", async function (e) {
-          if (e.ctrlKey && e.altKey && e.key === "d") {  // case sensitive
-            numberOfThumbnailsToFetch = 64;
-
-            let debugButton = document.getElementById('stream-debug');
-
-            debugButton.classList.remove('hidden');
-            debugButton.addEventListener('click', () => {window.open(`${server}/stream/${currentStream.id}`, '_blank')});
-            debugButton.addEventListener('touchstart', () => {window.open(`${server}/stream/${currentStream.id}`, '_blank')});
-          }
-        });
+        document.getElementById('tagline').addEventListener('click', enableDebug);
+        document.getElementById('tagline').addEventListener('touchstart', enableDebug, {passive: true});
 
         setUIFromGlobalFilterObject();
 
