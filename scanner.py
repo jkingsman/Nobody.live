@@ -32,7 +32,7 @@ def get_bearer_token(client_id, secret):
     payload = {'client_id': client_id,
                'client_secret': secret,
                'grant_type': 'client_credentials'}
-    token_response = requests.post('https://id.twitch.tv/oauth2/token', params=payload)
+    token_response = requests.post('https://id.twitch.tv/oauth2/token', params=payload, timeout=4)
 
     logging.debug(f"Issuing token request to {token_response.url}")
 
@@ -53,7 +53,7 @@ def get_stream_list_response(session, client_id, token, pagination_offset=None):
     if pagination_offset:
         url_params['after'] = pagination_offset
 
-    stream_list = session.get('https://api.twitch.tv/helix/streams', headers=headers, params=url_params)
+    stream_list = session.get('https://api.twitch.tv/helix/streams', headers=headers, params=url_params, timeout=4)
     return stream_list
 
 
