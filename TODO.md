@@ -1,3 +1,2 @@
-* ML classification of cam-on vs. cam-off streams
-  * Overall vs. cut into quadrants?
-  * Do human face detection in quadrants?
+* Add single viewer stream view option
+  * Create DB field to store viewer count
