@@ -122,6 +122,10 @@
     </div>
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
+
+    <script src="/static/thumbface/pico.js"></script>
+    <script src="/static/thumbface/facefinder_utils.js"></script>
+
     <script src="/static/micromodal.min.js"></script>
     <script type="text/javascript">
       MicroModal.init();
@@ -216,10 +220,27 @@
 
         // fetch or use prefetched thumbs, clear existing thumbs, and render new ones
         document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.remove('hidden'));
-        let thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
-        container.innerHTML = '';
 
-        thumbsJSON.forEach(stream => {
+        container.innerHTML = '';
+        let thumbsJSON = await getStreams(64);
+        let thumbsWithFaces = [];
+        for (thumb of thumbsJSON) {
+          let sizedURL = thumb.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
+
+          if (await getFaceCount(sizedURL) > 0) {
+            console.log(`got faces for ${sizedURL}`)
+            thumbsWithFaces.push(thumb)
+          } else {
+            console.log(`skipping no face for ${sizedURL}`)
+          }
+
+          if (thumbsWithFaces.length == thumbCount) {
+            console.log("Got enough faces; stopping...")
+            break;
+          }
+        }
+
+        thumbsWithFaces.forEach(stream => {
             // embed inside of an a element so you can ctrl+click to open in a new tab
             let a = document.createElement('a');
             a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
