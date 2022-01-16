@@ -55,7 +55,7 @@ async def get_streams(request):
     include_list = include.split()
     exclude_list = exclude.split()
 
-    if not include_list and not exclude_list and max_viewers == 0 and min_age == 0:
+    if not include_list and not exclude_list and min_age == 0:
         # if we have no criteria we can optimize
         # select a large enough sample
         games_query = "SELECT data FROM streams TABLESAMPLE system_rows(250) WHERE viewer_count <= $1"
