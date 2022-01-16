@@ -355,7 +355,7 @@
       }
 
       async function fetchAndRenderMOTD() {
-        let motd = await fetch(`${server}/static/motd`);
+        let motd = await fetch(`${server}/static/motd?cachebust=${Date.now()}`);
         // only render if one exists
         if (motd.status == 200) {
           let motdText = await motd.text();
