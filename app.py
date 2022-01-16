@@ -19,6 +19,12 @@ query_fill_limit = 5
 # use builtin json with unicode instead of sanic's
 json_dumps = partial(json.dumps, separators=(",", ":"), ensure_ascii=False)
 
+def get_from_dict_as_int_or_default(obj, key, default=0):
+    try:
+        return int(obj.get(key, default))
+    except ValueError:
+        return default
+
 @app.listener('before_server_start')
 async def register_db(app, loop):
     app.config['pool'] = await create_pool(
@@ -42,11 +48,11 @@ app.static('/static', './static')
 async def get_streams(request):
     pool = request.app.config['pool']
 
-    count = int(request.args.get('count', 1))
+    count = get_from_dict_as_int_or_default(request.args, 'count', 1)
+    max_viewers = get_from_dict_as_int_or_default(request.args, 'max_viewers', 0)
+    min_age = get_from_dict_as_int_or_default(request.args, 'min_age', 0)
     include = request.args.get('include', '')
     exclude = request.args.get('exclude', '')
-    max_viewers = int(request.args.get('max_viewers', 0))
-    min_age = int(request.args.get('min_age', 0))
 
     # do a moderate approximation of not falling over
     if count > 64 or len(include) + len(exclude) > 64:
