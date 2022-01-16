@@ -14,14 +14,14 @@ CREATE EXTENSION IF NOT EXISTS tsm_system_rows;
 CREATE TABLE IF NOT EXISTS streams (
     id   TEXT UNIQUE PRIMARY KEY,
     time INTEGER NOT NULL DEFAULT extract(epoch from now() at time zone 'utc'),
+    viewer_count INTEGER,
     game TEXT,
     streamstart TIMESTAMP,
-    lang TEXT,
     data TEXT
 );
 
+CREATE INDEX IF NOT EXISTS viewer_count ON streams (viewer_count);
 CREATE INDEX IF NOT EXISTS lowercase_game ON streams (lower(game));
-CREATE INDEX IF NOT EXISTS lowercase_lang ON streams (lower(lang));
 CREATE INDEX IF NOT EXISTS game_trgm ON streams USING gin (lower(game) gin_trgm_ops);
 """
 
@@ -36,9 +36,9 @@ def migrate():
 
 
 def bulk_insert_streams(streams):
-    formatted_rows = [(stream['id'], stream['game_name'], parser.parse(stream['started_at']), stream['language'], json.dumps(stream)) for stream in streams]
+    formatted_rows = [(stream['id'], stream['game_name'], stream['viewer_count'], parser.parse(stream['started_at']), json.dumps(stream)) for stream in streams]
     insert_query = """
-        INSERT INTO streams (id, game, streamstart, lang, data) values %s
+        INSERT INTO streams (id, game, viewer_count, streamstart, data) values %s
         ON CONFLICT(id) DO UPDATE
         SET time=extract(epoch from now() at time zone 'utc');"""
 

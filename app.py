@@ -12,6 +12,10 @@ from sanic.response import json as sanic_json, text
 
 app = Sanic(__name__)
 
+# the optimized query flow not guaranteed to return enough results
+# how many queries should we make to try to hit our requested count before giving up
+query_fill_limit = 5
+
 # use builtin json with unicode instead of sanic's
 json_dumps = partial(json.dumps, separators=(",", ":"), ensure_ascii=False)
 
@@ -41,7 +45,7 @@ async def get_streams(request):
     count = int(request.args.get('count', 1))
     include = request.args.get('include', '')
     exclude = request.args.get('exclude', '')
-    lang = request.args.get('lang', '')
+    max_viewers = int(request.args.get('max_viewers', 0))
     min_age = int(request.args.get('min_age', 0))
 
     # do a moderate approximation of not falling over
@@ -51,12 +55,25 @@ async def get_streams(request):
     include_list = include.split()
     exclude_list = exclude.split()
 
-    if not include_list and not exclude_list and not lang and min_age == 0:
+    if not include_list and not exclude_list and max_viewers == 0 and min_age == 0:
         # if we have no criteria we can optimize
-        games_query = "SELECT data FROM streams TABLESAMPLE system_rows($1)"
+        # select a large enough sample
+        games_query = "SELECT data FROM streams TABLESAMPLE system_rows(250) WHERE viewer_count <= $1"
 
         async with pool.acquire() as conn:
-            streams = await conn.fetch(games_query, count)
+            query_count = 1
+            streams = await conn.fetch(games_query, max_viewers)
+            extracted_streams = [json.loads(stream[0]) for stream in streams]
+
+            # TABLESAMPLE not guaranteed to return enough rows, especially (mainly) after filtering
+            # Issue additional queries up to query_fill_limit to attempt to meet our quota
+            # If not done, give up and return what we have
+            while len(extracted_streams) < count and query_count < query_fill_limit:
+                new_streams = await conn.fetch(games_query, max_viewers)
+                extracted_streams += [json.loads(stream[0]) for stream in new_streams]
+                query_count += 1
+
+            extracted_streams = extracted_streams[:count]
     else:
         # this is so hacky but it looks like how we have to do things for asyncpg.
         # if anyone knows of an easier way to do LIKE on ALL elements of a list (and inverse)
@@ -80,10 +97,9 @@ async def get_streams(request):
             query_arg_index += 1
             query_arg_list.append(min_age)
 
-        if lang:
-            query_arg_string += f"AND lang = ${query_arg_index}"
-            query_arg_index += 1
-            query_arg_list.append(lang)
+        query_arg_string += f"AND viewer_count <= ${query_arg_index}"
+        query_arg_index += 1
+        query_arg_list.append(max_viewers)
 
         query_arg_list.append(count)
 
@@ -96,11 +112,11 @@ async def get_streams(request):
 
         async with pool.acquire() as conn:
             streams = await conn.fetch(games_query, *query_arg_list)
+            extracted_streams = [json.loads(stream[0]) for stream in streams]
 
     if not streams:
         return sanic_json([], dumps=json_dumps)
 
-    extracted_streams = [json.loads(stream[0]) for stream in streams]
     return sanic_json(extracted_streams, dumps=json_dumps)
 
 

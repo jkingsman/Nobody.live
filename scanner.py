@@ -21,7 +21,7 @@ if not CLIENT_ID or not CLIENT_SECRET:
     logging.error('CLIENT_ID or CLIENT_SECRET not set correctly! Exiting...')
     sys.exit(1)
 
-MAX_VIEWERS = 0  # number of viewers to be considered for inclusion
+MAX_VIEWERS = 1  # number of viewers to be considered for inclusion
 REQUEST_LIMIT = 1500  # number of API requests to stop at before starting a new search
 MINIMUM_STREAMS_TO_GET = 50  # if REQUEST_LIMIT streams doesn't capture at least this many zero-
                              # viewer streams, keep going
