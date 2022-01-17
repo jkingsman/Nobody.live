@@ -1,0 +1,183 @@
+html {
+  font-size: 14pt;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #131313;
+  color: white;
+}
+
+.header {
+  grid-column: 1/4;
+  background: #131313;
+  height: 4rem;
+  color: whitesmoke;
+  padding-left: 1rem;
+  &>h1, 
+  &>span {
+    padding: 0;
+    margin: 0;
+    }
+}
+
+.new-streamer {
+  height: 4rem;
+  background: #202020;
+}
+
+.main {
+  background: #202020;
+  padding: 0;
+}
+
+.sidebar {
+  background: #202020;
+}
+
+[normal-page] {
+  .grid-container {
+    display: grid;
+    grid-template-columns: 18fr 1fr 1fr;
+  }
+
+  .grid-container > div {
+    padding: 0.6rem;
+  }
+
+  .new-streamer {
+    grid-column: 4/5;
+  }
+
+  .main {
+    grid-column: 1/3;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .sidebar {
+    grid-column: 3/5;
+  }
+}
+/* [normal-page] .sidebar>.thumbnails>#thumbnails>a:nth-child(-n+3) {
+    opacity: .3;
+} */
+
+.footer {
+  grid-column: 1/5;
+  color: white;
+  padding: 1rem;
+}
+
+.motd {
+  grid-column: 1/5;
+  background-color: #003403;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 5px;
+  padding: 10px;
+  color: whitesmoke;
+}
+
+#twitch-embed {
+  width: 100%;
+  height: 100%;
+}
+
+#new-streamer-button {
+  background-color: #008a07;
+  border: none;
+  color: white;
+  padding: 10px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1rem;
+  width: 100%;
+  cursor: pointer;
+}
+
+#new-streamer-button:disabled,
+#new-streamer-button[disabled] {
+  background-color: #efefef;
+}
+#new-streamer-button:enabled:hover {
+    background: rgb(54, 105, 57);
+}
+.thumbnails,
+.filter {
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.7rem;
+  font-style: italic;
+}
+
+.left-pane,
+.cookie-check {
+  font-style: italic;
+}
+
+div#thumbnails > a > img.thumbnail-item {
+  width: 100%;
+}
+[large-player] {
+  .main {
+    width: 80%;
+    margin: 0 0 8% 8%;
+    padding: 1%;
+    margin-bottom: 0.4rem;
+  }
+
+  div#thumbnails > a > img.thumbnail-item {
+    width: 18rem;
+    padding: 0.4rem;
+  }
+
+  .header {
+    width: calc(80% - 1rem);
+    float: left;
+    height: 5rem;
+  }
+
+  .new-streamer {
+    width: 20%;
+    height: 5rem;
+    float: right;
+  }
+
+  .motd {
+    clear: both;
+  }
+
+  .sidebar {
+    margin: 0.4rem;
+  }
+}
+#twitch-embed,
+#twitch-embed > iframe {
+  min-height: 85vh;
+}
+a,
+.fake-link {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #b4bff8;
+}
+
+.fake-link {
+  background: none !important;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+a:hover,
+.fake-link:hover {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #808ddb;
+}
+

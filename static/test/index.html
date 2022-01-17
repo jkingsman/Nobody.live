@@ -1,228 +1,22 @@
 <!DOCTYPE html>
-<html lang="en" normal-page id="hello">
+<html lang="en" id="main-page" normal-page >
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Index</title>
-    <style>
-        html {
-            font-size: 14pt;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        body {
-            margin: 0;
-            background: #131313;
-            color: white;
-        }
-
-        .header {
-            grid-column: 1/4;
-            background: #131313;
-            height: 4rem;
-            color: whitesmoke;
-            padding-left: 1rem;
-        }
-        .new-streamer {
-            height: 4rem;
-
-        }
-        [normal-page] .grid-container {
-            display: grid;
-            grid-template-columns: 18fr 1fr 1fr;
-        }
-
-        [normal-page] .grid-container>div {
-            padding: 0.6rem;
-        }
-
-        .header>h1,
-        .header>span {
-            padding: 0;
-            margin: 0;
-        }
-
-        .new-streamer {
-            background: #202020;
-        }
-
-        [normal-page] .new-streamer {
-            grid-column: 4/5;
-        }
-
-        .main {
-            background: #202020;
-            padding: 0;
-        }
-
-        [normal-page] .main {
-            grid-column: 1/3;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .sidebar {
-            background: #202020;
-        }
-
-        [normal-page] .sidebar {
-            grid-column: 3/5;
-        }
-
-        /* [normal-page] .sidebar>.thumbnails>#thumbnails>a:nth-child(-n+3) {
-            opacity: .3;
-        } */
-
-        .footer {
-            grid-column: 1/5;
-            color: white;
-            padding: 1rem;
-        }
-
-        .motd {
-            grid-column: 1/5;
-            background-color: #003403;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 5px;
-            padding: 10px;
-            color: whitesmoke;
-        }
-
-        #twitch-embed {
-            width: 100%;
-            height: 100%;
-        }
-
-        a,
-        .fake-link {
-            cursor: pointer;
-            text-decoration: underline;
-            color: #8a8a8a;
-        }
-
-        .fake-link {
-            background: none !important;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        #new-streamer-button {
-            background-color: #008a07;
-            border: none;
-            color: white;
-            padding: 10px 5px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 1rem;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        #new-streamer-button:disabled,
-        #new-streamer-button[disabled] {
-            background-color: #efefef;
-        }
-
-        .thumbnails,
-        .filter {
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 2.7rem;
-            font-style: italic;
-        }
-
-        .left-pane,
-        .cookie-check {
-            font-style: italic;
-        }
-
-        div#thumbnails>a>img.thumbnail-item {
-            width: 100%;
-        }
-
-        [skinny-page] .main {
-            width: 80%;
-            margin: 0 0 8% 8%;
-            padding: 1%;
-            margin-bottom: .4rem;
-        }
-
-        [skinny-page] div#thumbnails>a>img.thumbnail-item {
-            width: 18rem;
-            padding: .4rem;
-        }
-
-        [skinny-page] .header {
-            width: calc(80% - 1rem);
-            float: left;
-            height: 5rem;
-        }
-
-        [skinny-page] .new-streamer {
-            width: 20%;
-            height: 5rem;
-            float: right;
-        }
-
-        [skinny-page] .motd {
-            clear: both;
-        }
-
-        [skinny-page] .sidebar {
-            margin: .4rem;
-        }
-
-        #twitch-embed,
-        #twitch-embed>iframe {
-            min-height: 85vh;
-        }
-
-        @media (prefers-contrast: more) {
-            .motd {
-                background: #0c200d;
-            }
-
-            .main>#twitch-embed>iframe {
-                padding: 0;
-                margin: 0;
-            }
-
-            #new-streamer-button,
-            div#thumbnails>a>img.thumbnail-item,
-            .main>#twitch-embed>iframe,
-            .motd {
-                border: 1px solid white;
-                margin-bottom: 0;
-            }
-            .fake-link {
-                color: white;
-                font-size: 1rem;
-            }
-            .header, .new-streamer {
-                border-bottom: 1px solid white;
-            }
-            .footer {
-                border-top: 1px solid white;
-            }
-            .sidebar {
-                border-left: 1px solid white;
-
-            }
-        }
-    </style>
+    
+    <!-- Main CSS File -->
+    <link rel="stylesheet" href="style.css">
+    <!-- High Contrast Theme -->
+    <link rel="stylesheet" href="highcontrast.css">
 </head>
 
 <body>
     <div class="grid-container">
         <div class="header">
-            <h1>nobody.live</h1>
+            <h1>Nobody[dot]Live</h1>
             <span>
                 streams with nobody watching
             </span>
@@ -340,28 +134,9 @@
             </div>
         </div>
         <div class="footer">
-            Footer! | Make the page skinny? <input type="checkbox" id="checkBox" onclick="toggleSkinny()">
+            Footer! | Make the player larger? <input type="checkbox" id="checkBox" onclick="togglePlayer()">
         </div>
     </div>
-    <script>
-        function toggleSkinny() {
-            var checkBox = document.getElementById('checkBox');
-            if (checkBox.checked && document.getElementById("hello").hasAttribute('normal-page')) {
-                document.getElementById("hello").setAttribute('skinny-page', '');
-                document.getElementById("hello").removeAttribute('normal-page', '');
-                removeAttribute
-            } else {
-                document.getElementById("hello").setAttribute('normal-page', '');
-                document.getElementById("hello").removeAttribute('skinny-page', '');
-            }
-        }
-        /*
-         *  document.getElementById('stream-title').innerText = " " + currentStream.title + " " || 'Broadcast';
-         *  document.getElementById('streamer-name').innerText = " " + currentStream.user_name + " ";
-         *  document.getElementById('stream-game').innerText = " " + currentStream.game_name + " ";
-         */
-
-    </script>
+    <script src="main.js"></script>
 </body>
-
 </html>

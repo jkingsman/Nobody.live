@@ -2,7 +2,7 @@ TODO
 
 - [ ] Reimpelment the search diolouge 
 
-- [ ] Add presestient local storage for options,
+- [ ] Add presestient local storage for options, *Soon enough...*
 
 - [ ] Make page look less... Jank
 
@@ -10,31 +10,29 @@ TODO
 
 - [ ] Question why I did this...
 
-- [ ] Reconsider if CSS is truly the way foward 
+- [x] Reconsider if CSS is truly the way foward 
   
      - Hint: it is not
 
-- [ ] Think about how grid is better than flex box
+- [x] Think about how grid is better than flex box
 
 - [ ] Improve High Contrast theme
-
-     - [ ] Add some indacation that a link or button is being hovered over, 
-
-          - maybe a larger border? 
-
-          - Or prehaps dotted lines?
+  
+     - [x] Add some indacation that a link or button is being hovered over, 
+       
+          - [ ] dotted lines?
 
 - [ ] Add basic animations
 
 - [ ] Add support for "prefers-reduced-motion"
 
-- [ ] Make sure everything is scalable with font size
+- [x] Make sure everything is scalable with font size
 
 - [ ] Make that check box look nicer
 
-- [ ] Fix the wording on the checkbox in the footer?
-
-     - Skinny page does not fit well, lol
+- [x] Fix the wording on the checkbox in the footer?
+  
+     - ~~Skinny page does not fit well, lol~~ It does now (:
 
 # Why did you do this? What have you done?
 

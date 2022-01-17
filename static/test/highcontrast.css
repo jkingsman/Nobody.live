@@ -1,0 +1,53 @@
+@media screen and (prefers-contrast: more) {
+  .motd {
+    background: #0c200d;
+  }
+
+  .main > #twitch-embed > iframe {
+    padding: 0;
+    margin: 0;
+  }
+
+  #new-streamer-button,
+div#thumbnails > a > img.thumbnail-item,
+.main > #twitch-embed > iframe,
+.motd {
+    border: 1px solid white;
+    margin-bottom: 0;
+  }
+
+  .fake-link {
+    color: #a6b3fc;
+    font-size: 1rem;
+  }
+
+  .header,
+.new-streamer {
+    border-bottom: 1px solid white;
+  }
+
+  .sidebar {
+    border-left: 1px solid white;
+  }
+
+  .footer {
+    border-top: 1px solid white;
+  }
+
+  a:hover,
+.fake-link:hover {
+    color: #dbd9ff;
+  }
+
+  #new-streamer-button:enabled {
+    background: #345f37;
+  }
+
+  #new-streamer-button:enabled:hover {
+    background: #143f17;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+}/*# sourceMappingURL=highcontrast.css.map */
