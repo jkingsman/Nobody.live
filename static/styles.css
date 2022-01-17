@@ -186,7 +186,8 @@ a,
     margin: auto;
   }
 
-  .skinny #twitch-embed, .skinny #twitch-embed > iframe {
+  .skinny #twitch-embed,
+  .skinny #twitch-embed > iframe {
     min-height: 60vh;
   }
 }

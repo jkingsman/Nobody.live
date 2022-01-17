@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" normal-page id="hello">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <style>
+        html {
+            font-size: 14pt;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #131313;
+        }
+
+        .header {
+            grid-column: 1/4;
+            background: #131313;
+            height: 4rem;
+            color: whitesmoke;
+            padding-left: 1rem;
+        }
+
+        [normal-page] .grid-container {
+            display: grid;
+            grid-template-columns: 18fr 1fr 1fr;
+        }
+
+        [normal-page] .grid-container>div {
+            padding: 0.6rem;
+        }
+
+        .header>h1,
+        .header>span {
+            padding: 0;
+            margin: 0;
+        }
+
+        .new-streamer {
+            background: #202020;
+        }
+
+        [normal-page] .new-streamer {
+            grid-column: 4/5;
+        }
+
+        .main {
+            background: #202020;
+            padding: 0;
+        }
+
+        [normal-page] .main {
+            grid-column: 1/3;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .sidebar {
+            background: #202020;
+        }
+
+        [normal-page] .sidebar {
+            grid-column: 3/5;
+        }
+
+        /* [normal-page] .sidebar>.thumbnails>#thumbnails>a:nth-child(-n+3) {
+            opacity: .3;
+        } */
+
+        .footer {
+            grid-column: 1/5;
+            color: white;
+            padding: 1rem;
+        }
+
+        .motd {
+            grid-column: 1/5;
+            background-color: #003403;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            padding: 10px;
+            color: whitesmoke;
+        }
+
+        #twitch-embed {
+            width: 100%;
+            height: 100%;
+        }
+
+        a,
+        .fake-link {
+            cursor: pointer;
+            text-decoration: underline;
+            color: #8a8a8a;
+        }
+
+        .fake-link {
+            background: none !important;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #new-streamer-button {
+            background-color: #008a07;
+            border: none;
+            color: white;
+            padding: 10px 5px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1rem;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        #new-streamer-button:disabled,
+        #new-streamer-button[disabled] {
+            background-color: #efefef;
+        }
+
+        .thumbnails,
+        .filter {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.7rem;
+            font-style: italic;
+        }
+
+        .left-pane,
+        .cookie-check {
+            font-style: italic;
+        }
+
+        div#thumbnails>a>img.thumbnail-item {
+            width: 100%;
+        }
+
+        [skinny-page] .main {
+            width: 80%;
+            margin: 0 0 8% 8%;
+            padding: 1%;
+            margin-bottom: .4rem;
+        }
+
+        [skinny-page] div#thumbnails>a>img.thumbnail-item {
+            width: 18rem;
+            padding: .4rem;
+        }
+
+        [skinny-page] .header {
+            width: calc(80% - 1rem);
+            float: left;
+            height: 5rem;
+        }
+
+        [skinny-page] .new-streamer {
+            width: 20%;
+            height: 5rem;
+            float: right;
+        }
+
+        [skinny-page] .motd {
+            clear: both;
+        }
+
+        [skinny-page] .sidebar {
+            margin: .4rem;
+        }
+
+        #twitch-embed,
+        #twitch-embed>iframe {
+            min-height: 85vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid-container">
+        <div class="header">
+            <h1>nobody.live</h1>
+            <span>
+                streams with nobody watching
+            </span>
+        </div>
+        <div class="new-streamer">
+            <!-- Added for testing purpuses -->
+            <button id="new-streamer-button" data-message="new streamer">new streamer</button>
+            <!-- <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br /> -->
+            <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">filter streams</button>
+        </div>
+        <div class="motd">
+            MOTD!
+        </div>
+        <div class="main">
+            <div id="twitch-embed">
+                <iframe src="Twitch.html" allowfullscreen="" scrolling="no" frameborder="0" allow="autoplay; fullscreen"
+                    title="Twitch"
+                    sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"
+                    width="100%" height="100%"></iframe>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="thumbnails container center-text">
+                <button role="button" class="new-thumbnails fake-link">
+                    Get new thumbnails
+                </button>
+                <!-- Added for testing purpuses -->
+                <!-- <div id="thumbnails" class="thumbnail-container"></div> -->
+                <div id="thumbnails" class="thumbnail-container" style="height: auto;">
+                    <a href="https://nobody.live/?stream=%7B%22id%22%3A%2244405776236%22%2C%22user_id%22%3A%22762870375%22%2C%22user_login%22%3A%22cortocircuitoscafati%22%2C%22user_name%22%3A%22cortocircuitoscafati%22%2C%22game_id%22%3A%22%22%2C%22game_name%22%3A%22%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T19%3A17%3A39Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_cortocircuitoscafati-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%5D%2C%22is_mature%22%3Afalse%7D"
+                        rel="noopener">
+                        <img class="thumbnail-item" title="cortocircuitoscafati: [No title]"
+                            alt="cortocircuitoscafati: [No title]"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_cortocircuitoscafati-440x248.jpg"></a>
+                    <a href="https://nobody.live/?stream=%7B%22id%22%3A%2244404025452%22%2C%22user_id%22%3A%22445777671%22%2C%22user_login%22%3A%22teamcsgaming%22%2C%22user_name%22%3A%22TeamcSGaming%22%2C%22game_id%22%3A%22516575%22%2C%22game_name%22%3A%22VALORANT%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22ROAD%20TO%20PLAT%20%7C%20Sub%20Goal%2013%2F15%20%7C(HANDCAM)%20%7C%20Val%20with%20cS%20%7C%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T16%3A57%3A59Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_teamcsgaming-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%5D%2C%22is_mature%22%3Atrue%7D"
+                        rel="noopener"><img class="thumbnail-item"
+                            title="TeamcSGaming: ROAD TO PLAT | Sub Goal 13/15 |(HANDCAM) | Val with cS |"
+                            alt="TeamcSGaming: ROAD TO PLAT | Sub Goal 13/15 |(HANDCAM) | Val with cS |"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_teamcsgaming-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2245173084909%22%2C%22user_id%22%3A%22121025488%22%2C%22user_login%22%3A%22gat0rfan1977%22%2C%22user_name%22%3A%22GAT0RFAN1977%22%2C%22game_id%22%3A%22%22%2C%22game_name%22%3A%22Twitch%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22Welcome%20to%20Air%20Gator!%20I'm%20playing%20MLB%20THE%20SHOW%2021%20%20RTTS%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T19%3A06%3A27Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_gat0rfan1977-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%5D%2C%22is_mature%22%3Atrue%7D"
+                        rel="noopener"><img class="thumbnail-item"
+                            title="GAT0RFAN1977: Welcome to Air Gator! I'm playing MLB THE SHOW 21  RTTS"
+                            alt="GAT0RFAN1977: Welcome to Air Gator! I'm playing MLB THE SHOW 21  RTTS"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_gat0rfan1977-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2245170505805%22%2C%22user_id%22%3A%22690191164%22%2C%22user_login%22%3A%22blunoom%22%2C%22user_name%22%3A%22blunoom%22%2C%22game_id%22%3A%22511224%22%2C%22game_name%22%3A%22Apex%20Legends%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22Grinding%20today%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T14%3A54%3A54Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_blunoom-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3Anull%2C%22is_mature%22%3Afalse%7D"
+                        rel="noopener"><img class="thumbnail-item" title="blunoom: Grinding today"
+                            alt="blunoom: Grinding today"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_blunoom-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2244404266892%22%2C%22user_id%22%3A%22629659265%22%2C%22user_login%22%3A%22khor_demr_yt%22%2C%22user_name%22%3A%22khor_demr_yt%22%2C%22game_id%22%3A%22%22%2C%22game_name%22%3A%22Twitch%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22Live%20Xbox%20%5B1S%5D%20Broadcast%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T17%3A16%3A59Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_khor_demr_yt-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%5D%2C%22is_mature%22%3Afalse%7D"
+                        rel="noopener"><img class="thumbnail-item" title="khor_demr_yt: Live Xbox [1S] Broadcast"
+                            alt="khor_demr_yt: Live Xbox [1S] Broadcast"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_khor_demr_yt-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2244405756492%22%2C%22user_id%22%3A%22720014890%22%2C%22user_login%22%3A%22brianblackgames%22%2C%22user_name%22%3A%22BrianBlackGames%22%2C%22game_id%22%3A%2227471%22%2C%22game_name%22%3A%22Minecraft%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22Minecraft%20Hardcore%201.18%20-%20Season%201%20Day%2031%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T19%3A16%3A08Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_brianblackgames-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%2C%22afc8211a-8eee-48b8-9e18-212f22f657db%22%5D%2C%22is_mature%22%3Afalse%7D"
+                        rel="noopener"><img class="thumbnail-item"
+                            title="BrianBlackGames: Minecraft Hardcore 1.18 - Season 1 Day 31"
+                            alt="BrianBlackGames: Minecraft Hardcore 1.18 - Season 1 Day 31"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_brianblackgames-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2244404316188%22%2C%22user_id%22%3A%22719374005%22%2C%22user_login%22%3A%22nateizight%22%2C%22user_name%22%3A%22nateizight%22%2C%22game_id%22%3A%22511224%22%2C%22game_name%22%3A%22Apex%20Legends%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22...%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T17%3A21%3A11Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_nateizight-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3Anull%2C%22is_mature%22%3Afalse%7D"
+                        rel="noopener"><img class="thumbnail-item" title="nateizight: ..." alt="nateizight: ..."
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_nateizight-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2244405908476%22%2C%22user_id%22%3A%22191348612%22%2C%22user_login%22%3A%22jumbo_rat69%22%2C%22user_name%22%3A%22jumbo_rat69%22%2C%22game_id%22%3A%2216676%22%2C%22game_name%22%3A%22Team%20Fortress%202%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22POV%3A%20NOT%20ALLOWED%20IN%20HIGH%20PUGS%3F%3F%3F%20IM%20BEST%20SPY%20EU%20RAH%20PUG%20RAH%20PUG%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T19%3A27%3A56Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_jumbo_rat69-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3Anull%2C%22is_mature%22%3Atrue%7D"
+                        rel="noopener"><img class="thumbnail-item"
+                            title="jumbo_rat69: POV: NOT ALLOWED IN HIGH PUGS??? IM BEST SPY EU RAH PUG RAH PUG"
+                            alt="jumbo_rat69: POV: NOT ALLOWED IN HIGH PUGS??? IM BEST SPY EU RAH PUG RAH PUG"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_jumbo_rat69-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2240438411707%22%2C%22user_id%22%3A%22151596297%22%2C%22user_login%22%3A%22thornado1290%22%2C%22user_name%22%3A%22Thornado1290%22%2C%22game_id%22%3A%22509658%22%2C%22game_name%22%3A%22Just%20Chatting%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22Here%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T17%3A33%3A11Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_thornado1290-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3Anull%2C%22is_mature%22%3Afalse%7D"
+                        rel="noopener"><img class="thumbnail-item" title="Thornado1290: Here" alt="Thornado1290: Here"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_thornado1290-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2245170361981%22%2C%22user_id%22%3A%22731392667%22%2C%22user_login%22%3A%22sigel691%22%2C%22user_name%22%3A%22sigel691%22%2C%22game_id%22%3A%2296316807%22%2C%22game_name%22%3A%22Geopolitics%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22testing%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T14%3A36%3A54Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_sigel691-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3Anull%2C%22is_mature%22%3Afalse%7D"
+                        rel="noopener"><img class="thumbnail-item" title="sigel691: testing" alt="sigel691: testing"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_sigel691-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2244405842444%22%2C%22user_id%22%3A%22610888977%22%2C%22user_login%22%3A%22skylantaylor%22%2C%22user_name%22%3A%22skylantaylor%22%2C%22game_id%22%3A%2233214%22%2C%22game_name%22%3A%22Fortnite%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22Fortnite%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T19%3A22%3A45Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_skylantaylor-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3Anull%2C%22is_mature%22%3Afalse%7D"
+                        rel="noopener"><img class="thumbnail-item" title="skylantaylor: Fortnite"
+                            alt="skylantaylor: Fortnite"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_skylantaylor-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2244405152012%22%2C%22user_id%22%3A%22592228385%22%2C%22user_login%22%3A%22wowweird%22%2C%22user_name%22%3A%22wowweird%22%2C%22game_id%22%3A%2232982%22%2C%22game_name%22%3A%22Grand%20Theft%20Auto%20V%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22WoWWeIrD%20GAMING%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T18%3A29%3A34Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_wowweird-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%5D%2C%22is_mature%22%3Atrue%7D"
+                        rel="noopener"><img class="thumbnail-item" title="wowweird: WoWWeIrD GAMING"
+                            alt="wowweird: WoWWeIrD GAMING"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_wowweird-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2240438468235%22%2C%22user_id%22%3A%22205849837%22%2C%22user_login%22%3A%22xiledtoker%22%2C%22user_name%22%3A%22XiledToker%22%2C%22game_id%22%3A%22%22%2C%22game_name%22%3A%22%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22Minecraft%20removin%20a%20mountain%20side%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T17%3A54%3A56Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_xiledtoker-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%5D%2C%22is_mature%22%3Atrue%7D"
+                        rel="noopener"><img class="thumbnail-item" title="XiledToker: Minecraft removin a mountain side"
+                            alt="XiledToker: Minecraft removin a mountain side"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_xiledtoker-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2244405800524%22%2C%22user_id%22%3A%22614158209%22%2C%22user_login%22%3A%22ryanmcgill132%22%2C%22user_name%22%3A%22ryanmcgill132%22%2C%22game_id%22%3A%22%22%2C%22game_name%22%3A%22Overwatch%C2%AE%20Origins%20Edition%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22competitive%20with%20friend%20%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T19%3A19%3A32Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_ryanmcgill132-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%5D%2C%22is_mature%22%3Afalse%7D"
+                        rel="noopener"><img class="thumbnail-item" title="ryanmcgill132: competitive with friend "
+                            alt="ryanmcgill132: competitive with friend "
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_ryanmcgill132-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2245173336141%22%2C%22user_id%22%3A%2257738089%22%2C%22user_login%22%3A%22geibudesu%22%2C%22user_name%22%3A%22geibudesu%22%2C%22game_id%22%3A%22%22%2C%22game_name%22%3A%22Assassin's%20Creed%C2%AE%20Odyssey%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22GACHA%20BOI.%20COME%2C%20I%20GIB%20FGO%20SECRET%20(orihime%20on)%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T19%3A27%3A36Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_geibudesu-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%2C%220cf86924-7940-4e8c-8984-5fbaaca4cd2d%22%2C%22dc179e62-215f-4785-bbc5-385ef8f1285b%22%2C%226606e54c-f92d-40f6-8257-74977889ccdd%22%5D%2C%22is_mature%22%3Atrue%7D"
+                        rel="noopener"><img class="thumbnail-item"
+                            title="geibudesu: GACHA BOI. COME, I GIB FGO SECRET (orihime on)"
+                            alt="geibudesu: GACHA BOI. COME, I GIB FGO SECRET (orihime on)"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_geibudesu-440x248.jpg"></a><a
+                        href="https://nobody.live/?stream=%7B%22id%22%3A%2244405771164%22%2C%22user_id%22%3A%22166171653%22%2C%22user_login%22%3A%22bloodndonutz%22%2C%22user_name%22%3A%22BloodNDonutz%22%2C%22game_id%22%3A%221275666892%22%2C%22game_name%22%3A%22Monster%20Hunter%20Rise%22%2C%22type%22%3A%22live%22%2C%22title%22%3A%22Sunday%20Service%20%2F%2F%20SubCulture%20DJ%20Sets%20from%20Last%20Night%20%2F%2F%20Kill%20and%20Dethrone%20God%20%2F%2F%20You%20look%20pretty%20today%20and%20I'm%20proud%20of%20you%22%2C%22viewer_count%22%3A0%2C%22started_at%22%3A%222022-01-16T19%3A17%3A16Z%22%2C%22language%22%3A%22en%22%2C%22thumbnail_url%22%3A%22https%3A%2F%2Fstatic-cdn.jtvnw.net%2Fpreviews-ttv%2Flive_user_bloodndonutz-%7Bwidth%7Dx%7Bheight%7D.jpg%22%2C%22tag_ids%22%3A%5B%228556813d-991f-4707-9728-af816831271e%22%2C%22c834d89e-1811-47ed-b429-395b6fbc7412%22%2C%22ab45fcb7-a22d-4a07-b0ac-fb3940566fa7%22%2C%226ea6bca4-4712-4ab9-a906-e3336a9d8039%22%5D%2C%22is_mature%22%3Atrue%7D"
+                        rel="noopener"><img class="thumbnail-item"
+                            title="BloodNDonutz: Sunday Service // SubCulture DJ Sets from Last Night // Kill and Dethrone God // You look pretty today and I'm proud of you"
+                            alt="BloodNDonutz: Sunday Service // SubCulture DJ Sets from Last Night // Kill and Dethrone God // You look pretty today and I'm proud of you"
+                            src="https://static-cdn.jtvnw.net/previews-ttv/live_user_bloodndonutz-440x248.jpg"></a>
+                </div> <button role="button" class="new-thumbnails fake-link">
+                    Get new thumbnails
+                </button>
+            </div>
+        </div>
+        <div class="footer">
+            Footer! | Make the page skinny? <input type="checkbox" id="checkBox" onclick="toggleSkinny()">
+        </div>
+    </div>
+    <script>
+        function toggleSkinny() {
+            var checkBox = document.getElementById('checkBox');
+            if (checkBox.checked && document.getElementById("hello").hasAttribute('normal-page')) {
+                document.getElementById("hello").setAttribute('skinny-page', '');
+                document.getElementById("hello").removeAttribute('normal-page', '');
+                removeAttribute
+            } else {
+                document.getElementById("hello").setAttribute('normal-page', '');
+                document.getElementById("hello").removeAttribute('skinny-page', '');
+            }
+        }
+    </script>
+</body>
+
+</html>
