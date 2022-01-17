@@ -15,6 +15,7 @@
         body {
             margin: 0;
             background: #131313;
+            color: white;
         }
 
         .header {
@@ -206,6 +207,20 @@
                     sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"
                     width="100%" height="100%"></iframe>
             </div>
+            <h2>
+                <span id="stream-title">
+                    Episode 435: Minecraft Let's Play Hardcore! 
+                </span> 
+                <br>
+                - 
+                <span id="streamer-name">
+                    KgMinecraft
+                </span>
+                is playing
+                <span id="stream-game">
+                    Minecraft: Windows 10 Edition
+                </span>
+            </h2>
         </div>
         <div class="sidebar">
             <div class="thumbnails container center-text">
@@ -304,6 +319,12 @@
                 document.getElementById("hello").removeAttribute('skinny-page', '');
             }
         }
+        /* 
+         *  document.getElementById('stream-title').innerText = " " + currentStream.title + " " || 'Broadcast';
+         *  document.getElementById('streamer-name').innerText = " " + currentStream.user_name + " ";
+         *  document.getElementById('stream-game').innerText = " " + currentStream.game_name + " ";
+         */  
+
     </script>
 </body>
 

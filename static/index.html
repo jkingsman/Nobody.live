@@ -135,6 +135,12 @@
         max_viewers: 0,
       };
 
+      document.getElementById('stream-title').innerText = currentStream.title || 'Broadcast';
+           document.getElementById('streamer-name').innerText = currentStream.user_name;
+           document.getElementById('stream-game').innerText = currentStream.game_name;
+           document.getElementById('stream-title').innerText = currentStream.title;
+           
+
       // use stored filters if we're supposed to remember; otherwise use defaults
       // don't get confused by the ||'s since we want to fallback gracefully if in weird localstorage state
       let streamFilterRemember = JSON.parse(localStorage.getItem('streamFilterRemember')) || false;
