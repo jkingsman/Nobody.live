@@ -8,15 +8,33 @@ TODO
 
 - [ ] Test on mobile?
 
-- [ ] Question why I did this
+- [ ] Question why I did this...
 
 - [ ] Reconsider if CSS is truly the way foward 
   
-     - [ ] Hint: it is not
+     - Hint: it is not
 
 - [ ] Think about how grid is better than flex box
 
-- [ ] 
+- [ ] Improve High Contrast theme
+
+     - [ ] Add some indacation that a link or button is being hovered over, 
+
+          - maybe a larger border? 
+
+          - Or prehaps dotted lines?
+
+- [ ] Add basic animations
+
+- [ ] Add support for "prefers-reduced-motion"
+
+- [ ] Make sure everything is scalable with font size
+
+- [ ] Make that check box look nicer
+
+- [ ] Fix the wording on the checkbox in the footer?
+
+     - Skinny page does not fit well, lol
 
 # Why did you do this? What have you done?
 

@@ -25,7 +25,10 @@
             color: whitesmoke;
             padding-left: 1rem;
         }
+        .new-streamer {
+            height: 4rem;
 
+        }
         [normal-page] .grid-container {
             display: grid;
             grid-template-columns: 18fr 1fr 1fr;
@@ -180,6 +183,39 @@
         #twitch-embed>iframe {
             min-height: 85vh;
         }
+
+        @media (prefers-contrast: more) {
+            .motd {
+                background: #0c200d;
+            }
+
+            .main>#twitch-embed>iframe {
+                padding: 0;
+                margin: 0;
+            }
+
+            #new-streamer-button,
+            div#thumbnails>a>img.thumbnail-item,
+            .main>#twitch-embed>iframe,
+            .motd {
+                border: 1px solid white;
+                margin-bottom: 0;
+            }
+            .fake-link {
+                color: white;
+                font-size: 1rem;
+            }
+            .header, .new-streamer {
+                border-bottom: 1px solid white;
+            }
+            .footer {
+                border-top: 1px solid white;
+            }
+            .sidebar {
+                border-left: 1px solid white;
+
+            }
+        }
     </style>
 </head>
 
@@ -209,10 +245,10 @@
             </div>
             <h2>
                 <span id="stream-title">
-                    Episode 435: Minecraft Let's Play Hardcore! 
-                </span> 
+                    Episode 435: Minecraft Let's Play Hardcore!
+                </span>
                 <br>
-                - 
+                -
                 <span id="streamer-name">
                     KgMinecraft
                 </span>
@@ -319,11 +355,11 @@
                 document.getElementById("hello").removeAttribute('skinny-page', '');
             }
         }
-        /* 
+        /*
          *  document.getElementById('stream-title').innerText = " " + currentStream.title + " " || 'Broadcast';
          *  document.getElementById('streamer-name').innerText = " " + currentStream.user_name + " ";
          *  document.getElementById('stream-game').innerText = " " + currentStream.game_name + " ";
-         */  
+         */
 
     </script>
 </body>
