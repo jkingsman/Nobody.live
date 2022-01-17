@@ -4,6 +4,9 @@
 
 This fork and branch are an experement, where I am trying to recreate the front-end of Nobody[dot]live but with CSS grid, the file I am messing with is in the folder ```static/test/```, I am in no way garenteeing that this will work in production or in any way, as it is more of my own personal exploration of CSS grid, if you would like you can use the code I wrote here, just don't blame me if doing so leads directly to thermonuclear war...
 
+# SCSS?
+Yes, I love scss, and some people disagree because it is compiled, but with the use of a live compiler it is easy to get started in, I reccomend this [Live Sass Compiler for vscode](https://github.com/glenn2223/vscode-live-sass-compiler/), it is the one I use all the time and it is easy to get working in VSCode
+
 ## Architecture
 
 A worker script (`scanner.py`) loops through the Twitch API's list of streams and spins until it inserts all streamers it finds matching the search criteria (default zero viewers), then it starts again. These streamers are pruned after a set number of seconds (`SECONDS_BEFORE_RECORD_EXPIRATION`) on the assumption that someone will view them and then they won't have zero viewers any more so should not be served for too long.
