@@ -162,4 +162,4 @@ if __name__ == "__main__":
     if os.environ.get('NOBODY_DEBUG'):
         app.run(host='0.0.0.0', port=5000, access_log=False, debug=True, auto_reload=True)
     else:
-        app.run(host='0.0.0.0', port=8000, access_log=False, debug=False)
+        app.run(host='0.0.0.0', port=8000, access_log=False, debug=False, fast=True)
