@@ -53,6 +53,7 @@ async def get_streams(request):
     min_age = get_from_dict_as_int_or_default(request.args, 'min_age', 0)
     include = request.args.get('include', '')
     exclude = request.args.get('exclude', '')
+    operator = request.args.get('search_operator', 'all')
 
     # do a moderate approximation of not falling over
     if count > 64 or len(include) + len(exclude) > 64:
@@ -93,19 +94,28 @@ async def get_streams(request):
             query_arg_index += 1
             query_arg_list.append(f"%{exclusion.lower()}%")
 
-        for inclusion in include_list:
-            query_arg_string += f"AND lower(game) LIKE ${query_arg_index} "
-            query_arg_index += 1
-            query_arg_list.append(f"%{inclusion.lower()}%")
-
         if min_age:
-            query_arg_string += f"AND streamstart < (NOW() - interval '1 minute' * ${query_arg_index})"
+            query_arg_string += f"AND streamstart < (NOW() - interval '1 minute' * ${query_arg_index}) "
             query_arg_index += 1
             query_arg_list.append(min_age)
 
-        query_arg_string += f"AND viewer_count <= ${query_arg_index}"
+        query_arg_string += f"AND viewer_count <= ${query_arg_index} "
         query_arg_index += 1
         query_arg_list.append(max_viewers)
+
+        if operator == "any":
+            query_arg_string += "AND (1=2 "
+            for inclusion in include_list:
+                query_arg_string += f"OR lower(game) LIKE ${query_arg_index} "
+                query_arg_index += 1
+                query_arg_list.append(f"%{inclusion.lower()}%")
+            query_arg_string += ") "
+        else:
+            # operator == "all"; include all search terms
+            for inclusion in include_list:
+                query_arg_string += f"AND lower(game) LIKE ${query_arg_index} "
+                query_arg_index += 1
+                query_arg_list.append(f"%{inclusion.lower()}%")
 
         query_arg_list.append(count)
 
