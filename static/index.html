@@ -88,10 +88,14 @@
               <div class="options-columns">
                 <label for="include" class="search-input">Search phrase:</label> <input class="search-input" type="text" id="include">
                 <span class="field-description">
-                  <input type="radio" id="search_all" name="search_operator" value="all" checked>
-                  <label for="search_all">Match ALL terms</label>
-                  <input type="radio" id="search_any" name="search_operator" value="any">
-                  <label for="search_any">Match ANY terms</label>
+                  <span class="nobreak">
+                    <input type="radio" id="search_all" name="search_operator" value="all" checked>
+                    <label for="search_all">Match ALL terms</label>
+                  </span>
+                  <span class="nobreak">
+                    <input type="radio" id="search_any" name="search_operator" value="any">
+                    <label for="search_any">Match ANY term</label>
+                  </span>
                 </span>
 
                 <label for="exclude" class="search-input">Exclude Keywords:</label> <input class="search-input" type="text" id="exclude">
@@ -272,6 +276,7 @@
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
       }
 
+      // disables the new streamer button, then reenables after 2 seconds
       function newStreamerButtonRateLimit() {
         document.getElementById('new-streamer-button').disabled = true;
         document.getElementById('new-streamer-button').innerText = 'please wait...';
@@ -298,7 +303,7 @@
         return `${streamFilter.include} ${excludeString} ${timeString}`.trim();
       }
 
-      // populates the filter UI and sets thumbnail + new streamer button text
+      // populates the filter UI and sets thumbnail + new streamer button text if a filter is set
       // values sourced from global streamFilter object
       // which is either default/empty or populated from localstorage on page load
       function setUIFromGlobalFilterObject() {

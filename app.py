@@ -51,8 +51,10 @@ async def get_streams(request):
     count = get_from_dict_as_int_or_default(request.args, 'count', 1)
     max_viewers = get_from_dict_as_int_or_default(request.args, 'max_viewers', 0)
     min_age = get_from_dict_as_int_or_default(request.args, 'min_age', 0)
-    include = request.args.get('include', '')
-    exclude = request.args.get('exclude', '')
+
+    # include and exclude to handle comma separated values
+    include = request.args.get('include', '').replace(',', ' ')
+    exclude = request.args.get('exclude', '').replace(',', ' ')
     operator = request.args.get('search_operator', 'all')
 
     # do a moderate approximation of not falling over
@@ -104,7 +106,7 @@ async def get_streams(request):
         query_arg_list.append(max_viewers)
 
         if operator == "any":
-            query_arg_string += "AND (1=2 "
+            query_arg_string += "AND (1=2 "  # dummy always-false value that lets us prefix with "or" without special-casing the first entry
             for inclusion in include_list:
                 query_arg_string += f"OR lower(game) LIKE ${query_arg_index} "
                 query_arg_index += 1
@@ -119,6 +121,7 @@ async def get_streams(request):
 
         query_arg_list.append(count)
 
+        # 1=1 is a dummy always-true value that lets us prefix with "and" without special-casing the first entry
         games_query = f"""
             SELECT data FROM streams
             WHERE 1=1

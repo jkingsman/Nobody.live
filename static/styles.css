@@ -180,6 +180,10 @@ a,
   display: none;
 }
 
+.nobreak {
+  white-space: nowrap;
+}
+
 @media only screen and (min-width: 1200px) {
   .skinny #page-container {
     max-width: 70vw;
