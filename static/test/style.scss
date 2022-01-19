@@ -181,3 +181,6 @@ a:hover,
   color: #808ddb;
 }
 
+div#thumbnails > a > img.thumbnail-item:hover {
+  filter:brightness(1.25);
+}

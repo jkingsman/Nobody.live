@@ -170,4 +170,8 @@ a:hover,
   cursor: pointer;
   text-decoration: underline;
   color: #808ddb;
+}
+
+div#thumbnails > a > img.thumbnail-item:hover {
+  filter: brightness(1.25);
 }/*# sourceMappingURL=style.css.map */

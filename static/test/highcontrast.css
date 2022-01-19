@@ -50,4 +50,18 @@ div#thumbnails > a > img.thumbnail-item,
   h2 {
     font-size: 2rem;
   }
+
+  div#thumbnails > a > img.thumbnail-item:hover {
+    filter: brightness(1.4);
+  }
+
+  ::-moz-selection {
+    color: white;
+    background: #97025e;
+  }
+
+  ::selection {
+    color: white;
+    background: #97025e;
+  }
 }/*# sourceMappingURL=highcontrast.css.map */

@@ -42,4 +42,11 @@
   h2 {
     font-size: 2rem;
   }
+  div#thumbnails > a > img.thumbnail-item:hover {
+    filter:brightness(1.4);
+  }
+  ::selection {
+    color: white;
+    background: #97025e;
+  }
 }
