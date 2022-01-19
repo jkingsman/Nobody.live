@@ -160,6 +160,31 @@ async def get_stream_details(request, stream_id):
         twitch_data['streamstart_seconds_ago'] = start_age.total_seconds()
         return text(pprint.pformat(twitch_data))
 
+# @app.get('/games')
+# async def get_stream_details(request):
+#     pool = request.app.config['pool']
+#     async with pool.acquire() as conn:
+#         games_list_query = """
+#         SELECT s0.game,
+#             s0.streams_zero_viewer,
+#             s1.streams_one_viewer
+#         FROM   (SELECT game,
+#                     Count(*) AS streams_zero_viewer
+#                 FROM   streams
+#                 WHERE  viewer_count = 0
+#                 GROUP  BY game) s0
+#             LEFT JOIN (SELECT game,
+#                                 Count(*) AS streams_one_viewer
+#                         FROM   streams
+#                         WHERE  viewer_count = 1
+#                         GROUP  BY game) s1
+#                     ON ( s0.game = s1.game )"""
+#         games_list_query = await conn.fetch(games_list_query)
+#         games_list_dict = {}
+#         for game in games_list_query:
+#             games_list_dict[game['game']] = {'one_viewer': game['streams_one_viewer'], 'zero_viewer': game['streams_zero_viewer']}
+#         return text(pprint.pformat(games_list_dict))
+
 
 if __name__ == "__main__":
     if os.environ.get('NOBODY_DEBUG'):
