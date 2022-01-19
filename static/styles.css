@@ -194,3 +194,15 @@ a,
     min-height: 60vh;
   }
 }
+
+div#thumbnails > a > img.thumbnail-item {
+  filter:brightness(.85);
+}
+
+div#thumbnails > a > img.thumbnail-item:hover {
+  filter:brightness(1.25);
+}
+
+button#new-streamer-button:active:hover {
+  filter:brightness(.78);
+}
