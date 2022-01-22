@@ -156,8 +156,8 @@ async def get_stream_details(request, stream_id):
         age = now - scraped_at
         start_age = now - stream_details[0]['streamstart']
 
-        twitch_data['scraped_at_seconds_ago'] = age.total_seconds()
-        twitch_data['streamstart_seconds_ago'] = start_age.total_seconds()
+        twitch_data['scraped_at_mins_ago'] = str(round(age.total_seconds() / 60, 2))
+        twitch_data['streamstart_mins_ago'] = str(round(start_age.total_seconds() / 60, 2))
         return text(pprint.pformat(twitch_data))
 
 # @app.get('/games')
