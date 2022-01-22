@@ -2,5 +2,4 @@ __pycache__
 venv*
 scratch
 dump.rdb
-static/.DS_Store
 .DS_Store
