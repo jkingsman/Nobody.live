@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://static.twitchcdn.net">
     <link rel="preconnect" href="https://gql.twitch.tv">
   </head>
-  <body>
+  <body class="skinny">
     <div id="page-container">
       <div id="motd"></div>
       <div class="grid-container">
@@ -116,7 +116,7 @@
                   <span class="field-description">Avoid streams in "starting soon" mode by hiding streams which have just started.</span>
 
                   <span class="grid-right"><input type="checkbox" id="show_singles"><label for="show_singles">Include streams with one viewer</label></span>
-                  <span class="grid-right"><input type="checkbox" id="skinny"><label for="skinny">Skinny page</label></span>
+                  <span class="grid-right"><input type="checkbox" id="wide_page"><label for="wide_page">Wide page</label></span>
                 </div>
               </details>
             </main>
@@ -340,13 +340,13 @@
         }
 
         // nowhere better to handle this
-        if (localStorage.getItem('skinnyPage')) {
-          if (JSON.parse(localStorage.getItem('skinnyPage'))) {
-            document.body.classList.add('skinny');
-            document.getElementById('skinny').checked = true;
-          } else {
+        if (localStorage.getItem('widePage')) {
+          if (JSON.parse(localStorage.getItem('widePage'))) {
             document.body.classList.remove('skinny');
-            document.getElementById('skinny').checked = false;
+            document.getElementById('wide_page').checked = true;
+          } else {
+            document.body.classList.add('skinny');
+            document.getElementById('wide_page').checked = false;
           }
         }
       }
@@ -399,13 +399,13 @@
         }
       }
 
-      function toggleSkinny() {
-        if (localStorage.getItem('skinnyPage')) {
-          localStorage.setItem('skinnyPage', !JSON.parse(localStorage.getItem('skinnyPage')));
+      function toggleWide() {
+        if (localStorage.getItem('widePage')) {
+          localStorage.setItem('widePage', !JSON.parse(localStorage.getItem('widePage')));
           document.body.classList.toggle('skinny');
         } else {
-          localStorage.setItem('skinnyPage', true);
-          document.body.classList.add('skinny');
+          localStorage.setItem('widePage', true);
+          document.body.classList.remove('skinny');
         }
       }
 
@@ -425,7 +425,7 @@
         document.getElementById('save-filter').addEventListener('click', setGlobalFilterObjectFromForm);
         document.getElementById('save-filter').addEventListener('touchstart', setGlobalFilterObjectFromForm, {passive: true});
         document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
-        document.getElementById('skinny').addEventListener('change', toggleSkinny);
+        document.getElementById('wide_page').addEventListener('change', toggleWide);
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
         document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, {passive: true});
