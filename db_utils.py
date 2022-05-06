@@ -25,7 +25,8 @@ CREATE INDEX IF NOT EXISTS lowercase_game ON streams (lower(game));
 CREATE INDEX IF NOT EXISTS game_trgm ON streams USING gin (lower(game) gin_trgm_ops);
 """
 
-conn = psycopg2.connect(f"dbname='{os.environ.get('NOBODY_DATABASE')}' user='{os.environ.get('NOBODY_USER')}' host='{os.environ.get('NOBODY_HOST')}' password='{os.environ.get('NOBODY_PASSWORD')}'")
+conn = psycopg2.connect(f"dbname='{os.environ.get('NOBODY_DATABASE')}' user='{os.environ.get('NOBODY_USER')}' "
+                        f"host='{os.environ.get('NOBODY_HOST')}' password='{os.environ.get('NOBODY_PASSWORD')}'")
 conn.autocommit = True
 
 
@@ -36,7 +37,12 @@ def migrate():
 
 
 def bulk_insert_streams(streams):
-    formatted_rows = [(stream['id'], stream['game_name'], stream['viewer_count'], parser.parse(stream['started_at']), json.dumps(stream)) for stream in streams]
+    formatted_rows = [(
+        stream['id'],
+        stream['game_name'],
+        stream['viewer_count'],
+        parser.parse(stream['started_at']),
+        json.dumps(stream)) for stream in streams]
     insert_query = """
         INSERT INTO streams (id, game, viewer_count, streamstart, data) values %s
         ON CONFLICT(id) DO UPDATE

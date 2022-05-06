@@ -14,7 +14,7 @@ app = Sanic(__name__)
 
 # the optimized query flow not guaranteed to return enough results
 # how many queries should we make to try to hit our requested count before giving up
-query_fill_limit = 5
+QUERY_FILL_LIMIT = 5
 
 # use builtin json with unicode instead of sanic's
 json_dumps = partial(json.dumps, separators=(",", ":"), ensure_ascii=False)
@@ -26,9 +26,10 @@ def get_from_dict_as_int_or_default(obj, key, default=0):
         return default
 
 @app.listener('before_server_start')
-async def register_db(app, loop):
-    app.config['pool'] = await create_pool(
-        dsn=f"postgres://{os.environ.get('NOBODY_USER')}:{os.environ.get('NOBODY_PASSWORD')}@{os.environ.get('NOBODY_HOST')}/{os.environ.get('NOBODY_DATABASE')}",
+async def register_db(app_handle, loop):
+    app_handle.config['pool'] = await create_pool(
+        dsn=f"postgres://{os.environ.get('NOBODY_USER')}:{os.environ.get('NOBODY_PASSWORD')}@{os.environ.get('NOBODY_HOST')}"
+            f"/{os.environ.get('NOBODY_DATABASE')}",
         min_size=10,
         max_size=10,
         max_queries=1000,
@@ -36,14 +37,15 @@ async def register_db(app, loop):
         loop=loop)
 
 @app.listener('after_server_stop')
-async def close_connection(app, loop):
-    pool = app.config['pool']
+async def close_connection(app_handle):
+    pool = app_handle.config['pool']
     async with pool.acquire() as conn:
         await conn.close()
 
 app.static('/', './static/index.html')
 app.static('/static', './static')
 
+# pylint: disable=too-many-statements,too-many-locals
 @app.get('/stream')
 async def get_streams(request):
     pool = request.app.config['pool']
@@ -75,9 +77,9 @@ async def get_streams(request):
             extracted_streams = [json.loads(stream[0]) for stream in streams]
 
             # TABLESAMPLE not guaranteed to return enough rows, especially (mainly) after filtering
-            # Issue additional queries up to query_fill_limit to attempt to meet our quota
+            # Issue additional queries up to QUERY_FILL_LIMIT to attempt to meet our quota
             # If not done, give up and return what we have
-            while len(extracted_streams) < count and query_count < query_fill_limit:
+            while len(extracted_streams) < count and query_count < QUERY_FILL_LIMIT:
                 new_streams = await conn.fetch(games_query, max_viewers)
                 extracted_streams += [json.loads(stream[0]) for stream in new_streams]
                 query_count += 1
@@ -106,7 +108,8 @@ async def get_streams(request):
         query_arg_list.append(max_viewers)
 
         if operator == "any":
-            query_arg_string += "AND (1=2 "  # dummy always-false value that lets us prefix with "or" without special-casing the first entry
+            # dummy always-false value that lets us prefix with "or" without special-casing the first entry
+            query_arg_string += "AND (1=2 "
             for inclusion in include_list:
                 query_arg_string += f"OR lower(game) LIKE ${query_arg_index} "
                 query_arg_index += 1
@@ -121,7 +124,7 @@ async def get_streams(request):
 
         query_arg_list.append(count)
 
-        # 1=1 is a dummy always-true value that lets us prefix with "and" without special-casing the first entry
+        # 1=1 is dummy always-true value that lets us prefix with "and" without special-casing the first entry
         games_query = f"""
             SELECT data FROM streams
             WHERE 1=1
@@ -182,7 +185,9 @@ async def get_stream_details(request, stream_id):
 #         games_list_query = await conn.fetch(games_list_query)
 #         games_list_dict = {}
 #         for game in games_list_query:
-#             games_list_dict[game['game']] = {'one_viewer': game['streams_one_viewer'], 'zero_viewer': game['streams_zero_viewer']}
+#             games_list_dict[game['game']] = {
+#               'one_viewer': game['streams_one_viewer'],
+#               'zero_viewer': game['streams_zero_viewer']}
 #         return text(pprint.pformat(games_list_dict))
 
 
