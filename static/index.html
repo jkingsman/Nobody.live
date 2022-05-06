@@ -23,7 +23,6 @@
     <meta name="description" content="Become the entire audience of a lonely streamer broadcasting to zero viewers">
     <meta name="keywords" content="stream, no viewers stream, streams with no audience, twitch no viewers">
     <meta name="robots" content="index, follow">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="language" content="English">
     <meta name="author" content="Jack Kingsman">
 
@@ -61,9 +60,9 @@
         </div>
       </div>
       <div class="thumbnails container center-text">
-        <button role="button" class="new-thumbnails fake-link">Get new thumbnails</button><svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg>
+        <button class="new-thumbnails fake-link">Get new thumbnails</button><svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-1" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg>
         <div id="thumbnails" class="thumbnail-container"></div>
-        <button role="button" class="new-thumbnails fake-link">Get new thumbnails</button><svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg>
+        <button class="new-thumbnails fake-link">Get new thumbnails</button><svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="b"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#b)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg>
       </div>
       <div id="footer">
         last watched streams: <span id="stream-list"></span>
@@ -106,7 +105,7 @@
               <details>
                 <summary>Advanced</summary>
                 <div class="options-columns">
-                  <label for="start-lag-time" class="search-input">Min. duration:</label>
+                  <label for="min-age" class="search-input">Min. duration:</label>
                   <select id="min-age">
                     <option value="0">Show all streams</option>
                     <option value="3">Only show &gt;3 minutes on-air</option>
@@ -130,10 +129,10 @@
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script src="/static/micromodal.min.js"></script>
-    <script type="text/javascript">
+    <script>
       MicroModal.init();
     </script>
-    <script type="text/javascript">
+    <script>
       let numberOfThumbnailsToFetch = 16;
       let server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
