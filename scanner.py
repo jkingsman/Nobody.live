@@ -11,8 +11,6 @@ import db_utils
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-db_utils.migrate()
-
 # found at https://dev.twitch.tv/console
 CLIENT_ID = os.environ.get('CLIENT_ID')
 CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
@@ -106,6 +104,8 @@ def populate_streamers(client_id, client_secret):
             break
         stream_list = get_stream_list_response(requests_session, client_id, token, pagination_offset)
 
-while True:
-    populate_streamers(CLIENT_ID, CLIENT_SECRET)
-    db_utils.prune(SECONDS_BEFORE_RECORD_EXPIRATION)
+if __name__ == "__main__":
+    db_utils.migrate()
+    while True:
+        populate_streamers(CLIENT_ID, CLIENT_SECRET)
+        db_utils.prune(SECONDS_BEFORE_RECORD_EXPIRATION)
