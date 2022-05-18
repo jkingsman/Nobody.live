@@ -22,6 +22,12 @@ a,
   color: #8a8a8a;
 }
 
+code {
+  background-color: #ebebeb;
+  padding: 0 5px 0 5px;
+  border-radius: 10px;
+}
+
 .fake-link {
   background: none !important;
   border: none;
@@ -57,6 +63,10 @@ a,
 }
 
 @media only screen and (min-width: 600px) {
+  h1 {
+    font-size: 2.7em;
+  }
+
   .grid-container {
     min-height: 20px;
     display: grid;
@@ -66,8 +76,8 @@ a,
     grid-template-areas: "left-pane right-pane";
   }
 
-  h1 {
-    font-size: 2.7em;
+  .options-spacer {
+    margin-top: 20px;
   }
 }
 
@@ -142,9 +152,13 @@ a,
 }
 
 .field-description {
-  grid-column: 2;
   font-style: italic;
-  font-size: 95%;
+  font-size: 14px;
+  display: block;
+}
+
+.field-config {
+  font-size: 15px;
 }
 
 .grid-right {

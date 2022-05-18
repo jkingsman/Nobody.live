@@ -86,7 +86,7 @@
             <main class="modal__content">
               <div class="options-columns">
                 <label for="include" class="search-input">Search phrase:</label> <input class="search-input" type="text" id="include">
-                <span class="field-description">
+                <span class="grid-right field-config">
                   <span class="nobreak">
                     <input type="radio" id="search_all" name="search_operator" value="all" checked>
                     <label for="search_all">Match ALL terms</label>
@@ -95,12 +95,13 @@
                     <input type="radio" id="search_any" name="search_operator" value="any">
                     <label for="search_any">Match ANY term</label>
                   </span>
+                  <span class="grid-right field-description">Search includes games and tags (e.g. <code>mario</code> or <code>speedrun</code> or <code>korea</code>)</span>
                 </span>
 
-                <label for="exclude" class="search-input">Exclude Keywords:</label> <input class="search-input" type="text" id="exclude">
-                <span class="field-description">Exclude games/categories containing <strong>any</strong> of these terms (separate with spaces)</span>
+                <label for="exclude" class="search-input options-spacer">Exclude Keywords:</label> <input class="search-input options-spacer" type="text" id="exclude">
+                <span class="grid-right field-description">Exclude games/categories containing <strong>any</strong> of these terms (separate with spaces)</span>
 
-                <span class="grid-right"><input type="checkbox" id="remember"><label for="remember">Remember my filters</label></span>
+                <span class="grid-right field-config options-spacer"><input type="checkbox" id="remember"><label for="remember">Remember my filters</label></span>
               </div>
               <details>
                 <summary>Advanced</summary>
@@ -112,10 +113,10 @@
                     <option value="5">Only show &gt;5 minutes on-air</option>
                     <option value="10">Only show &gt;10 minutes on-air</option>
                   </select>
-                  <span class="field-description">Avoid streams in "starting soon" mode by hiding streams which have just started.</span>
+                  <span class="grid-right field-description">Avoid streams in "starting soon" mode by hiding streams which have just started.</span>
 
-                  <span class="grid-right"><input type="checkbox" id="show_singles"><label for="show_singles">Include streams with one viewer</label></span>
-                  <span class="grid-right"><input type="checkbox" id="wide_page"><label for="wide_page">Wide page</label></span>
+                  <span class="grid-right field-config"><input type="checkbox" id="show_singles"><label for="show_singles">Include streams with one viewer</label></span>
+                  <span class="grid-right field-config"><input type="checkbox" id="wide_page"><label for="wide_page">Wide page</label></span>
                 </div>
               </details>
             </main>
