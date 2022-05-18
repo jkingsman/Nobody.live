@@ -94,7 +94,7 @@ async def get_streams(request):
         query_arg_list = []
 
         for exclusion in exclude_list:
-            query_arg_string += f"AND lower(game) NOT LIKE ${query_arg_index} "
+            query_arg_string += f"AND lower(title_block) NOT LIKE ${query_arg_index} "
             query_arg_index += 1
             query_arg_list.append(f"%{exclusion.lower()}%")
 
@@ -111,14 +111,14 @@ async def get_streams(request):
             # dummy always-false value that lets us prefix with "or" without special-casing the first entry
             query_arg_string += "AND (1=2 "
             for inclusion in include_list:
-                query_arg_string += f"OR lower(game) LIKE ${query_arg_index} "
+                query_arg_string += f"OR lower(title_block) LIKE ${query_arg_index} "
                 query_arg_index += 1
                 query_arg_list.append(f"%{inclusion.lower()}%")
             query_arg_string += ") "
         else:
             # operator == "all"; include all search terms
             for inclusion in include_list:
-                query_arg_string += f"AND lower(game) LIKE ${query_arg_index} "
+                query_arg_string += f"AND lower(title_block) LIKE ${query_arg_index} "
                 query_arg_index += 1
                 query_arg_list.append(f"%{inclusion.lower()}%")
 

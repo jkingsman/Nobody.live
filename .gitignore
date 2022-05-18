@@ -3,3 +3,4 @@ venv*
 scratch
 dump.rdb
 .DS_Store
+*.stats

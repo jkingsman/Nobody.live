@@ -24,6 +24,9 @@ REQUEST_LIMIT = 1500  # number of API requests to stop at before starting a new 
 MINIMUM_STREAMS_TO_GET = 50  # if REQUEST_LIMIT streams doesn't capture at least this many zero-
                              # viewer streams, keep going
 SECONDS_BEFORE_RECORD_EXPIRATION = 300  # how many seconds a stream should stay in the db
+SECONDS_BEFORE_TAG_REFRESH = 600  # seconds between refreshes of the tag UUID=>name lookup object (~4s API call)
+
+tag_id_and_name = {'data': {}, 'generation_time': 0}  # global object to resolve tags from
 
 
 def get_bearer_token(client_id, secret):
@@ -54,6 +57,49 @@ def get_stream_list_response(session, client_id, token, pagination_offset=None):
     stream_list = session.get('https://api.twitch.tv/helix/streams', headers=headers, params=url_params, timeout=4)
     return stream_list
 
+def load_tag_list(session, client_id, token):
+    time_since_load = time.time() - tag_id_and_name['generation_time']
+    if time_since_load > SECONDS_BEFORE_TAG_REFRESH:
+        logging.info(f"{time_since_load}s since tag refresh -- {time_since_load}s > {SECONDS_BEFORE_TAG_REFRESH}s; refreshing now...")
+        tag_id_and_name['generation_time'] = time.time()
+    else:
+        return
+
+    headers = {'client-id': client_id,
+               'Authorization': f'Bearer {token}'}
+    url_params = {'first': '100'}
+
+    tag_id_and_name['data'] = {}
+
+    while True:
+        tag_response = session.get('https://api.twitch.tv/helix/tags/streams', headers=headers, params=url_params, timeout=4).json()
+
+        for tag in tag_response['data']:
+            tag_id_and_name['data'][tag['tag_id']] = tag['localization_names']['en-us']
+
+        if 'cursor' not in tag_response['pagination']:  # on the last page
+            break
+        else:
+            url_params['after'] = tag_response['pagination']['cursor']
+
+    logging.info(f"{len(tag_id_and_name['data'])} tags loaded")
+
+def resolve_tag_ids_to_names_in_stream_object(stream):
+    # handle possible empty tag lists or unexpectedly missing tag field
+    if 'tag_ids' not in stream or not stream['tag_ids']:
+        stream['tags'] = []
+        return stream
+
+    resolved_tags = []
+    for tag_id in stream['tag_ids']:
+        try:
+            resolved_tags.append(tag_id_and_name['data'][tag_id])
+        except KeyError:
+            logging.error(f"Unknown tag '{tag_id}'!")
+            continue
+
+    stream['tags'] = resolved_tags
+    return stream
 
 def populate_streamers(client_id, client_secret):
     token = get_bearer_token(client_id, client_secret)
@@ -62,6 +108,8 @@ def populate_streamers(client_id, client_secret):
     if not token:
         logging.error("There's no token! Halting.")
         return
+
+    load_tag_list(requests_session, client_id, token)
 
     requests_sent = 1
     streams_grabbed = 0
@@ -73,13 +121,14 @@ def populate_streamers(client_id, client_secret):
         requests_sent += 1
 
         # filter out streams with our desired count and inject into the db
-        streams_found = list(filter(lambda stream: int(stream['viewer_count']) <= MAX_VIEWERS, stream_list_data['data']))
-        db_utils.bulk_insert_streams(streams_found)
-        streams_grabbed += len(streams_found)
+        raw_streams = list(filter(lambda stream: int(stream['viewer_count']) <= MAX_VIEWERS, stream_list_data['data']))
+        tag_resolved_streams = list(map(resolve_tag_ids_to_names_in_stream_object, raw_streams))
+        db_utils.bulk_insert_streams(tag_resolved_streams)
+        streams_grabbed += len(tag_resolved_streams)
 
         # report on what we inserted
-        if len(streams_found) > 0:
-            logging.debug(f"Inserted {len(streams_found)} streams")
+        if len(tag_resolved_streams) > 0:
+            logging.debug(f"Inserted {len(tag_resolved_streams)} streams")
 
         # sleep on rate limit token utilization
         rate_limit_usage = round((1 - int(stream_list.headers['Ratelimit-Remaining']) /
