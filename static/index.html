@@ -166,14 +166,14 @@
 
       // uses global scope streamFilter object to fetch filtered results
       async function getStreams(count=1) {
-        let streamEndpoint = `${server}/stream?count=${count}&` +
-                                        `include=${streamFilter.include}&` +
-                                        `exclude=${streamFilter.exclude}&` +
-                                        `min_age=${streamFilter.minAge}&` +
-                                        `max_viewers=${streamFilter.max_viewers}&` +
-                                        `search_operator=${streamFilter.search_operator}`;
+        let streamEndpoint = new URL('/stream', server);
+        streamEndpoint.searchParams.set('include', streamFilter.include)
+        streamEndpoint.searchParams.set('exclude', streamFilter.exclude)
+        streamEndpoint.searchParams.set('min_age', streamFilter.minAge)
+        streamEndpoint.searchParams.set('max_viewers', streamFilter.max_viewers)
+        streamEndpoint.searchParams.set('search_operator', streamFilter.search_operator)
 
-        let streamResponse = await fetch(streamEndpoint);
+        let streamResponse = await fetch(streamEndpoint.href);
         if (streamResponse.status >= 400) {
           alert('Search error! Please use a shorter search phrase.');
           MicroModal.show('filter-modal');

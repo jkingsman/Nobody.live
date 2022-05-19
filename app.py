@@ -48,6 +48,7 @@ app.static('/static', './static')
 # pylint: disable=too-many-statements,too-many-locals
 @app.get('/stream')
 async def get_streams(request):
+    print(request.args)
     pool = request.app.config['pool']
 
     count = get_from_dict_as_int_or_default(request.args, 'count', 1)
