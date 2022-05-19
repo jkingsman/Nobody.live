@@ -383,7 +383,7 @@
 
         // only fetch new streams and thumbs if something changed
         if (shouldReload) {
-          let fetchedStreams = await getStreams(13);
+          let fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
           fetchAndRenderRandomStream(null, fetchedStreams[0]);
           fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
         }
@@ -433,7 +433,7 @@
         setUIFromGlobalFilterObject();
 
         // prefetch 17 thumbs (main + 16 thumbnails)
-        let fetchedStreams = await getStreams(17);
+        let fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
 
         // if we have /?stream=... then render the specified stream
         // otherwise grab a random one

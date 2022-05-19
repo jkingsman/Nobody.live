@@ -3,7 +3,6 @@
 * Make data purging generation based
 * Fix filter stripping special chars and rely on binding to be protection
 * stats endpoint -- stream counts by viewer, counts by game, maybe counts by tag?
-* Fix mis-sync between default thumbs and new thumb count
 * Admin interface?
   * Acess stats
   * Set MotD
