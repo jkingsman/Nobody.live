@@ -3,6 +3,6 @@
 * Admin interface?
   * Acess stats
   * Set MotD
-* stats endpoint -- stream counts by viewer, counts by game, maybe counts by tag?
+* sort games by player count
 
 * track age of stream without viewers
