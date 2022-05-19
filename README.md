@@ -2,7 +2,7 @@
 
 ## Architecture
 
-A worker script (`scanner.py`) loops through the Twitch API's list of streams and spins until it inserts all streamers it finds matching the search criteria (default zero viewers), then it starts again. These streamers are pruned after a set number of seconds (`SECONDS_BEFORE_RECORD_EXPIRATION`) on the assumption that someone will view them and then they won't have zero viewers any more so should not be served for too long.
+A worker script (`scanner.py`) loops through the Twitch API's list of streams and spins until it inserts all streamers it finds matching the search criteria (default zero viewers), then it starts again. These stale streams are pruned after a fresh reload occurs on the assumption that someone will view them and then they won't have zero viewers any more so should not be served for too long; we'll pick them back up on the next load if they're still viewerless.
 
 Environment variables needed for _both_ scanner and app:
 

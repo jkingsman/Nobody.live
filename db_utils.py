@@ -17,11 +17,13 @@ CREATE TABLE IF NOT EXISTS streams (
     viewer_count INTEGER,
     title_block TEXT,
     game TEXT,
+    generation INTEGER,
     streamstart TIMESTAMP,
     data TEXT
 );
 
 ALTER TABLE streams ADD COLUMN IF NOT EXISTS title_block text;
+ALTER TABLE streams ADD COLUMN IF NOT EXISTS generation INTEGER;
 
 CREATE INDEX IF NOT EXISTS viewer_count ON streams (viewer_count);
 CREATE INDEX IF NOT EXISTS lowercase_title_block ON streams (lower(title_block));
@@ -38,19 +40,19 @@ def migrate():
         print("Migrating schema")
         cursor.execute(SCHEMA)
 
-
-def bulk_insert_streams(streams):
+def bulk_insert_streams(streams, generation):
     if streams:
         formatted_rows = [(
             stream['id'],
             stream['game_name'],
             f"{stream['game_name']} {' '.join(stream['tags']).strip()}",
             stream['viewer_count'],
+            generation,
             parser.parse(stream['started_at']),
             json.dumps(stream)) for stream in streams]
 
         insert_query = """
-            INSERT INTO streams (id, game, title_block, viewer_count, streamstart, data) values %s
+            INSERT INTO streams (id, game, title_block, viewer_count, generation, streamstart, data) values %s
             ON CONFLICT(id) DO UPDATE
             SET time=extract(epoch from now() at time zone 'utc');"""
 
@@ -59,12 +61,10 @@ def bulk_insert_streams(streams):
                 cursor, insert_query, formatted_rows, template=None, page_size=100
             )
 
-
-def prune(max_age_secs):
-    age = time.time() - max_age_secs
+def prune_all_but_generation(generation):
     delete_query = """
         DELETE FROM streams
-        WHERE time < %s;"""
+        WHERE generation != %s;"""
 
     with conn.cursor() as cursor:
-        cursor.execute(delete_query, [age])
+        cursor.execute(delete_query, [generation])

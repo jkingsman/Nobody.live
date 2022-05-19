@@ -23,7 +23,6 @@ MAX_VIEWERS = 1  # number of viewers to be considered for inclusion
 REQUEST_LIMIT = 1500  # number of API requests to stop at before starting a new search
 MINIMUM_STREAMS_TO_GET = 50  # if REQUEST_LIMIT streams doesn't capture at least this many zero-
                              # viewer streams, keep going
-SECONDS_BEFORE_RECORD_EXPIRATION = 300  # how many seconds a stream should stay in the db
 SECONDS_BEFORE_TAG_REFRESH = 600  # seconds between refreshes of the tag UUID=>name lookup object (~4s API call)
 
 tag_id_and_name = {'data': {}, 'generation_time': 0}  # global object to resolve tags from
@@ -101,7 +100,7 @@ def resolve_tag_ids_to_names_in_stream_object(stream):
     stream['tags'] = resolved_tags
     return stream
 
-def populate_streamers(client_id, client_secret):
+def populate_streamers(client_id, client_secret, generation):
     token = get_bearer_token(client_id, client_secret)
     requests_session = requests.Session()
 
@@ -123,7 +122,7 @@ def populate_streamers(client_id, client_secret):
         # filter out streams with our desired count and inject into the db
         raw_streams = list(filter(lambda stream: int(stream['viewer_count']) <= MAX_VIEWERS, stream_list_data['data']))
         tag_resolved_streams = list(map(resolve_tag_ids_to_names_in_stream_object, raw_streams))
-        db_utils.bulk_insert_streams(tag_resolved_streams)
+        db_utils.bulk_insert_streams(tag_resolved_streams, generation)
         streams_grabbed += len(tag_resolved_streams)
 
         # report on what we inserted
@@ -156,5 +155,6 @@ def populate_streamers(client_id, client_secret):
 if __name__ == "__main__":
     db_utils.migrate()
     while True:
-        populate_streamers(CLIENT_ID, CLIENT_SECRET)
-        db_utils.prune(SECONDS_BEFORE_RECORD_EXPIRATION)
+        generation = int(time.time())
+        populate_streamers(CLIENT_ID, CLIENT_SECRET, generation)
+        db_utils.prune_all_but_generation(generation)
