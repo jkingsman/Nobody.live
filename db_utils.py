@@ -64,7 +64,7 @@ def bulk_insert_streams(streams, generation):
 def prune_all_but_generation(generation):
     delete_query = """
         DELETE FROM streams
-        WHERE generation != %s;"""
+        WHERE generation != %s OR generation IS NULL;"""
 
     with conn.cursor() as cursor:
         cursor.execute(delete_query, [generation])
