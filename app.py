@@ -164,8 +164,8 @@ async def get_stream_details(request, stream_id):
         twitch_data['streamstart_mins_ago'] = str(round(start_age.total_seconds() / 60, 2))
         return text(pprint.pformat(twitch_data))
 
-# @app.get('/games')
-# async def get_stream_details(request):
+# @app.get('/stats/games')
+# async def get_stats_streams_by_game(request):
 #     pool = request.app.config['pool']
 #     async with pool.acquire() as conn:
 #         games_list_query = """
@@ -182,14 +182,57 @@ async def get_stream_details(request, stream_id):
 #                         FROM   streams
 #                         WHERE  viewer_count = 1
 #                         GROUP  BY game) s1
-#                     ON ( s0.game = s1.game )"""
+#                     ON ( s0.game = s1.game )
+#         ORDER BY s0.game DESC"""
 #         games_list_query = await conn.fetch(games_list_query)
 #         games_list_dict = {}
 #         for game in games_list_query:
 #             games_list_dict[game['game']] = {
 #               'one_viewer': game['streams_one_viewer'],
 #               'zero_viewer': game['streams_zero_viewer']}
-#         return text(pprint.pformat(games_list_dict))
+#         return text(pprint.pformat(games_list_dict, sort_dicts=False))
+
+# @app.get('/stats/counts')
+# async def get_stats_counts(request):
+#     # how many 1, how many 0, how many total, how many unique games
+#     pool = request.app.config['pool']
+#     async with pool.acquire() as conn:
+#         counts_query = """
+#         SELECT *
+#         FROM   (SELECT Count(*) AS zero_viewer_count
+#                 FROM   streams
+#                 WHERE  viewer_count = 0) AS zero,
+#             (SELECT Count(*) AS single_viewer_count
+#                 FROM   streams
+#                 WHERE  viewer_count = 1) AS one,
+#             (SELECT Count(*) AS total_count
+#                 FROM   streams) AS total,
+#             (SELECT Count(DISTINCT game) AS unique_games
+#                 FROM   streams) unique_games;
+#         """
+#         counts_query = dict(await conn.fetchrow(counts_query))
+#         return text(pprint.pformat(counts_query, sort_dicts=False))
+
+# @app.get('/stats/tags')
+# async def get_stats_tags(request):
+#     # how many 1, how many 0, how many total, how many unique games
+#     pool = request.app.config['pool']
+#     async with pool.acquire() as conn:
+#         data_query = "SELECT data from streams;"
+#         data_query = await conn.fetch(data_query)
+#         stream_data_list = [json.loads(stream['data']) for stream in data_query]
+
+#         tag_count = {}
+#         for stream in stream_data_list:
+#             for tag in stream['tags']:
+#                 if tag in tag_count:
+#                     tag_count[tag] = tag_count[tag] + 1
+#                 else:
+#                     tag_count[tag] = 1
+
+#         sorted_tag_count = dict(sorted(tag_count.items(), key=lambda item: item[1], reverse=True))
+
+#         return text(pprint.pformat(sorted_tag_count, sort_dicts=False))
 
 
 if __name__ == "__main__":

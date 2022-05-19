@@ -3,8 +3,6 @@
 * Admin interface?
   * Acess stats
   * Set MotD
-
-* Make data purging generation based
-  * Numerical/random generation -- 0,1,2
-
 * stats endpoint -- stream counts by viewer, counts by game, maybe counts by tag?
+
+* track age of stream without viewers
