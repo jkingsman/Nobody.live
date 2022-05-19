@@ -167,6 +167,7 @@
       // uses global scope streamFilter object to fetch filtered results
       async function getStreams(count=1) {
         let streamEndpoint = new URL('/stream', server);
+        streamEndpoint.searchParams.set('count', count)
         streamEndpoint.searchParams.set('include', streamFilter.include)
         streamEndpoint.searchParams.set('exclude', streamFilter.exclude)
         streamEndpoint.searchParams.set('min_age', streamFilter.minAge)
