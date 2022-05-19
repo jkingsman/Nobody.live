@@ -11,6 +11,7 @@ from sanic import Sanic
 from sanic.response import json as sanic_json, text
 
 app = Sanic(__name__)
+# app.cached_responses = {}
 
 # the optimized query flow not guaranteed to return enough results
 # how many queries should we make to try to hit our requested count before giving up
@@ -48,7 +49,6 @@ app.static('/static', './static')
 # pylint: disable=too-many-statements,too-many-locals
 @app.get('/stream')
 async def get_streams(request):
-    print(request.args)
     pool = request.app.config['pool']
 
     count = get_from_dict_as_int_or_default(request.args, 'count', 1)
@@ -166,6 +166,22 @@ async def get_stream_details(request, stream_id):
 
 # @app.get('/stats/games')
 # async def get_stats_streams_by_game(request):
+#     now = datetime.datetime.now().timestamp()
+#     cache_key = 'streams_by_game'
+#     cache_max_age = 10
+#     if cache_key not in app.cached_responses:
+#         app.cached_responses[cache_key] = {
+#             'cached-since': 0,
+#             'max_age': cache_max_age,
+#             'response': None
+#         }
+
+#     if (now - app.cached_responses['streams_by_game']['cached-since']) < app.cached_responses[cache_key]['max_age']:
+#         return text(app.cached_responses[cache_key]['response'], headers={"x-cached-since": app.cached_responses[cache_key]['cached-since']})
+#     else:
+#         # continue with the function and capture the result at the end
+#         pass
+
 #     pool = request.app.config['pool']
 #     async with pool.acquire() as conn:
 #         games_list_query = """
@@ -190,7 +206,12 @@ async def get_stream_details(request, stream_id):
 #             games_list_dict[game['game']] = {
 #               'one_viewer': game['streams_one_viewer'],
 #               'zero_viewer': game['streams_zero_viewer']}
-#         return text(pprint.pformat(games_list_dict, sort_dicts=False))
+
+#         response = pprint.pformat(games_list_dict, sort_dicts=False)
+#         app.cached_responses[cache_key]['cached-since'] = now
+#         app.cached_responses[cache_key]['response'] = response
+
+#         return text(response, headers={"x-cached-since": int(now)})
 
 # @app.get('/stats/counts')
 # async def get_stats_counts(request):
