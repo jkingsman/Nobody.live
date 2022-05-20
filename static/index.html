@@ -176,6 +176,11 @@
         streamEndpoint.searchParams.set('search_operator', streamFilter.search_operator)
 
         let streamResponse = await fetch(streamEndpoint.href);
+        if (streamResponse.status == 503) {
+          alert('You\'re doing that too much! Please slow down.');
+          return;
+        }
+
         if (streamResponse.status >= 400) {
           alert('Search error! Please use a shorter search phrase.');
           MicroModal.show('filter-modal');
