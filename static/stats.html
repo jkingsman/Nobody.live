@@ -64,6 +64,10 @@
         margin: 0px;
       }
 
+      .title {
+        display: inline;
+      }
+
       .stat-callouts {
         text-align: center;
         display: inline-block;
@@ -84,6 +88,7 @@
       .chart-container {
         width: 100%;
         height: 600px;
+        max-height: 100vh;
       }
     </style>
 
@@ -92,44 +97,68 @@
   <body>
     <h1>Nobody.live Statistics</h1>
     <hr />
-    <h2 id="reload-vitals">Vitals</h2>
-    <p class="time-label" id="vitals-fresh-time"></p>
-    <div class="stat-callouts">
-      <h2 id="zero-viewer-stream-count"></h2>
-      <p>zero viewer streams</p>
-    </div>
-    <div class="stat-callouts">
-      <h2 id="one-viewer-stream-count"></h2>
-      <p>one viewer streams</p>
-    </div>
-    <div class="stat-callouts">
-      <h2 id="total-stream-count"></h2>
-      <p>total streams</p>
-    </div>
-    <div class="stat-callouts">
-      <h2 id="game-count"></h2>
-      <p>unique games</p>
-    </div>
+    <details open>
+      <summary>
+        <h2 class="title" id="reload-vitals">Vitals</h2>
+      </summary>
+        <p class="time-label" id="vitals-fresh-time"></p>
+        <div class="stat-callouts">
+          <h2 id="zero-viewer-stream-count"></h2>
+          <p>zero viewer streams</p>
+        </div>
+        <div class="stat-callouts">
+          <h2 id="one-viewer-stream-count"></h2>
+          <p>one viewer streams</p>
+        </div>
+        <div class="stat-callouts">
+          <h2 id="total-stream-count"></h2>
+          <p>total streams</p>
+        </div>
+        <div class="stat-callouts">
+          <h2 id="game-count"></h2>
+          <p>unique games</p>
+        </div>
+    </details>
     <hr />
-    <h2 id="reload-games">Games</h2>
-    <p class="time-label" id="games-fresh-time"></p>
-    <table id="games" class="display" style="width:100%">
-    </table>
+    <details>
+      <summary>
+        <h2 class="title" id="reload-games">Games</h2>
+      </summary>
+        <p class="time-label" id="games-fresh-time"></p>
+        <table id="games" class="display" style="width:100%">
+        </table>
+    </details>
     <hr />
-    <h2 id="reload-tags">Tags</h2>
-    <p class="time-label" id="tags-fresh-time"></p>
-    <table id="tags" class="display" style="width:100%">
-    </table>
+    <details>
+      <summary>
+        <h2 class="title" id="reload-tags">Tags</h2>
+      </summary>
+        <p class="time-label" id="tags-fresh-time"></p>
+        <table id="tags" class="display" style="width:100%">
+        </table>
+    </details>
     <hr />
-    <h2>Scan Generations</h2>
-    <textarea readonly class="data-display" id="generation-data"></textarea>
-    <h2>DB Size CSV</h2>
-    <textarea readonly class="data-display" id="db-data">time,size
+    <details>
+      <summary>
+        <h2 class="title" id="reload-tags">Scan Generations</h2>
+      </summary>
+      <textarea readonly class="data-display" id="generation-data"></textarea>
+    </details>
+    <details>
+      <summary>
+        <h2 class="title" id="reload-tags">DB Size CSV</h2>
+      </summary>
+      <textarea readonly class="data-display" id="db-data">time,zero_viewer,one_viewer,total_streams
 </textarea>
-    <h2>DB Size Chart</h2>
-    <div class="chart-container">
-      <canvas id="db-data-chart" width="400" height="400"></canvas>
-    </div>
+    </details>
+    <details open>
+      <summary>
+        <h2 class="title" id="reload-tags">DB Size Chart</h2>
+      </summary>
+      <div class="chart-container">
+        <canvas id="db-data-chart" width="400" height="400"></canvas>
+      </div>
+    </details>
     <hr />
 
     <script type="text/javascript" src="/static/datatables/datatables.min.js"></script>
@@ -183,7 +212,6 @@
         });
       }
 
-      load_games();
       document.getElementById("reload-games").addEventListener("click", load_games);
 
       async function load_tags() {
@@ -217,7 +245,6 @@
         });
       }
 
-      load_tags();
       document.getElementById("reload-tags").addEventListener("click", load_tags);
 
       let last_loaded_data_time = new Date();
@@ -239,7 +266,7 @@
         generation_data.scrollTop = generation_data.scrollHeight;
 
         const db_data = document.getElementById('db-data');
-        db_data.value = `${db_data.value}${Math.floor(age / 1000)},${vitals_json.total_count}\n`;
+        db_data.value = `${db_data.value}${Math.floor(age / 1000)},${vitals_json.zero_viewer_count},${vitals_json.one_viewer_count},${vitals_json.total_count}\n`;
         db_data.scrollTop = db_data.scrollHeight;
 
         chart_data.labels.push(Math.floor(age / 1000));
