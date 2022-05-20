@@ -42,7 +42,7 @@
       <div class="grid-container">
         <div class="left-pane">
           <h1>nobody.live</h1>
-          <span>streams with <span id="debug-trigger">nobody</span> watching <span id="stream-debug" class="hidden"> | <a href="#">show stream debug</a></span></span>
+          <span>streams with <span id="debug-trigger">nobody</span> watching <span id="debug-menu" class="hidden"> | <a id="stream-debug" href="#">show stream debug</a> | <a href="/static/stats.html" target="_blank">show site stats</a></span></span>
         </div>
         <div class="right-pane">
           <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br />
@@ -437,9 +437,8 @@
       }
 
       async function enableDebug() {
+        document.getElementById('debug-menu').classList.remove('hidden');
         let debugButton = document.getElementById('stream-debug');
-
-        debugButton.classList.remove('hidden');
         debugButton.addEventListener('click', () => {window.open(`${server}/stream/${currentStream.id}`, '_blank')});
         debugButton.addEventListener('touchstart', () => {window.open(`${server}/stream/${currentStream.id}`, '_blank')});
       }
