@@ -250,6 +250,10 @@
         // fetch or use prefetched thumbs, clear existing thumbs, and render new ones
 
         let thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
+        if (!thumbsJSON) {
+          // probably got rate limited
+          return;
+        }
         container.innerHTML = '';
 
         thumbsJSON.forEach(stream => {
