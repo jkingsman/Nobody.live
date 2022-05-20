@@ -313,11 +313,8 @@
         // show stream runtime
         const stream_runtime = new Date() - new Date(currentStream.started_at)
         let stream_runtime_minutes = Math.round(stream_runtime / (1000 * 60));
-        console.log(`${stream_runtime_minutes} minutes`)
         let stream_runtime_hours = Math.floor(stream_runtime_minutes / 60);
         stream_runtime_minutes -= (stream_runtime_hours * 60)
-        console.log(`${stream_runtime_hours} hrs`)
-        console.log(`${stream_runtime_minutes} mins`)
 
         let stream_runtime_string = '';
         if (stream_runtime_hours > 0) {
