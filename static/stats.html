@@ -148,6 +148,7 @@
       <summary>
         <h2 class="title" id="reload-tags">DB Size CSV</h2>
       </summary>
+      <button id="download-csv">Download</button>
       <textarea readonly class="data-display" id="db-data">time,zero_viewer,one_viewer,total_streams
 </textarea>
     </details>
@@ -180,6 +181,7 @@
 
       load_vitals();
       document.getElementById("reload-vitals").addEventListener("click", load_vitals);
+      document.getElementById("reload-vitals").addEventListener("touchstart", load_vitals);
 
       async function load_games() {
         const games = await fetch(`${server}/stats/games`);
@@ -213,6 +215,7 @@
       }
 
       document.getElementById("reload-games").addEventListener("click", load_games);
+      document.getElementById("reload-games").addEventListener("touchstart", load_games);
 
       async function load_tags() {
         const tags = await fetch(`${server}/stats/tags`);
@@ -244,8 +247,20 @@
             ],
         });
       }
-
       document.getElementById("reload-tags").addEventListener("click", load_tags);
+      document.getElementById("reload-tags").addEventListener("touch_start", load_tags);
+
+      function download_csv() {
+        const content = document.getElementById("db-data").value;
+        var downloadableLink = document.createElement('a');
+        downloadableLink.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        downloadableLink.download = "nobody.live_db_data.csv";
+        document.body.appendChild(downloadableLink);
+        downloadableLink.click();
+        document.body.removeChild(downloadableLink);
+      }
+      document.getElementById("download-csv").addEventListener("click", download_csv);
+      document.getElementById("download-csv").addEventListener("touchstart", download_csv);
 
       let last_loaded_data_time = new Date();
       let chart_data = {labels: [], data: []};
