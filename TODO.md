@@ -3,6 +3,4 @@
 * Admin interface?
   * Acess stats
   * Set MotD
-* sort games by player count
-
-* track age of stream without viewers
+* Do something fun with stats

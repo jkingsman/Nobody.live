@@ -76,6 +76,15 @@ code {
     grid-template-areas: "left-pane right-pane";
   }
 
+  .even-grid-container {
+    min-height: 20px;
+    display: grid;
+    grid-template-columns: 30% 70%;
+    grid-template-rows: 1fr;
+    gap: 0px 0px;
+    grid-template-areas: "even-left-pane even-right-pane";
+  }
+
   .options-spacer {
     margin-top: 20px;
   }
@@ -83,6 +92,14 @@ code {
 
 .left-pane {
   grid-area: left-pane;
+  font-style: italic;
+}
+
+.even-left-pane {
+  grid-area: even-left-pane;
+  font-style: italic;
+  align-self: center;
+  text-align: center;
 }
 
 .right-pane {
@@ -91,9 +108,21 @@ code {
   text-align: center;
 }
 
-.left-pane,
-.cookie-check {
+.even-right-pane {
   font-style: italic;
+  grid-area: even-right-pane;
+  align-self: center;
+  text-align: center;
+}
+
+.cookie-check {
+  margin-top: 7px;
+  font-style: italic;
+  text-align: right;
+}
+
+.stream_duration_container {
+  text-align: left;
 }
 
 .thumbnail-container {
@@ -101,7 +130,7 @@ code {
   grid-template-columns: 25% 25% 25% 25%;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 599px) {
   .thumbnail-container {
     display: grid;
     grid-template-columns: 50% 50%;
@@ -113,6 +142,15 @@ code {
 
   h1 {
     font-size: 1.5em;
+  }
+
+  .cookie-check {
+    text-align: center;
+    display: inline-block;
+  }
+
+  .stream_duration_container {
+    text-align: center;
   }
 }
 
