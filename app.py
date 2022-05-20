@@ -177,47 +177,45 @@ async def get_stats_streams_by_game(request):
             'response': None
         }
     if (now - app.ctx.cached_responses[cache_key]['cached-since']) < app.ctx.cached_responses[cache_key]['max_age']:
-        return text(app.ctx.cached_responses[cache_key]['response'], headers={"x-cached-since": app.ctx.cached_responses[cache_key]['cached-since']})
-    else:
-        # continue with the function and capture the result at the end
-        pass
+        response = app.ctx.cached_responses[cache_key]['response']
+        return sanic_json(response, dumps=json_dumps, headers={"x-cached-since": app.ctx.cached_responses[cache_key]['cached-since']})
 
     pool = request.app.config['pool']
     async with pool.acquire() as conn:
         games_list_query = """
-        SELECT s0.game,
-            s0.streams_zero_viewer,
-            s1.streams_one_viewer
-        FROM   (SELECT game,
-                    Count(*) AS streams_zero_viewer
-                FROM   streams
-                WHERE  viewer_count = 0
-                GROUP  BY game) s0
-            LEFT JOIN (SELECT game,
-                                Count(*) AS streams_one_viewer
-                        FROM   streams
-                        WHERE  viewer_count = 1
-                        GROUP  BY game) s1
-                    ON ( s0.game = s1.game )
-        ORDER BY s0.game DESC"""
+            SELECT s0.game,
+                s0.streams_zero_viewer,
+                s1.streams_one_viewer
+            FROM   (SELECT game,
+                        Count(*) AS streams_zero_viewer
+                    FROM   streams
+                    WHERE  viewer_count = 0
+                    GROUP  BY game) s0
+                LEFT JOIN (SELECT game,
+                                    Count(*) AS streams_one_viewer
+                            FROM   streams
+                            WHERE  viewer_count = 1
+                            GROUP  BY game) s1
+                        ON ( s0.game = s1.game )
+            ORDER BY s0.game DESC"""
         games_list_query = await conn.fetch(games_list_query)
         games_list_dict = {}
         for game in games_list_query:
             games_list_dict[game['game']] = {
               'one_viewer': game['streams_one_viewer'] or 0,
-              'zero_viewer': game['streams_zero_viewer'] or 0}
+              'zero_viewer': game['streams_zero_viewer'] or 0,
+              'total': (game['streams_one_viewer'] or 0) + (game['streams_zero_viewer'] or 0)}
 
-        response = pprint.pformat(games_list_dict, sort_dicts=False)
         app.ctx.cached_responses[cache_key]['cached-since'] = now
-        app.ctx.cached_responses[cache_key]['response'] = response
+        app.ctx.cached_responses[cache_key]['response'] = games_list_dict
 
-        return text(response, headers={"x-cached-since": now})
+        return sanic_json(games_list_dict, dumps=json_dumps, headers={"x-cached-since": now})
 
 @app.get('/stats/counts')
 async def get_stats_counts(request):
     now = datetime.datetime.now().timestamp()
     cache_key = 'counts'
-    cache_max_age = 60
+    cache_max_age = 10
 
     if cache_key not in app.ctx.cached_responses:
         app.ctx.cached_responses[cache_key] = {
@@ -226,32 +224,36 @@ async def get_stats_counts(request):
             'response': None
         }
     if (now - app.ctx.cached_responses[cache_key]['cached-since']) < app.ctx.cached_responses[cache_key]['max_age']:
-        return text(app.ctx.cached_responses[cache_key]['response'], headers={"x-cached-since": app.ctx.cached_responses[cache_key]['cached-since']})
-    else:
-        # continue with the function and capture the result at the end
-        pass
+        response = app.ctx.cached_responses[cache_key]['response']
+        return sanic_json(response, dumps=json_dumps, headers={"x-cached-since": app.ctx.cached_responses[cache_key]['cached-since']})
 
     pool = request.app.config['pool']
     async with pool.acquire() as conn:
         counts_query = """
-        SELECT *
-        FROM   (SELECT Count(*) AS zero_viewer_count
-                FROM   streams
-                WHERE  viewer_count = 0) AS zero,
-            (SELECT Count(*) AS single_viewer_count
-                FROM   streams
-                WHERE  viewer_count = 1) AS one,
-            (SELECT Count(*) AS total_count
-                FROM   streams) AS total,
-            (SELECT Count(DISTINCT game) AS unique_games
-                FROM   streams) unique_games;
+            SELECT *
+            FROM   (SELECT Count(*) AS zero_viewer_count
+                    FROM   streams
+                    WHERE  viewer_count = 0) AS zero,
+                (SELECT Count(*) AS one_viewer_count
+                    FROM   streams
+                    WHERE  viewer_count = 1) AS one,
+                (SELECT Count(*) AS total_count
+                    FROM   streams) AS total,
+                (SELECT Count(DISTINCT game) AS unique_games
+                    FROM   streams) unique_games;
         """
         counts_query = dict(await conn.fetchrow(counts_query))
 
-        response = pprint.pformat(counts_query, sort_dicts=False)
+        generations_query = """
+            SELECT generation, COUNT(*) as count
+            FROM streams GROUP BY generation;
+        """
+        generations_query = dict(await conn.fetch(generations_query))
+        counts_query['generations'] = generations_query
+
         app.ctx.cached_responses[cache_key]['cached-since'] = now
-        app.ctx.cached_responses[cache_key]['response'] = response
-        return text(response, headers={"x-cached-since": now})
+        app.ctx.cached_responses[cache_key]['response'] = counts_query
+        return sanic_json(counts_query, dumps=json_dumps, headers={"x-cached-since": now})
 
 @app.get('/stats/tags')
 async def get_stats_tags(request):
@@ -266,10 +268,8 @@ async def get_stats_tags(request):
             'response': None
         }
     if (now - app.ctx.cached_responses[cache_key]['cached-since']) < app.ctx.cached_responses[cache_key]['max_age']:
-        return text(app.ctx.cached_responses[cache_key]['response'], headers={"x-cached-since": app.ctx.cached_responses[cache_key]['cached-since']})
-    else:
-        # continue with the function and capture the result at the end
-        pass
+        response = app.ctx.cached_responses[cache_key]['response']
+        return sanic_json(response, dumps=json_dumps, headers={"x-cached-since": app.ctx.cached_responses[cache_key]['cached-since']})
 
     pool = request.app.config['pool']
     async with pool.acquire() as conn:
@@ -280,17 +280,18 @@ async def get_stats_tags(request):
         tag_count = {}
         for stream in stream_data_list:
             for tag in stream['tags']:
-                if tag in tag_count:
-                    tag_count[tag] = tag_count[tag] + 1
+                if tag not in tag_count:
+                    tag_count[tag] = {'zero_viewer': 0, 'one_viewer': 0, 'total': 0}
+
+                if stream['viewer_count'] == 0:
+                    tag_count[tag]['zero_viewer'] += 1
                 else:
-                    tag_count[tag] = 1
+                    tag_count[tag]['one_viewer'] += 1
+                tag_count[tag]['total'] += 1
 
-        sorted_tag_count = dict(sorted(tag_count.items(), key=lambda item: item[1], reverse=True))
-
-        response = pprint.pformat(sorted_tag_count, sort_dicts=False)
         app.ctx.cached_responses[cache_key]['cached-since'] = now
-        app.ctx.cached_responses[cache_key]['response'] = response
-        return text(response, headers={"x-cached-since": now})
+        app.ctx.cached_responses[cache_key]['response'] = tag_count
+        return sanic_json(tag_count, dumps=json_dumps, headers={"x-cached-since": now})
 
 
 if __name__ == "__main__":
