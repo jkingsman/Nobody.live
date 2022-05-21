@@ -1,5 +1,5 @@
 [MASTER]
-persistent=yes
+persistent=no
 
 [MESSAGES CONTROL]
 disable=missing-function-docstring, missing-module-docstring, logging-fstring-interpolation
