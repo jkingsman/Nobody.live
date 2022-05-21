@@ -1,0 +1,16 @@
+{
+  "extends": "airbnb-base",
+  "env" : {
+    "browser": true,
+    "jquery": true
+  },
+  "settings": {
+    "html/javascript-mime-types": ["text/javascript", "text/worker"]
+  },
+  "plugins": [
+    "html"
+  ],
+  "rules": {
+    "no-restricted-syntax": ["error", "LabeledStatement", "WithStatement"]
+  }
+}

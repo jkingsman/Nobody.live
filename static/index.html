@@ -132,9 +132,12 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script src="/static/micromodal.min.js"></script>
     <script>
+      /* global MicroModal */
       MicroModal.init();
     </script>
     <script>
+      /* global Twitch, MicroModal */
+      /* eslint no-alert: "off", no-new: "off", no-param-reassign: "off" */
       const numberOfThumbnailsToFetch = 16;
       const server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
@@ -147,16 +150,16 @@
       };
 
       // use stored filters if we're supposed to remember; otherwise use defaults
-      // don't get confused by the ||'s since we want to fallback gracefully if in weird localstorage state
+      // don't get confused by the ||s since we want to fallback gracefully if in weird localstorage state
       let streamFilterRemember = JSON.parse(localStorage.getItem('streamFilterRemember')) || false;
       let streamFilter;
       if (streamFilterRemember) {
         streamFilter = JSON.parse(localStorage.getItem('streamFilter')) || defaultStreamFilter;
 
         // ensure loaded filter object contains all keys we expect it to
-        for (search_key in defaultStreamFilter) {
-          if (!streamFilter[search_key]) {
-            streamFilter[search_key] = defaultStreamFilter[search_key];
+        for (const searchKey in defaultStreamFilter) {
+          if (!streamFilter[searchKey]) {
+            streamFilter[searchKey] = defaultStreamFilter[searchKey];
           }
         }
 
@@ -165,35 +168,80 @@
         streamFilter = defaultStreamFilter;
       }
 
-      // uses global scope streamFilter object to fetch filtered results
-      async function getStreams(count=1) {
-        let streamEndpoint = new URL('/stream', server);
-        streamEndpoint.searchParams.set('count', count)
-        streamEndpoint.searchParams.set('include', streamFilter.include)
-        streamEndpoint.searchParams.set('exclude', streamFilter.exclude)
-        streamEndpoint.searchParams.set('min_age', streamFilter.minAge)
-        streamEndpoint.searchParams.set('max_viewers', streamFilter.max_viewers)
-        streamEndpoint.searchParams.set('search_operator', streamFilter.search_operator)
+      // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
+      function generateFilterString() {
+        let excludeString = '';
+        if (streamFilter.exclude) {
+          excludeString = streamFilter.exclude.split(' ').map((term) => `not:${term}`).join(' ');
+        }
 
-        let streamResponse = await fetch(streamEndpoint.href);
-        if (streamResponse.status == 503) {
+        let timeString = '';
+        if (streamFilter.minAge > 0) {
+          timeString = `⏱>${streamFilter.minAge}m`;
+        }
+
+        return `${streamFilter.include} ${excludeString} ${timeString}`.trim();
+      }
+
+      // uses global scope streamFilter object to fetch filtered results
+      async function getStreams(count = 1) {
+        const streamEndpoint = new URL('/stream', server);
+        streamEndpoint.searchParams.set('count', count);
+        streamEndpoint.searchParams.set('include', streamFilter.include);
+        streamEndpoint.searchParams.set('exclude', streamFilter.exclude);
+        streamEndpoint.searchParams.set('min_age', streamFilter.minAge);
+        streamEndpoint.searchParams.set('max_viewers', streamFilter.max_viewers);
+        streamEndpoint.searchParams.set('search_operator', streamFilter.search_operator);
+
+        const streamResponse = await fetch(streamEndpoint.href);
+        if (streamResponse.status === 503) {
           alert('You\'re doing that too much! Please slow down.');
-          return;
+          return false;
         }
 
         if (streamResponse.status >= 400) {
           alert('Search error! Please use a shorter search phrase.');
           MicroModal.show('filter-modal');
-          return;
+          return false;
         }
 
-        let streamJson = await streamResponse.json();
+        const streamJson = await streamResponse.json();
         if (streamJson.length === 0) {
           alert(`Uh oh! No streams found. Please broaden your filter (currently '${generateFilterString()}').`);
           MicroModal.show('filter-modal');
-        } else {
-         return streamJson;
+          return false;
         }
+        return streamJson;
+      }
+
+      // disables the new streamer button, then reenables after 2 seconds
+      function newStreamerButtonRateLimit() {
+        document.getElementById('new-streamer-button').disabled = true;
+        document.getElementById('new-streamer-button').innerText = 'please wait...';
+
+        setTimeout(() => {
+          const newButton = document.getElementById('new-streamer-button');
+          newButton.disabled = false;
+          newButton.innerText = newButton.getAttribute('data-message');
+        }, 2000);
+      }
+
+      function setStreamRuntime() {
+        // show stream runtime
+        const streamRuntime = new Date() - new Date(currentStream.started_at);
+        let streamRuntimeMinutes = Math.round(streamRuntime / (1000 * 60));
+        const streamRuntimeHours = Math.floor(streamRuntimeMinutes / 60);
+        streamRuntimeMinutes -= (streamRuntimeHours * 60);
+
+        let streamRuntimeString = '';
+        if (streamRuntimeHours > 0) {
+          streamRuntimeString += `${streamRuntimeHours}hr`;
+        }
+        if (streamRuntimeMinutes > 0) {
+          streamRuntimeString += `${streamRuntimeMinutes}min`;
+        }
+
+        document.getElementById('stream_duration').innerText = streamRuntimeString;
       }
 
       // performs stream fetch/new streamer button timeout
@@ -208,22 +256,22 @@
           width: '100%',
           channel: currentStream.user_name,
           theme: 'dark',
-          parent: [window.location.hostname]
+          parent: [window.location.hostname],
         });
 
         // load and append stream to historical streams
-        let usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
+        const usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
         usernames.push(currentStream.user_name);
-        let trimmedUsernames = usernames.slice(-5);
+        const trimmedUsernames = usernames.slice(-5);
         localStorage.setItem('streamHistoryJSON', JSON.stringify(trimmedUsernames));
 
         // rerender list of historical streams
-        document.getElementById('stream-list').innerHTML = trimmedUsernames.map(username => {
-          let a = document.createElement('a');
-          var linkText = document.createTextNode(username);
+        document.getElementById('stream-list').innerHTML = trimmedUsernames.map((username) => {
+          const a = document.createElement('a');
+          const linkText = document.createTextNode(username);
           a.appendChild(linkText);
-          a.href = 'https://www.twitch.tv/' + username;
-          a.target = '_blank'
+          a.href = `https://www.twitch.tv/${username}`;
+          a.target = '_blank';
           a.rel = 'noopener';
 
           return a.outerHTML;
@@ -235,18 +283,22 @@
 
       // fetches a given number of thumbnails and renders them into view
       // accepts an optional list of streams to draw from instead of making an API call
-      async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch, prefetchedStreamList = null) {
+      async function fetchAndRenderThumbnails(
+  _event,
+  thumbCount = numberOfThumbnailsToFetch,
+  prefetchedStreamList = null,
+) {
         // fetch or use prefetched thumbs, clear existing thumbs, and render new ones
-        let thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
+        const thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
         if (!thumbsJSON) {
           // probably got rate limited
           return;
         }
 
-        let container = document.getElementById('thumbnails');
+        const container = document.getElementById('thumbnails');
 
         // if this is not our first load, lock elem height so there's no reflow as we load new ones
-        if (container.childNodes.length != 0) {
+        if (container.childNodes.length !== 0) {
           container.style.height = `${container.offsetHeight}px`;
         }
 
@@ -256,84 +308,40 @@
 
         container.innerHTML = '';
 
-        thumbsJSON.forEach(stream => {
-            // embed inside of an a element so you can ctrl+click to open in a new tab
-            let a = document.createElement('a');
-            a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
-            // override the default so on-page clicks just run the render code
-            a.onclick = (event) => {
-              if (!event.ctrlKey && !event.metaKey) {
-                event.preventDefault();
-                fetchAndRenderRandomStream(null, stream);
+        thumbsJSON.forEach((stream) => {
+          // embed inside of an a element so you can ctrl+click to open in a new tab
+          const a = document.createElement('a');
+          a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
+          // override the default so on-page clicks just run the render code
+          a.onclick = (event) => {
+            if (!event.ctrlKey && !event.metaKey) {
+              event.preventDefault();
+              fetchAndRenderRandomStream(null, stream);
 
-                document.body.scrollTop = 0; // For Safari
-                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-              }
-            };
-            a.rel = 'noopener';
+              document.body.scrollTop = 0; // For Safari
+              document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            }
+          };
+          a.rel = 'noopener';
 
-            let thumb = document.createElement('img');
-            thumb.className = "thumbnail-item";
-            thumb.alt = thumb.title = `${stream.user_name}: ${stream.title || '[No title]'}`
-            thumb.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
+          const thumb = document.createElement('img');
+          thumb.className = 'thumbnail-item';
+          thumb.alt = `${stream.user_name}: ${stream.title || '[No title]'}`;
+          thumb.title = thumb.alt;
+          thumb.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
 
-            a.appendChild(thumb);
-            container.appendChild(a);
-          });
+          a.appendChild(thumb);
+          container.appendChild(a);
+        });
 
-          // restore any height locking we did after the thumbs have had a chance to load
-          setTimeout(() => container.style.height = 'auto', 1000);
+        // restore any height locking we did after the thumbs have had a chance to load
+        setTimeout(() => { container.style.height = 'auto'; }, 1000);
 
-          // restore our button listener from our debounce with a bit of rate limit delay
-          setTimeout(() => {
-            document.querySelectorAll('.new-thumbnails').forEach((button) => button.classList.remove('hidden'));
-            document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.add('hidden'));
-          }, 2000);
-      }
-
-      // disables the new streamer button, then reenables after 2 seconds
-      function newStreamerButtonRateLimit() {
-        document.getElementById('new-streamer-button').disabled = true;
-        document.getElementById('new-streamer-button').innerText = 'please wait...';
-
+        // restore our button listener from our debounce with a bit of rate limit delay
         setTimeout(() => {
-          let newButton = document.getElementById('new-streamer-button');
-          newButton.disabled = false;
-          newButton.innerText = newButton.getAttribute('data-message');
+          document.querySelectorAll('.new-thumbnails').forEach((button) => button.classList.remove('hidden'));
+          document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.add('hidden'));
         }, 2000);
-      }
-
-      // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
-      function generateFilterString() {
-        let excludeString = '';
-        if (streamFilter.exclude) {
-          excludeString = streamFilter.exclude.split(' ').map((term) => `not:${term}`).join(" ");
-        }
-
-        let timeString = '';
-        if (streamFilter.minAge > 0) {
-          timeString = `⏱>${streamFilter.minAge}m`;
-        }
-
-        return `${streamFilter.include} ${excludeString} ${timeString}`.trim();
-      }
-
-      function setStreamRuntime() {
-        // show stream runtime
-        const stream_runtime = new Date() - new Date(currentStream.started_at)
-        let stream_runtime_minutes = Math.round(stream_runtime / (1000 * 60));
-        let stream_runtime_hours = Math.floor(stream_runtime_minutes / 60);
-        stream_runtime_minutes -= (stream_runtime_hours * 60)
-
-        let stream_runtime_string = '';
-        if (stream_runtime_hours > 0) {
-          stream_runtime_string += `${stream_runtime_hours}hr`
-        }
-        if (stream_runtime_minutes > 0) {
-          stream_runtime_string += `${stream_runtime_minutes}min`
-        }
-
-        document.getElementById('stream_duration').innerText = stream_runtime_string;
       }
 
       // populates the filter UI and sets thumbnail + new streamer button text if a filter is set
@@ -344,15 +352,15 @@
         document.getElementById('include').value = streamFilter.include;
         document.getElementById('exclude').value = streamFilter.exclude;
         document.getElementById('min-age').value = streamFilter.minAge;
-        document.getElementById('show_singles').checked = streamFilter.max_viewers == 1;
+        document.getElementById('show_singles').checked = streamFilter.max_viewers === 1;
 
-        document.getElementById('search_all').checked = streamFilter.search_operator == 'all';
-        document.getElementById('search_any').checked = streamFilter.search_operator == 'any';
+        document.getElementById('search_all').checked = streamFilter.search_operator === 'all';
+        document.getElementById('search_any').checked = streamFilter.search_operator === 'any';
 
-        let streamButton = document.getElementById('new-streamer-button');
-        if (!streamFilter.include && !streamFilter.exclude && streamFilter.minAge == 0) {
+        const streamButton = document.getElementById('new-streamer-button');
+        if (!streamFilter.include && !streamFilter.exclude && streamFilter.minAge === 0) {
           // we have no filter active; restore things to normal text
-          document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = 'Get new thumbnails');
+          document.querySelectorAll('.new-thumbnails').forEach((button) => { button.innerText = 'Get new thumbnails'; });
           document.querySelector('#filter').innerText = 'filter streams';
           document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
 
@@ -361,10 +369,10 @@
           }
         } else {
           // we have filters to display
-          let searchString = generateFilterString();
+          const searchString = generateFilterString();
 
           // set thumbnail text, filter status, and new streamer button text
-          document.querySelectorAll('.new-thumbnails').forEach((button) => button.innerText = `Get new thumbnails ('${searchString}')`);
+          document.querySelectorAll('.new-thumbnails').forEach((button) => { button.innerText = `Get new thumbnails ('${searchString}')`; });
           document.querySelector('#filter').innerText = 'filter active';
           document.getElementById('new-streamer-button').setAttribute('data-message', `new streamer ('${searchString}')`);
           if (!streamButton.disabled) {
@@ -390,18 +398,18 @@
           e.preventDefault();
         }
 
-        let include = document.getElementById('include').value.trim();
-        let exclude = document.getElementById('exclude').value.trim();
+        const include = document.getElementById('include').value.trim();
+        const exclude = document.getElementById('exclude').value.trim();
         streamFilterRemember = document.getElementById('remember').checked;
 
-        let shouldReload = streamFilter.include !== include ||
-                           streamFilter.exclude !== exclude;
+        const shouldReload = streamFilter.include !== include
+               || streamFilter.exclude !== exclude;
 
         streamFilter.include = include;
         streamFilter.exclude = exclude;
         streamFilter.minAge = document.getElementById('min-age').value;
         streamFilter.max_viewers = document.getElementById('show_singles').checked ? 1 : 0;
-        streamFilter.search_operator = document.querySelector('input[name="search_operator"]:checked').value
+        streamFilter.search_operator = document.querySelector('input[name="search_operator"]:checked').value;
 
         if (streamFilterRemember) {
           localStorage.setItem('streamFilter', JSON.stringify(streamFilter));
@@ -415,7 +423,7 @@
 
         // only fetch new streams and thumbs if something changed
         if (shouldReload) {
-          let fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
+          const fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
           fetchAndRenderRandomStream(null, fetchedStreams[0]);
           fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
         }
@@ -424,10 +432,10 @@
       }
 
       async function fetchAndRenderMOTD() {
-        let motd = await fetch(`${server}/static/motd?cachebust=${Date.now()}`);
+        const motd = await fetch(`${server}/static/motd?cachebust=${Date.now()}`);
         // only render if one exists
-        if (motd.status == 200) {
-          let motdText = await motd.text();
+        if (motd.status === 200) {
+          const motdText = await motd.text();
           document.getElementById('motd').innerHTML = motdText;
         }
       }
@@ -444,33 +452,32 @@
 
       async function enableDebug() {
         document.getElementById('debug-menu').classList.remove('hidden');
-        let debugButton = document.getElementById('stream-debug');
-        debugButton.addEventListener('click', () => {window.open(`${server}/stream/${currentStream.id}`, '_blank')});
-        debugButton.addEventListener('touchstart', () => {window.open(`${server}/stream/${currentStream.id}`, '_blank')});
+        const debugButton = document.getElementById('stream-debug');
+        debugButton.addEventListener('click', () => { window.open(`${server}/stream/${currentStream.id}`, '_blank'); });
+        debugButton.addEventListener('touchstart', () => { window.open(`${server}/stream/${currentStream.id}`, '_blank'); });
       }
 
       async function initPage() {
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
         document.getElementById('save-filter').addEventListener('click', setGlobalFilterObjectFromForm);
-        document.getElementById('save-filter').addEventListener('touchstart', setGlobalFilterObjectFromForm, {passive: true});
+        document.getElementById('save-filter').addEventListener('touchstart', setGlobalFilterObjectFromForm, { passive: true });
         document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
         document.getElementById('wide_page').addEventListener('change', toggleWide);
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
-        document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, {passive: true});
+        document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, { passive: true });
 
         // populate buttons/filter UI/etc. from (localstorage || defaults (i.e. empty))
         setUIFromGlobalFilterObject();
 
         // prefetch 17 thumbs (main + 16 thumbnails)
-        let fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
+        const fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
 
         // if we have /?stream=... then render the specified stream
         // otherwise grab a random one
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('stream')) {
-          console.log(`Loading stream from URL: "${urlParams.get('stream')}")`)
           fetchAndRenderRandomStream(null, JSON.parse(urlParams.get('stream')));
           window.history.pushState({}, document.title, window.location.pathname);
           newStreamerButtonRateLimit();
@@ -488,8 +495,10 @@
     </script>
     <script defer src="https://www.googletagmanager.com/gtag/js?id=G-7JF3B0HFYJ"></script>
     <script>
+      /* global dataLayer */
+      /* eslint prefer-rest-params: "off" */
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag() { dataLayer.push(arguments); }
       gtag('js', new Date());
 
       gtag('config', 'G-7JF3B0HFYJ');

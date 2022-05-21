@@ -4,60 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="/static/apple-touch-icon.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="/static/favicon-32x32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="/static/favicon-16x16.png"
-    />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png" />
     <link rel="manifest" href="/static/site.webmanifest" />
-    <link
-      rel="mask-icon"
-      href="/static/safari-pinned-tab.svg"
-      color="#6441a5"
-    />
+    <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#6441a5" />
     <meta name="msapplication-TileColor" content="#6441a5" />
     <meta name="theme-color" content="#6441a5" />
 
     <meta property="og:title" content="Watch streamers with no audience" />
     <meta property="og:site_name" content="Nobody.Live" />
     <meta property="og:url" content="https://nobody.live/" />
-    <meta
-      property="og:description"
-      content="Become the entire audience of a lonely streamer broadcasting to zero viewers"
-    />
+    <meta property="og:description" content="Become the entire audience of a lonely streamer broadcasting to zero viewers" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://nobody.live/og.png" />
 
     <meta name="title" content="Nobody.live Stats" />
-    <meta
-      name="description"
-      content="Nobody.live stream statistics and information"
-    />
-    <meta
-      name="keywords"
-      content="stream, no viewers stream, streams with no audience, twitch no viewers"
-    />
+    <meta name="description" content="Nobody.live stream statistics and information" />
+    <meta name="keywords" content="stream, no viewers stream, streams with no audience, twitch no viewers" />
     <meta name="robots" content="index, follow" />
     <meta name="language" content="English" />
     <meta name="author" content="Jack Kingsman" />
 
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/static/datatables/datatables.min.css"
-    />
+    <link rel="stylesheet" type="text/css" href="/static/datatables/datatables.min.css" />
     <style>
       h2,
       p {
@@ -181,178 +150,178 @@
     <script type="text/javascript" src="/static/datatables/datatables.min.js"></script>
     <script type="text/javascript" src="/static/chartjs/chart.min.js"></script>
     <script>
+      /* global Chart */
+      /* eslint no-restricted-syntax: "off", guard-for-in: "off" */
       const server = document.location.origin;
 
-      async function load_vitals() {
+      async function loadVitals() {
         const vitals = await fetch(`${server}/stats/counts`);
-        const age = new Date(vitals.headers.get("x-cached-since") * 1000);
-        const vitals_json = await vitals.json();
+        const age = new Date(vitals.headers.get('x-cached-since') * 1000);
+        const vitalsJSON = await vitals.json();
 
-        document.getElementById("vitals-fresh-time").innerText = age;
-        document.getElementById("zero-viewer-stream-count").innerText = vitals_json.zero_viewer_count;
-        document.getElementById("one-viewer-stream-count").innerText = vitals_json.one_viewer_count;
-        document.getElementById("total-stream-count").innerText = vitals_json.total_count;
-        document.getElementById("game-count").innerText = vitals_json.unique_games;
+        document.getElementById('vitals-fresh-time').innerText = age;
+        document.getElementById('zero-viewer-stream-count').innerText = vitalsJSON.zero_viewer_count;
+        document.getElementById('one-viewer-stream-count').innerText = vitalsJSON.one_viewer_count;
+        document.getElementById('total-stream-count').innerText = vitalsJSON.total_count;
+        document.getElementById('game-count').innerText = vitalsJSON.unique_games;
       }
 
-      load_vitals();
-      document.getElementById("reload-vitals").addEventListener("click", load_vitals);
-      document.getElementById("reload-vitals").addEventListener("touchstart", load_vitals);
+      loadVitals();
+      document.getElementById('reload-vitals').addEventListener('click', loadVitals);
+      document.getElementById('reload-vitals').addEventListener('touchstart', loadVitals);
 
-      async function load_games() {
+      async function loadGames() {
         const games = await fetch(`${server}/stats/games`);
-        const age = new Date(games.headers.get("x-cached-since") * 1000);
-        const games_json = await games.json();
+        const age = new Date(games.headers.get('x-cached-since') * 1000);
+        const gamesJSON = await games.json();
 
-        columnar_games = []
-        for (game in games_json) {
-            columnar_games.push([
-                game,
-                games_json[game].zero_viewer,
-                games_json[game].one_viewer,
-                games_json[game].total,
-            ]);
+        const columnarGames = [];
+        for (const game in gamesJSON) {
+          columnarGames.push([
+            game,
+            gamesJSON[game].zero_viewer,
+            gamesJSON[game].one_viewer,
+            gamesJSON[game].total,
+          ]);
         }
 
-        document.getElementById("games-fresh-time").innerText = age;
+        document.getElementById('games-fresh-time').innerText = age;
         $('#games').DataTable({
-            destroy: true,
-            scrollY: '500px',
-            scrollCollapse: true,
-            paging: false,
-            data: columnar_games,
-            columns: [
-                { title: 'Game' },
-                { title: 'Zero Viewer Streams' },
-                { title: 'One Viewer Streams' },
-                { title: 'Total Streams' },
-            ],
+          destroy: true,
+          scrollY: '500px',
+          scrollCollapse: true,
+          paging: false,
+          data: columnarGames,
+          columns: [
+            { title: 'Game' },
+            { title: 'Zero Viewer Streams' },
+            { title: 'One Viewer Streams' },
+            { title: 'Total Streams' },
+          ],
         });
       }
 
-      document.getElementById("reload-games").addEventListener("click", load_games);
-      document.getElementById("reload-games").addEventListener("touchstart", load_games);
+      document.getElementById('reload-games').addEventListener('click', loadGames);
+      document.getElementById('reload-games').addEventListener('touchstart', loadGames);
 
-      async function load_tags() {
+      async function loadTags() {
         const tags = await fetch(`${server}/stats/tags`);
-        const age = new Date(tags.headers.get("x-cached-since") * 1000);
-        const tags_json = await tags.json();
+        const age = new Date(tags.headers.get('x-cached-since') * 1000);
+        const tagsJSON = await tags.json();
 
-        columnar_tags = []
-        for (game in tags_json) {
-            columnar_tags.push([
-                game,
-                tags_json[game].zero_viewer,
-                tags_json[game].one_viewer,
-                tags_json[game].total,
-            ]);
+        const columnarTags = [];
+        for (const game in tagsJSON) {
+          columnarTags.push([
+            game,
+            tagsJSON[game].zero_viewer,
+            tagsJSON[game].one_viewer,
+            tagsJSON[game].total,
+          ]);
         }
 
-        document.getElementById("tags-fresh-time").innerText = age;
+        document.getElementById('tags-fresh-time').innerText = age;
         $('#tags').DataTable({
-            destroy: true,
-            scrollY: '500px',
-            scrollCollapse: true,
-            paging: false,
-            data: columnar_tags,
-            columns: [
-                { title: 'Tag' },
-                { title: 'Zero Viewer Streams' },
-                { title: 'One Viewer Streams' },
-                { title: 'Total Streams' },
-            ],
+          destroy: true,
+          scrollY: '500px',
+          scrollCollapse: true,
+          paging: false,
+          data: columnarTags,
+          columns: [
+            { title: 'Tag' },
+            { title: 'Zero Viewer Streams' },
+            { title: 'One Viewer Streams' },
+            { title: 'Total Streams' },
+          ],
         });
       }
-      document.getElementById("reload-tags").addEventListener("click", load_tags);
-      document.getElementById("reload-tags").addEventListener("touch_start", load_tags);
+      document.getElementById('reload-tags').addEventListener('click', loadTags);
+      document.getElementById('reload-tags').addEventListener('touch_start', loadTags);
 
-      function download_csv(id) {
+      function downloadCSV(id) {
         const content = document.getElementById(id).value;
-        var downloadableLink = document.createElement('a');
-        downloadableLink.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-        downloadableLink.download = "nobody.live_db_data.csv";
+        const downloadableLink = document.createElement('a');
+        downloadableLink.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(content)}`);
+        downloadableLink.download = 'nobody.live_dbData.csv';
         document.body.appendChild(downloadableLink);
         downloadableLink.click();
         document.body.removeChild(downloadableLink);
       }
-      document.getElementById("download-rolling-csv").addEventListener("click", ()=>{download_csv("db-data-rolling")});
-      document.getElementById("download-rolling-csv").addEventListener("touchstart", ()=>{download_csv("db-data-rolling")});
-      document.getElementById("download-snapshot-csv").addEventListener("click", ()=>{download_csv("db-data-snapshot")});
-      document.getElementById("download-snapshot-csv").addEventListener("touchstart", ()=>{download_csv("db-data-snapshot")});
+      document.getElementById('download-rolling-csv').addEventListener('click', () => { downloadCSV('db-data-rolling'); });
+      document.getElementById('download-rolling-csv').addEventListener('touchstart', () => { downloadCSV('db-data-rolling'); });
+      document.getElementById('download-snapshot-csv').addEventListener('click', () => { downloadCSV('db-data-snapshot'); });
+      document.getElementById('download-snapshot-csv').addEventListener('touchstart', () => { downloadCSV('db-data-snapshot'); });
 
-      let last_loaded_data_time = new Date();
-      let last_loaded_snapshot_time = 0;
-      let chart_data = {labels: [], data: []};
-      let chart_obj;
-      async function append_generation_data() {
+      let lastLoadedDataTime = new Date();
+      let lastLoadedSnapshotTime = 0;
+      const chartData = { labels: [], data: [] };
+      let chartObj;
+      async function appendGenerationData() {
         const vitals = await fetch(`${server}/stats/counts`);
-        const age = new Date(vitals.headers.get("x-cached-since") * 1000);
-        const vitals_json = await vitals.json();
+        const age = new Date(vitals.headers.get('x-cached-since') * 1000);
+        const vitalsJSON = await vitals.json();
 
-        if (age.getTime() == last_loaded_data_time.getTime()) {
+        if (age.getTime() === lastLoadedDataTime.getTime()) {
           return;
-        } else {
-          last_loaded_data_time = age;
         }
+        lastLoadedDataTime = age;
 
         if (document.getElementById('enable-scan-generations').checked) {
-          const generation_data = document.getElementById('generation-data');
-          generation_data.value = `${generation_data.value}${Math.floor(age / 1000)}: ${JSON.stringify(vitals_json.generations)}\n`;
-          generation_data.scrollTop = generation_data.scrollHeight;
+          const generationData = document.getElementById('generation-data');
+          generationData.value = `${generationData.value}${Math.floor(age / 1000)}: ${JSON.stringify(vitalsJSON.generations)}\n`;
+          generationData.scrollTop = generationData.scrollHeight;
         }
 
         if (document.getElementById('enable-db-size').checked) {
-          const db_data = document.getElementById('db-data-rolling');
-          db_data.value = `${db_data.value}${Math.floor(age / 1000)},${vitals_json.zero_viewer_count},${vitals_json.one_viewer_count},${vitals_json.total_count}\n`;
-          db_data.scrollTop = db_data.scrollHeight;
+          const dbData = document.getElementById('db-data-rolling');
+          dbData.value = `${dbData.value}${Math.floor(age / 1000)},${vitalsJSON.zero_viewer_count},${vitalsJSON.one_viewer_count},${vitalsJSON.total_count}\n`;
+          dbData.scrollTop = dbData.scrollHeight;
         }
 
         if (document.getElementById('enable-db-size-snapshots').checked) {
           // a load is only complete once another newer load has started
-          if (Object.keys(vitals_json.generations).length == 2) {
-            const oldest_generation = Math.min(...Object.keys(vitals_json.generations).map(Number));
-            if (oldest_generation !== last_loaded_snapshot_time) {
-              console.log(oldest_generation, vitals_json.generations, vitals_json.generations[oldest_generation], vitals_json)
-              const generation_data = vitals_json.generations[oldest_generation];
-              last_loaded_snapshot_time = oldest_generation;
-              const db_data_snapshot = document.getElementById('db-data-snapshot');
-              db_data_snapshot.value = `${db_data_snapshot.value}${Math.floor(oldest_generation)},${generation_data.zero_viewer_count},${generation_data.one_viewer_count}\n`;
-              db_data_snapshot.scrollTop = db_data_snapshot.scrollHeight;
+          if (Object.keys(vitalsJSON.generations).length === 2) {
+            const oldestGeneration = Math.min(...Object.keys(vitalsJSON.generations).map(Number));
+            if (oldestGeneration !== lastLoadedSnapshotTime) {
+              const generationData = vitalsJSON.generations[oldestGeneration];
+              lastLoadedSnapshotTime = oldestGeneration;
+              const dbDataSnapshot = document.getElementById('db-data-snapshot');
+              dbDataSnapshot.value = `${dbDataSnapshot.value}${Math.floor(oldestGeneration)},${generationData.zero_viewer_count},${generationData.one_viewer_count}\n`;
+              dbDataSnapshot.scrollTop = dbDataSnapshot.scrollHeight;
             }
           }
         }
 
         if (document.getElementById('enable-chart').checked) {
-          chart_data.labels.push(Math.floor(age / 1000));
-          chart_data.data.push(vitals_json.total_count);
+          chartData.labels.push(Math.floor(age / 1000));
+          chartData.data.push(vitalsJSON.total_count);
           const ctx = document.getElementById('db-data-chart');
-          const chart_options = {
+          const chartOptions = {
             type: 'line',
             data: {
-              labels: chart_data.labels,
+              labels: chartData.labels,
               datasets: [{
                 label: 'Stream Count',
-                data: chart_data.data,
+                data: chartData.data,
                 fill: true,
                 borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-              }]
+                tension: 0.1,
+              }],
             },
             options: {
               maintainAspectRatio: false,
-            }
-          }
+            },
+          };
 
-          if (!chart_obj) {
-            chart_obj = new Chart(ctx, chart_options);
+          if (!chartObj) {
+            chartObj = new Chart(ctx, chartOptions);
           } else {
-            chart_obj.options = chart_options;
-            chart_obj.update();
+            chartObj.options = chartOptions;
+            chartObj.update();
           }
         }
       }
-      append_generation_data();
-      setInterval(append_generation_data, 2000);
+      appendGenerationData();
+      setInterval(appendGenerationData, 2000);
     </script>
   </body>
 </html>
