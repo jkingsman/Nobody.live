@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import copy
 from functools import partial
 import json
 import os
@@ -215,7 +216,7 @@ async def get_stats_streams_by_game(request):
 async def get_stats_counts(request):
     now = datetime.datetime.now().timestamp()
     cache_key = 'counts'
-    cache_max_age = 10
+    cache_max_age = 3
 
     if cache_key not in app.ctx.cached_responses:
         app.ctx.cached_responses[cache_key] = {
@@ -245,11 +246,28 @@ async def get_stats_counts(request):
         counts_query = dict(await conn.fetchrow(counts_query))
 
         generations_query = """
-            SELECT generation, COUNT(*) as count
-            FROM streams GROUP BY generation;
+            SELECT generation,
+                Sum(CASE
+                        WHEN viewer_count = 0 THEN 1
+                        ELSE 0
+                    END) AS zero_viewer_count,
+                Sum(CASE
+                        WHEN viewer_count = 1 THEN 1
+                        ELSE 0
+                    END) AS one_viewer_count,
+                Count(*) AS total
+            FROM   streams
+            GROUP  BY generation;
         """
-        generations_query = dict(await conn.fetch(generations_query))
-        counts_query['generations'] = generations_query
+
+        generations_query = [dict(row) for row in await conn.fetch(generations_query)]
+        # mutate into keyed object
+        generations_result = {}
+        for generation in generations_query:
+            generation_object_without_generation_number = copy.copy(generation)
+            del generation_object_without_generation_number['generation']
+            generations_result[generation['generation']] = generation_object_without_generation_number
+        counts_query['generations'] = generations_result
 
         app.ctx.cached_responses[cache_key]['cached-since'] = now
         app.ctx.cached_responses[cache_key]['response'] = counts_query

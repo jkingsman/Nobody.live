@@ -140,22 +140,38 @@
     <hr />
     <details>
       <summary>
-        <h2 class="title" id="reload-tags">Scan Generations</h2>
+        <h2 class="title">Scan Generation Breakdown</h2>
       </summary>
+      <input type="checkbox" id="enable-scan-generations" checked>
+      <label for="enable-scan-generations"> Enable</label>
       <textarea readonly class="data-display" id="generation-data"></textarea>
     </details>
     <details>
       <summary>
-        <h2 class="title" id="reload-tags">DB Size CSV</h2>
+        <h2 class="title">DB Size CSV (live sums)</h2>
       </summary>
-      <button id="download-csv">Download</button>
-      <textarea readonly class="data-display" id="db-data">time,zero_viewer,one_viewer,total_streams
+      <button id="download-rolling-csv">Download</button>
+      <input type="checkbox" id="enable-db-size" checked>
+      <label for="enable-db-size"> Enable</label>
+      <textarea readonly class="data-display" id="db-data-rolling">time,zero_viewer,one_viewer,total_streams
+</textarea>
+    </details>
+    <details>
+      <summary>
+        <h2 class="title">DB Size CSV (generation snapshots after complete load)</h2>
+      </summary>
+      <input type="checkbox" id="enable-db-size-snapshots" checked>
+      <label for="enable-db-size-snapshots"> Enable</label>
+      <button id="download-snapshot-csv">Download</button>
+      <textarea readonly class="data-display" id="db-data-snapshot">time,zero_viewer,one_viewer
 </textarea>
     </details>
     <details open>
       <summary>
-        <h2 class="title" id="reload-tags">DB Size Chart</h2>
+        <h2 class="title">DB Size Chart</h2>
       </summary>
+      <input type="checkbox" id="enable-chart" checked>
+      <label for="enable-chart"> Enable</label>
       <div class="chart-container">
         <canvas id="db-data-chart" width="400" height="400"></canvas>
       </div>
@@ -250,8 +266,8 @@
       document.getElementById("reload-tags").addEventListener("click", load_tags);
       document.getElementById("reload-tags").addEventListener("touch_start", load_tags);
 
-      function download_csv() {
-        const content = document.getElementById("db-data").value;
+      function download_csv(id) {
+        const content = document.getElementById(id).value;
         var downloadableLink = document.createElement('a');
         downloadableLink.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
         downloadableLink.download = "nobody.live_db_data.csv";
@@ -259,10 +275,13 @@
         downloadableLink.click();
         document.body.removeChild(downloadableLink);
       }
-      document.getElementById("download-csv").addEventListener("click", download_csv);
-      document.getElementById("download-csv").addEventListener("touchstart", download_csv);
+      document.getElementById("download-rolling-csv").addEventListener("click", ()=>{download_csv("db-data-rolling")});
+      document.getElementById("download-rolling-csv").addEventListener("touchstart", ()=>{download_csv("db-data-rolling")});
+      document.getElementById("download-snapshot-csv").addEventListener("click", ()=>{download_csv("db-data-snapshot")});
+      document.getElementById("download-snapshot-csv").addEventListener("touchstart", ()=>{download_csv("db-data-snapshot")});
 
       let last_loaded_data_time = new Date();
+      let last_loaded_snapshot_time = 0;
       let chart_data = {labels: [], data: []};
       let chart_obj;
       async function append_generation_data() {
@@ -276,43 +295,64 @@
           last_loaded_data_time = age;
         }
 
-        const generation_data = document.getElementById('generation-data');
-        generation_data.value = `${generation_data.value}${Math.floor(age / 1000)}: ${JSON.stringify(vitals_json.generations)}\n`;
-        generation_data.scrollTop = generation_data.scrollHeight;
+        if (document.getElementById('enable-scan-generations').checked) {
+          const generation_data = document.getElementById('generation-data');
+          generation_data.value = `${generation_data.value}${Math.floor(age / 1000)}: ${JSON.stringify(vitals_json.generations)}\n`;
+          generation_data.scrollTop = generation_data.scrollHeight;
+        }
 
-        const db_data = document.getElementById('db-data');
-        db_data.value = `${db_data.value}${Math.floor(age / 1000)},${vitals_json.zero_viewer_count},${vitals_json.one_viewer_count},${vitals_json.total_count}\n`;
-        db_data.scrollTop = db_data.scrollHeight;
+        if (document.getElementById('enable-db-size').checked) {
+          const db_data = document.getElementById('db-data-rolling');
+          db_data.value = `${db_data.value}${Math.floor(age / 1000)},${vitals_json.zero_viewer_count},${vitals_json.one_viewer_count},${vitals_json.total_count}\n`;
+          db_data.scrollTop = db_data.scrollHeight;
+        }
 
-        chart_data.labels.push(Math.floor(age / 1000));
-        chart_data.data.push(vitals_json.total_count);
-        const ctx = document.getElementById('db-data-chart');
-        const chart_options = {
-          type: 'line',
-          data: {
-            labels: chart_data.labels,
-            datasets: [{
-              label: 'Stream Count',
-              data: chart_data.data,
-              fill: true,
-              borderColor: 'rgb(75, 192, 192)',
-              tension: 0.1
-            }]
-          },
-          options: {
-            maintainAspectRatio: false,
+        if (document.getElementById('enable-db-size-snapshots').checked) {
+          // a load is only complete once another newer load has started
+          if (Object.keys(vitals_json.generations).length == 2) {
+            const oldest_generation = Math.min(...Object.keys(vitals_json.generations).map(Number));
+            if (oldest_generation !== last_loaded_snapshot_time) {
+              console.log(oldest_generation, vitals_json.generations, vitals_json.generations[oldest_generation], vitals_json)
+              const generation_data = vitals_json.generations[oldest_generation];
+              last_loaded_snapshot_time = oldest_generation;
+              const db_data_snapshot = document.getElementById('db-data-snapshot');
+              db_data_snapshot.value = `${db_data_snapshot.value}${Math.floor(oldest_generation)},${generation_data.zero_viewer_count},${generation_data.one_viewer_count}\n`;
+              db_data_snapshot.scrollTop = db_data_snapshot.scrollHeight;
+            }
           }
         }
 
-        if (!chart_obj) {
-          chart_obj = new Chart(ctx, chart_options);
-        } else {
-          chart_obj.options = chart_options;
-          chart_obj.update();
+        if (document.getElementById('enable-chart').checked) {
+          chart_data.labels.push(Math.floor(age / 1000));
+          chart_data.data.push(vitals_json.total_count);
+          const ctx = document.getElementById('db-data-chart');
+          const chart_options = {
+            type: 'line',
+            data: {
+              labels: chart_data.labels,
+              datasets: [{
+                label: 'Stream Count',
+                data: chart_data.data,
+                fill: true,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+              }]
+            },
+            options: {
+              maintainAspectRatio: false,
+            }
+          }
+
+          if (!chart_obj) {
+            chart_obj = new Chart(ctx, chart_options);
+          } else {
+            chart_obj.options = chart_options;
+            chart_obj.update();
+          }
         }
       }
       append_generation_data();
-      setInterval(append_generation_data, 6000);
+      setInterval(append_generation_data, 2000);
     </script>
   </body>
 </html>
