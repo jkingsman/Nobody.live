@@ -99,8 +99,7 @@ def load_tag_list(session, client_id, token):
 
         if "cursor" not in tag_response["pagination"]:  # on the last page
             break
-        else:
-            url_params["after"] = tag_response["pagination"]["cursor"]
+        url_params["after"] = tag_response["pagination"]["cursor"]
 
     logging.info(f"{len(tag_id_and_name['data'])} tags loaded")
 
@@ -200,6 +199,6 @@ def populate_streamers(client_id, client_secret, generation):
 if __name__ == "__main__":
     db_utils.migrate()
     while True:
-        generation = int(time.time())
-        populate_streamers(CLIENT_ID, CLIENT_SECRET, generation)
-        db_utils.prune_all_but_generation(generation)
+        current_generation = int(time.time())
+        populate_streamers(CLIENT_ID, CLIENT_SECRET, current_generation)
+        db_utils.prune_all_but_generation(current_generation)
