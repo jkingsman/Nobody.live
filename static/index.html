@@ -66,7 +66,7 @@
         <button class="new-thumbnails fake-link">Get new thumbnails</button><svg width="38" height="38" class="loading-throbber hidden" preserveAspectRatio="xMidYMid meet" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="b"><stop stop-color="#fff" stop-opacity="0" offset="0%"/><stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/><stop stop-color="#fff" offset="100%"/></linearGradient></defs><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)"> <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#b)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></path><circle fill="#fff" cx="36" cy="18" r="1"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="0.9s" repeatCount="indefinite" /></circle></g></g></svg>
       </div>
       <div id="footer">
-        last watched streams: <span id="stream-list"></span>
+        watched streams: <span id="stream-list"></span>
         <br><br>
         made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by jack kingsman, with much appreciation for carsten hoffrichter's <i>lonely streams</i>
         <br><br>
@@ -351,14 +351,14 @@
         document.getElementById('remember').checked = streamFilterRemember;
         document.getElementById('include').value = streamFilter.include;
         document.getElementById('exclude').value = streamFilter.exclude;
-        document.getElementById('min-age').value = streamFilter.minAge;
+        document.getElementById('min-age').value = Number(streamFilter.minAge);
         document.getElementById('show_singles').checked = streamFilter.max_viewers === 1;
 
         document.getElementById('search_all').checked = streamFilter.search_operator === 'all';
         document.getElementById('search_any').checked = streamFilter.search_operator === 'any';
 
         const streamButton = document.getElementById('new-streamer-button');
-        if (!streamFilter.include && !streamFilter.exclude && streamFilter.minAge === 0) {
+        if (!streamFilter.include && !streamFilter.exclude && Number(streamFilter.minAge) === 0) {
           // we have no filter active; restore things to normal text
           document.querySelectorAll('.new-thumbnails').forEach((button) => { button.innerText = 'Get new thumbnails'; });
           document.querySelector('#filter').innerText = 'filter streams';
@@ -407,7 +407,7 @@
 
         streamFilter.include = include;
         streamFilter.exclude = exclude;
-        streamFilter.minAge = document.getElementById('min-age').value;
+        streamFilter.minAge = Number(document.getElementById('min-age').value);
         streamFilter.max_viewers = document.getElementById('show_singles').checked ? 1 : 0;
         streamFilter.search_operator = document.querySelector('input[name="search_operator"]:checked').value;
 
