@@ -85,11 +85,19 @@ async def get_streams(request):
 
             # TABLESAMPLE not guaranteed to return enough rows, especially (mainly) after filtering
             # Issue additional queries up to QUERY_FILL_LIMIT to attempt to meet our quota
-            # If not done, give up and return what we have
+            # since tablesample is so fast (~1000 usec), even multiple tries is faster than random()
+            # If not done, give up and fallback to the non-performant sort by random()
             while len(extracted_streams) < count and query_count < QUERY_FILL_LIMIT:
+                print("attempting fill...")
                 new_streams = await conn.fetch(games_query, max_viewers)
                 extracted_streams += [json.loads(stream[0]) for stream in new_streams]
                 query_count += 1
+
+            if len(extracted_streams) < count:
+                # we attempted up to QUERY_FILL_LIMIT but didn't hit it. Fall back to poor performance selection
+                games_query = "SELECT data FROM streams WHERE viewer_count <= $1 ORDER BY random() limit $2"
+                new_streams = await conn.fetch(games_query, max_viewers, count)
+                extracted_streams += [json.loads(stream[0]) for stream in new_streams]
 
             extracted_streams = extracted_streams[:count]
     else:
