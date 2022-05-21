@@ -88,7 +88,6 @@ async def get_streams(request):
             # since tablesample is so fast (~1000 usec), even multiple tries is faster than random()
             # If not done, give up and fallback to the non-performant sort by random()
             while len(extracted_streams) < count and query_count < QUERY_FILL_LIMIT:
-                print("attempting fill...")
                 new_streams = await conn.fetch(games_query, max_viewers)
                 extracted_streams += [json.loads(stream[0]) for stream in new_streams]
                 query_count += 1
@@ -153,7 +152,7 @@ async def get_streams(request):
             streams = await conn.fetch(games_query, *query_arg_list)
             extracted_streams = [json.loads(stream[0]) for stream in streams]
 
-    if not streams:
+    if not extracted_streams:
         return sanic_json([], dumps=json_dumps)
 
     return sanic_json(extracted_streams, dumps=json_dumps)
