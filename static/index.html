@@ -237,8 +237,13 @@
         if (streamRuntimeHours > 0) {
           streamRuntimeString += `${streamRuntimeHours}hr`;
         }
+
         if (streamRuntimeMinutes > 0) {
           streamRuntimeString += `${streamRuntimeMinutes}min`;
+        }
+
+        if (streamRuntimeMinutes === 0 && streamRuntimeHours === 0) {
+          streamRuntimeString += 'no time at all';
         }
 
         document.getElementById('stream_duration').innerText = streamRuntimeString;
@@ -481,6 +486,12 @@
           fetchAndRenderRandomStream(null, JSON.parse(urlParams.get('stream')));
           window.history.pushState({}, document.title, window.location.pathname);
           newStreamerButtonRateLimit();
+        } else if (urlParams.has('force')) {
+          fetchAndRenderRandomStream(null, {
+            user_name: urlParams.get('force'),
+            id: `forcedstream-${urlParams.get('force')}`,
+            started_at: new Date().toISOString(),
+          });
         } else {
           fetchAndRenderRandomStream(null, fetchedStreams[0]);
         }
