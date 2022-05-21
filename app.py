@@ -21,49 +21,54 @@ QUERY_FILL_LIMIT = 5
 # use builtin json with unicode instead of sanic's
 json_dumps = partial(json.dumps, separators=(",", ":"), ensure_ascii=False)
 
+
 def get_from_dict_as_int_or_default(obj, key, default=0):
     try:
         return int(obj.get(key, default))
     except ValueError:
         return default
 
-@app.listener('before_server_start')
+
+@app.listener("before_server_start")
 async def register_db(app_handle, loop):
-    app_handle.config['pool'] = await create_pool(
+    app_handle.config["pool"] = await create_pool(
         dsn=f"postgres://{os.environ.get('NOBODY_USER')}:{os.environ.get('NOBODY_PASSWORD')}@{os.environ.get('NOBODY_HOST')}"
-            f"/{os.environ.get('NOBODY_DATABASE')}",
+        f"/{os.environ.get('NOBODY_DATABASE')}",
         min_size=10,
         max_size=10,
         max_queries=1000,
         max_inactive_connection_lifetime=300,
-        loop=loop)
+        loop=loop,
+    )
 
-@app.listener('after_server_stop')
+
+@app.listener("after_server_stop")
 async def close_connection(app_handle):
-    pool = app_handle.config['pool']
+    pool = app_handle.config["pool"]
     async with pool.acquire() as conn:
         await conn.close()
 
-app.static('/', './static/index.html')
-app.static('/static', './static')
+
+app.static("/", "./static/index.html")
+app.static("/static", "./static")
 
 # pylint: disable=too-many-statements,too-many-locals
-@app.get('/stream')
+@app.get("/stream")
 async def get_streams(request):
-    pool = request.app.config['pool']
+    pool = request.app.config["pool"]
 
-    count = get_from_dict_as_int_or_default(request.args, 'count', 1)
-    max_viewers = get_from_dict_as_int_or_default(request.args, 'max_viewers', 0)
-    min_age = get_from_dict_as_int_or_default(request.args, 'min_age', 0)
+    count = get_from_dict_as_int_or_default(request.args, "count", 1)
+    max_viewers = get_from_dict_as_int_or_default(request.args, "max_viewers", 0)
+    min_age = get_from_dict_as_int_or_default(request.args, "min_age", 0)
 
     # include and exclude to handle comma separated values
-    include = request.args.get('include', '').replace(',', ' ')
-    exclude = request.args.get('exclude', '').replace(',', ' ')
-    operator = request.args.get('search_operator', 'all')
+    include = request.args.get("include", "").replace(",", " ")
+    exclude = request.args.get("exclude", "").replace(",", " ")
+    operator = request.args.get("search_operator", "all")
 
     # do a moderate approximation of not falling over
     if count > 20 or len(include) + len(exclude) > 64:
-        return text('Filter too large! Please request fewer records.', 413)
+        return text("Filter too large! Please request fewer records.", 413)
 
     include_list = include.split()
     exclude_list = exclude.split()
@@ -91,7 +96,7 @@ async def get_streams(request):
         # this is so hacky but it looks like how we have to do things for asyncpg.
         # if anyone knows of an easier way to do LIKE on ALL elements of a list (and inverse)
         # than this please tell me
-        query_arg_string = ''
+        query_arg_string = ""
         query_arg_index = 1
         query_arg_list = []
 
@@ -101,7 +106,9 @@ async def get_streams(request):
             query_arg_list.append(f"%{exclusion.lower()}%")
 
         if min_age:
-            query_arg_string += f"AND streamstart < (NOW() - interval '1 minute' * ${query_arg_index}) "
+            query_arg_string += (
+                f"AND streamstart < (NOW() - interval '1 minute' * ${query_arg_index}) "
+            )
             query_arg_index += 1
             query_arg_list.append(min_age)
 
@@ -144,44 +151,55 @@ async def get_streams(request):
     return sanic_json(extracted_streams, dumps=json_dumps)
 
 
-@app.get('/stream/<stream_id>')
+@app.get("/stream/<stream_id>")
 async def get_stream_details(request, stream_id):
-    pool = request.app.config['pool']
+    pool = request.app.config["pool"]
     async with pool.acquire() as conn:
         stream_details_query = "SELECT * FROM streams WHERE id = $1"
         stream_details = await conn.fetch(stream_details_query, stream_id)
 
         if not stream_details:
-            return text('No such stream.', 410)
+            return text("No such stream.", 410)
 
-        twitch_data = json.loads(stream_details[0]['data'])
+        twitch_data = json.loads(stream_details[0]["data"])
 
         now = datetime.datetime.now()
-        scraped_at = datetime.datetime.fromtimestamp(stream_details[0]['time'])
+        scraped_at = datetime.datetime.fromtimestamp(stream_details[0]["time"])
         age = now - scraped_at
-        start_age = now - stream_details[0]['streamstart']
+        start_age = now - stream_details[0]["streamstart"]
 
-        twitch_data['scraped_at_mins_ago'] = str(round(age.total_seconds() / 60, 2))
-        twitch_data['streamstart_mins_ago'] = str(round(start_age.total_seconds() / 60, 2))
+        twitch_data["scraped_at_mins_ago"] = str(round(age.total_seconds() / 60, 2))
+        twitch_data["streamstart_mins_ago"] = str(
+            round(start_age.total_seconds() / 60, 2)
+        )
         return text(pprint.pformat(twitch_data))
 
-@app.get('/stats/games')
+
+@app.get("/stats/games")
 async def get_stats_streams_by_game(request):
     now = datetime.datetime.now().timestamp()
-    cache_key = 'streams_by_game'
+    cache_key = "streams_by_game"
     cache_max_age = 60
 
     if cache_key not in app.ctx.cached_responses:
         app.ctx.cached_responses[cache_key] = {
-            'cached-since': 0,
-            'max_age': cache_max_age,
-            'response': None
+            "cached-since": 0,
+            "max_age": cache_max_age,
+            "response": None,
         }
-    if (now - app.ctx.cached_responses[cache_key]['cached-since']) < app.ctx.cached_responses[cache_key]['max_age']:
-        response = app.ctx.cached_responses[cache_key]['response']
-        return sanic_json(response, dumps=json_dumps, headers={"x-cached-since": app.ctx.cached_responses[cache_key]['cached-since']})
+    if (
+        now - app.ctx.cached_responses[cache_key]["cached-since"]
+    ) < app.ctx.cached_responses[cache_key]["max_age"]:
+        response = app.ctx.cached_responses[cache_key]["response"]
+        return sanic_json(
+            response,
+            dumps=json_dumps,
+            headers={
+                "x-cached-since": app.ctx.cached_responses[cache_key]["cached-since"]
+            },
+        )
 
-    pool = request.app.config['pool']
+    pool = request.app.config["pool"]
     async with pool.acquire() as conn:
         games_list_query = """
             SELECT s0.game,
@@ -202,33 +220,46 @@ async def get_stats_streams_by_game(request):
         games_list_query = await conn.fetch(games_list_query)
         games_list_dict = {}
         for game in games_list_query:
-            games_list_dict[game['game']] = {
-              'one_viewer': game['streams_one_viewer'] or 0,
-              'zero_viewer': game['streams_zero_viewer'] or 0,
-              'total': (game['streams_one_viewer'] or 0) + (game['streams_zero_viewer'] or 0)}
+            games_list_dict[game["game"]] = {
+                "one_viewer": game["streams_one_viewer"] or 0,
+                "zero_viewer": game["streams_zero_viewer"] or 0,
+                "total": (game["streams_one_viewer"] or 0)
+                + (game["streams_zero_viewer"] or 0),
+            }
 
-        app.ctx.cached_responses[cache_key]['cached-since'] = now
-        app.ctx.cached_responses[cache_key]['response'] = games_list_dict
+        app.ctx.cached_responses[cache_key]["cached-since"] = now
+        app.ctx.cached_responses[cache_key]["response"] = games_list_dict
 
-        return sanic_json(games_list_dict, dumps=json_dumps, headers={"x-cached-since": now})
+        return sanic_json(
+            games_list_dict, dumps=json_dumps, headers={"x-cached-since": now}
+        )
 
-@app.get('/stats/counts')
+
+@app.get("/stats/counts")
 async def get_stats_counts(request):
     now = datetime.datetime.now().timestamp()
-    cache_key = 'counts'
+    cache_key = "counts"
     cache_max_age = 3
 
     if cache_key not in app.ctx.cached_responses:
         app.ctx.cached_responses[cache_key] = {
-            'cached-since': 0,
-            'max_age': cache_max_age,
-            'response': None
+            "cached-since": 0,
+            "max_age": cache_max_age,
+            "response": None,
         }
-    if (now - app.ctx.cached_responses[cache_key]['cached-since']) < app.ctx.cached_responses[cache_key]['max_age']:
-        response = app.ctx.cached_responses[cache_key]['response']
-        return sanic_json(response, dumps=json_dumps, headers={"x-cached-since": app.ctx.cached_responses[cache_key]['cached-since']})
+    if (
+        now - app.ctx.cached_responses[cache_key]["cached-since"]
+    ) < app.ctx.cached_responses[cache_key]["max_age"]:
+        response = app.ctx.cached_responses[cache_key]["response"]
+        return sanic_json(
+            response,
+            dumps=json_dumps,
+            headers={
+                "x-cached-since": app.ctx.cached_responses[cache_key]["cached-since"]
+            },
+        )
 
-    pool = request.app.config['pool']
+    pool = request.app.config["pool"]
     async with pool.acquire() as conn:
         counts_query = """
             SELECT *
@@ -265,55 +296,70 @@ async def get_stats_counts(request):
         generations_result = {}
         for generation in generations_query:
             generation_object_without_generation_number = copy.copy(generation)
-            del generation_object_without_generation_number['generation']
-            generations_result[generation['generation']] = generation_object_without_generation_number
-        counts_query['generations'] = generations_result
+            del generation_object_without_generation_number["generation"]
+            generations_result[
+                generation["generation"]
+            ] = generation_object_without_generation_number
+        counts_query["generations"] = generations_result
 
-        app.ctx.cached_responses[cache_key]['cached-since'] = now
-        app.ctx.cached_responses[cache_key]['response'] = counts_query
-        return sanic_json(counts_query, dumps=json_dumps, headers={"x-cached-since": now})
+        app.ctx.cached_responses[cache_key]["cached-since"] = now
+        app.ctx.cached_responses[cache_key]["response"] = counts_query
+        return sanic_json(
+            counts_query, dumps=json_dumps, headers={"x-cached-since": now}
+        )
 
-@app.get('/stats/tags')
+
+@app.get("/stats/tags")
 async def get_stats_tags(request):
     now = datetime.datetime.now().timestamp()
-    cache_key = 'tags'
+    cache_key = "tags"
     cache_max_age = 60
 
     if cache_key not in app.ctx.cached_responses:
         app.ctx.cached_responses[cache_key] = {
-            'cached-since': 0,
-            'max_age': cache_max_age,
-            'response': None
+            "cached-since": 0,
+            "max_age": cache_max_age,
+            "response": None,
         }
-    if (now - app.ctx.cached_responses[cache_key]['cached-since']) < app.ctx.cached_responses[cache_key]['max_age']:
-        response = app.ctx.cached_responses[cache_key]['response']
-        return sanic_json(response, dumps=json_dumps, headers={"x-cached-since": app.ctx.cached_responses[cache_key]['cached-since']})
+    if (
+        now - app.ctx.cached_responses[cache_key]["cached-since"]
+    ) < app.ctx.cached_responses[cache_key]["max_age"]:
+        response = app.ctx.cached_responses[cache_key]["response"]
+        return sanic_json(
+            response,
+            dumps=json_dumps,
+            headers={
+                "x-cached-since": app.ctx.cached_responses[cache_key]["cached-since"]
+            },
+        )
 
-    pool = request.app.config['pool']
+    pool = request.app.config["pool"]
     async with pool.acquire() as conn:
         data_query = "SELECT data from streams;"
         data_query = await conn.fetch(data_query)
-        stream_data_list = [json.loads(stream['data']) for stream in data_query]
+        stream_data_list = [json.loads(stream["data"]) for stream in data_query]
 
         tag_count = {}
         for stream in stream_data_list:
-            for tag in stream['tags']:
+            for tag in stream["tags"]:
                 if tag not in tag_count:
-                    tag_count[tag] = {'zero_viewer': 0, 'one_viewer': 0, 'total': 0}
+                    tag_count[tag] = {"zero_viewer": 0, "one_viewer": 0, "total": 0}
 
-                if stream['viewer_count'] == 0:
-                    tag_count[tag]['zero_viewer'] += 1
+                if stream["viewer_count"] == 0:
+                    tag_count[tag]["zero_viewer"] += 1
                 else:
-                    tag_count[tag]['one_viewer'] += 1
-                tag_count[tag]['total'] += 1
+                    tag_count[tag]["one_viewer"] += 1
+                tag_count[tag]["total"] += 1
 
-        app.ctx.cached_responses[cache_key]['cached-since'] = now
-        app.ctx.cached_responses[cache_key]['response'] = tag_count
+        app.ctx.cached_responses[cache_key]["cached-since"] = now
+        app.ctx.cached_responses[cache_key]["response"] = tag_count
         return sanic_json(tag_count, dumps=json_dumps, headers={"x-cached-since": now})
 
 
 if __name__ == "__main__":
-    if os.environ.get('NOBODY_DEBUG'):
-        app.run(host='0.0.0.0', port=5000, access_log=False, debug=True, auto_reload=True)
+    if os.environ.get("NOBODY_DEBUG"):
+        app.run(
+            host="0.0.0.0", port=5000, access_log=False, debug=True, auto_reload=True
+        )
     else:
-        app.run(host='0.0.0.0', port=8000, access_log=False, debug=False, fast=True)
+        app.run(host="0.0.0.0", port=8000, access_log=False, debug=False, fast=True)

@@ -30,8 +30,10 @@ CREATE INDEX IF NOT EXISTS lowercase_title_block ON streams (lower(title_block))
 CREATE INDEX IF NOT EXISTS title_block_trgm ON streams USING gin (lower(title_block) gin_trgm_ops);
 """
 
-conn = psycopg2.connect(f"dbname='{os.environ.get('NOBODY_DATABASE')}' user='{os.environ.get('NOBODY_USER')}' "
-                        f"host='{os.environ.get('NOBODY_HOST')}' password='{os.environ.get('NOBODY_PASSWORD')}'")
+conn = psycopg2.connect(
+    f"dbname='{os.environ.get('NOBODY_DATABASE')}' user='{os.environ.get('NOBODY_USER')}' "
+    f"host='{os.environ.get('NOBODY_HOST')}' password='{os.environ.get('NOBODY_PASSWORD')}'"
+)
 conn.autocommit = True
 
 
@@ -40,16 +42,21 @@ def migrate():
         print("Migrating schema")
         cursor.execute(SCHEMA)
 
+
 def bulk_insert_streams(streams, generation):
     if streams:
-        formatted_rows = [(
-            stream['id'],
-            stream['game_name'],
-            f"{stream['game_name']} {' '.join(stream['tags']).strip()}",
-            stream['viewer_count'],
-            generation,
-            parser.parse(stream['started_at']),
-            json.dumps(stream)) for stream in streams]
+        formatted_rows = [
+            (
+                stream["id"],
+                stream["game_name"],
+                f"{stream['game_name']} {' '.join(stream['tags']).strip()}",
+                stream["viewer_count"],
+                generation,
+                parser.parse(stream["started_at"]),
+                json.dumps(stream),
+            )
+            for stream in streams
+        ]
 
         insert_query = """
             INSERT INTO streams (id, game, title_block, viewer_count, generation, streamstart, data) values %s
@@ -57,9 +64,10 @@ def bulk_insert_streams(streams, generation):
             SET time=extract(epoch from now() at time zone 'utc');"""
 
         with conn.cursor() as cursor:
-            psycopg2.extras.execute_values (
+            psycopg2.extras.execute_values(
                 cursor, insert_query, formatted_rows, template=None, page_size=100
             )
+
 
 def prune_all_but_generation(generation):
     delete_query = """
