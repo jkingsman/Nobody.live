@@ -363,6 +363,63 @@ async def get_stats_tags(request):
         return sanic_json(tag_count, dumps=json_dumps, headers={"x-cached-since": now})
 
 
+@app.get("/stats/streamlist")
+async def get_streamlist(request):
+    cache_key = "streamlist"
+
+    if cache_key not in app.ctx.cached_responses:
+        app.ctx.cached_responses[cache_key] = {
+            "generation": 0,
+            "response": [],
+        }
+
+    pool = request.app.config["pool"]
+    async with pool.acquire() as conn:
+        generations_query = "SELECT generation FROM streams GROUP BY generation;"
+        generations_query = await conn.fetch(generations_query)
+        generations = [
+            generation_row["generation"] for generation_row in generations_query
+        ]
+
+        if len(generations) == 2:
+            # we have an older generation that is complete; use that one
+            generation = min(generations)
+            if app.ctx.cached_responses[cache_key]["generation"] == generation:
+                return sanic_json(
+                    app.ctx.cached_responses[cache_key]["response"], dumps=json_dumps
+                )
+        else:
+            # no complete generation; return our last set of data
+            return sanic_json(
+                app.ctx.cached_responses[cache_key]["response"], dumps=json_dumps
+            )
+
+        data_query = "SELECT data from streams;"
+        data_query = await conn.fetch(data_query)
+        stream_data_list = [json.loads(stream["data"]) for stream in data_query]
+
+        zero_viewer = set()
+        one_viewer = set()
+        for stream in stream_data_list:
+            if stream["viewer_count"] == 0:
+                zero_viewer.add(stream["user_login"])
+            else:
+                one_viewer.add(stream["user_login"])
+
+        compiled_generation = {
+            generation: {
+                "zero_viewer": list(zero_viewer),
+                "one_viewer": list(one_viewer),
+            }
+        }
+
+        app.ctx.cached_responses[cache_key]["generation"] = generation
+        app.ctx.cached_responses[cache_key]["response"] = compiled_generation
+        print("using fresh")
+
+        return sanic_json(compiled_generation, dumps=json_dumps)
+
+
 if __name__ == "__main__":
     if os.environ.get("NOBODY_DEBUG"):
         app.run(
