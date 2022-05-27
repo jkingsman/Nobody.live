@@ -151,7 +151,7 @@
     <script type="text/javascript" src="/static/chartjs/chart.min.js"></script>
     <script>
       /* global Chart */
-      /* eslint no-restricted-syntax: "off", guard-for-in: "off" */
+      /* eslint no-restricted-syntax: "off", guard-for-in: "off", max-len: "off" */
       const server = document.location.origin;
 
       async function loadVitals() {
@@ -246,10 +246,18 @@
         downloadableLink.click();
         document.body.removeChild(downloadableLink);
       }
-      document.getElementById('download-rolling-csv').addEventListener('click', () => { downloadCSV('db-data-rolling'); });
-      document.getElementById('download-rolling-csv').addEventListener('touchstart', () => { downloadCSV('db-data-rolling'); });
-      document.getElementById('download-snapshot-csv').addEventListener('click', () => { downloadCSV('db-data-snapshot'); });
-      document.getElementById('download-snapshot-csv').addEventListener('touchstart', () => { downloadCSV('db-data-snapshot'); });
+      document.getElementById('download-rolling-csv').addEventListener('click', () => {
+        downloadCSV('db-data-rolling');
+      });
+      document.getElementById('download-rolling-csv').addEventListener('touchstart', () => {
+        downloadCSV('db-data-rolling');
+      });
+      document.getElementById('download-snapshot-csv').addEventListener('click', () => {
+        downloadCSV('db-data-snapshot');
+      });
+      document.getElementById('download-snapshot-csv').addEventListener('touchstart', () => {
+        downloadCSV('db-data-snapshot');
+      });
 
       let lastLoadedDataTime = new Date();
       let lastLoadedSnapshotTime = 0;

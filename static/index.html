@@ -365,7 +365,9 @@
         const streamButton = document.getElementById('new-streamer-button');
         if (!streamFilter.include && !streamFilter.exclude && Number(streamFilter.minAge) === 0) {
           // we have no filter active; restore things to normal text
-          document.querySelectorAll('.new-thumbnails').forEach((button) => { button.innerText = 'Get new thumbnails'; });
+          document.querySelectorAll('.new-thumbnails').forEach((button) => {
+            button.innerText = 'Get new thumbnails';
+          });
           document.querySelector('#filter').innerText = 'filter streams';
           document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
 
@@ -377,9 +379,15 @@
           const searchString = generateFilterString();
 
           // set thumbnail text, filter status, and new streamer button text
-          document.querySelectorAll('.new-thumbnails').forEach((button) => { button.innerText = `Get new thumbnails ('${searchString}')`; });
+          document.querySelectorAll('.new-thumbnails').forEach((button) => {
+            button.innerText = `Get new thumbnails ('${searchString}')`;
+          });
           document.querySelector('#filter').innerText = 'filter active';
-          document.getElementById('new-streamer-button').setAttribute('data-message', `new streamer ('${searchString}')`);
+          document.getElementById('new-streamer-button').setAttribute(
+            'data-message',
+            `new streamer ('${searchString}')`,
+    );
+
           if (!streamButton.disabled) {
             document.getElementById('new-streamer-button').innerText = `new streamer ('${searchString}')`;
           }
@@ -460,18 +468,29 @@
       async function enableDebug() {
         document.getElementById('debug-menu').classList.remove('hidden');
         const debugButton = document.getElementById('stream-debug');
-        debugButton.addEventListener('click', () => { window.open(`${server}/stream/${currentStream.id}`, '_blank'); });
-        debugButton.addEventListener('touchstart', () => { window.open(`${server}/stream/${currentStream.id}`, '_blank'); });
+        debugButton.addEventListener('click', () => {
+          window.open(`${server}/stream/${currentStream.id}`, '_blank');
+        });
+
+        debugButton.addEventListener('touchstart', () => {
+          window.open(`${server}/stream/${currentStream.id}`, '_blank');
+        });
       }
 
       async function initPage() {
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
         document.getElementById('save-filter').addEventListener('click', setGlobalFilterObjectFromForm);
-        document.getElementById('save-filter').addEventListener('touchstart', setGlobalFilterObjectFromForm, { passive: true });
+        document.getElementById('save-filter').addEventListener(
+          'touchstart',
+          setGlobalFilterObjectFromForm,
+          { passive: true },
+        );
         document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
         document.getElementById('wide_page').addEventListener('change', toggleWide);
-        document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener('click', fetchAndRenderThumbnails));
+        document.querySelectorAll('.new-thumbnails').forEach((button) => {
+          button.addEventListener('click', fetchAndRenderThumbnails);
+        });
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
         document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, { passive: true });
 
