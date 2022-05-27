@@ -11,6 +11,7 @@
     "html"
   ],
   "rules": {
-    "no-restricted-syntax": ["error", "LabeledStatement", "WithStatement"]
+    "no-restricted-syntax": ["error", "LabeledStatement", "WithStatement"],
+    "max-len": ["error", { "code": 120 }]
   }
 }

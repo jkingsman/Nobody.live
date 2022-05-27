@@ -254,6 +254,10 @@
       async function fetchAndRenderRandomStream(_event, prefetchedStream = null) {
         newStreamerButtonRateLimit();
         currentStream = prefetchedStream || (await getStreams(1))[0];
+        if (!currentStream) {
+          // probably got rate limited or no results; bail out
+          return;
+        }
 
         // clear and rerender the embed div
         document.getElementById('twitch-embed').innerHTML = '';
@@ -288,15 +292,11 @@
 
       // fetches a given number of thumbnails and renders them into view
       // accepts an optional list of streams to draw from instead of making an API call
-      async function fetchAndRenderThumbnails(
-  _event,
-  thumbCount = numberOfThumbnailsToFetch,
-  prefetchedStreamList = null,
-) {
+      async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch, prefetchedStreamList = null) {
         // fetch or use prefetched thumbs, clear existing thumbs, and render new ones
         const thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
         if (!thumbsJSON) {
-          // probably got rate limited
+          // probably got rate limited or no results; bail out
           return;
         }
 
@@ -426,11 +426,13 @@
 
         setUIFromGlobalFilterObject();
 
-        // only fetch new streams and thumbs if something changed
-        if (shouldReload) {
+        // only fetch new streams and thumbs if something changed or if we're coming from a no-results situation
+        if (shouldReload || !currentStream) {
           const fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
-          fetchAndRenderRandomStream(null, fetchedStreams[0]);
-          fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
+          if (fetchedStreams) {
+            fetchAndRenderRandomStream(null, fetchedStreams[0]);
+            fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
+          }
         }
 
         return false;
@@ -492,14 +494,16 @@
             id: `forcedstream-${urlParams.get('force')}`,
             started_at: new Date().toISOString(),
           });
-        } else {
+        } else if (fetchedStreams) {
           fetchAndRenderRandomStream(null, fetchedStreams[0]);
-        }
+          setInterval(setStreamRuntime, 30000);
 
-        // render thumbs using the rest of the prefetch
-        fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
+          // render thumbs using the rest of the prefetch
+          fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
+        }
+        // note we can hit the end of this block with no stream running if our search params turned up nothing
+
         fetchAndRenderMOTD();
-        setInterval(setStreamRuntime, 30000);
       }
 
       initPage();
