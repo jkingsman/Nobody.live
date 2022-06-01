@@ -141,7 +141,7 @@
       const numberOfThumbnailsToFetch = 16;
       const server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
-      let initialPageWidth = window.innerWidth;
+      let initialPageWidth = 0;
       const defaultStreamFilter = {
         include: '',
         exclude: '',
@@ -481,7 +481,7 @@
 
       function updateSizingOfIframe() {
         // we manually set the max height of the iframe on creation so we don't get busted by android keyboard adjusting vh
-        // if the width is the same, don't bother updating.
+        // if the width is the same (i.e. it's just a keyboard open), don't bother updating.
         if (initialPageWidth !== window.innerWidth) {
           initialPageWidth = window.innerWidth;
           document.querySelector('#twitch-embed > iframe').style.height = `${.7 * window.innerHeight}px`;
