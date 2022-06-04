@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
@@ -141,6 +141,7 @@
       const numberOfThumbnailsToFetch = 16;
       const server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
+      let initialPageWidth = 0;
       const defaultStreamFilter = {
         include: '',
         exclude: '',
@@ -267,6 +268,7 @@
           theme: 'dark',
           parent: [window.location.hostname],
         });
+        updateSizingOfIframe();
 
         // load and append stream to historical streams
         const usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
@@ -477,6 +479,15 @@
         });
       }
 
+      function updateSizingOfIframe() {
+        // we manually set the max height of the iframe on creation so we don't get busted by android keyboard adjusting vh
+        // if the width is the same (i.e. it's just a keyboard open), don't bother updating.
+        if (initialPageWidth !== window.innerWidth) {
+          initialPageWidth = window.innerWidth;
+          document.querySelector('#twitch-embed > iframe').style.height = `${.7 * window.innerHeight}px`;
+        }
+      }
+
       async function initPage() {
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
@@ -493,6 +504,10 @@
         });
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
         document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, { passive: true });
+
+        // we manually set the max height of the iframe on creation so we don't get busted by android keyboard adjusting vh
+        // but we need to set it to start with, and then reset it on page resize.
+        window.addEventListener('resize', updateSizingOfIframe);
 
         // populate buttons/filter UI/etc. from (localstorage || defaults (i.e. empty))
         setUIFromGlobalFilterObject();

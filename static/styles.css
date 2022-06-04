@@ -207,11 +207,6 @@ code {
   margin-left: 0;
 }
 
-#twitch-embed,
-#twitch-embed > iframe {
-  min-height: 85vh;
-}
-
 .thumbnail-item {
   border: 1px solid rgba(0, 0, 0, 0.8);
   font-size: 30px;
