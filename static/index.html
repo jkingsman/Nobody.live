@@ -516,12 +516,14 @@
         } else if (fetchedStreams) {
           fetchAndRenderRandomStream(null, fetchedStreams[0]);
           setInterval(setStreamRuntime, 30000);
+        }
 
+        if (fetchedStreams) {
           // render thumbs using the rest of the prefetch
           fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
         }
-        // note we can hit the end of this block with no stream running if our search params turned up nothing
 
+        // note we can hit the end of this block with no stream running if our search params turned up nothing
         fetchAndRenderMOTD();
       }
 
