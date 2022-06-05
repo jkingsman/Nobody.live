@@ -268,7 +268,7 @@
           theme: 'dark',
           parent: [window.location.hostname],
         });
-        updateSizingOfIframe();
+        document.querySelector('#twitch-embed > iframe').style.height = `${.7 * window.innerHeight}px`;
 
         // load and append stream to historical streams
         const usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
@@ -388,7 +388,7 @@
           document.getElementById('new-streamer-button').setAttribute(
             'data-message',
             `new streamer ('${searchString}')`,
-    );
+          );
 
           if (!streamButton.disabled) {
             document.getElementById('new-streamer-button').innerText = `new streamer ('${searchString}')`;
