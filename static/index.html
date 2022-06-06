@@ -136,12 +136,11 @@
       MicroModal.init();
     </script>
     <script>
-      /* global Twitch, MicroModal */
+      /* global screen, Twitch, MicroModal */
       /* eslint no-alert: "off", no-new: "off", no-param-reassign: "off" */
-      const numberOfThumbnailsToFetch = 16;
+      let numberOfThumbnailsToFetch = 16;
       const server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
-      let initialPageWidth = 0;
       const defaultStreamFilter = {
         include: '',
         exclude: '',
@@ -268,7 +267,6 @@
           theme: 'dark',
           parent: [window.location.hostname],
         });
-        document.querySelector('#twitch-embed > iframe').style.height = `${.7 * window.innerHeight}px`;
 
         // load and append stream to historical streams
         const usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
@@ -477,15 +475,7 @@
         debugButton.addEventListener('touchstart', () => {
           window.open(`${server}/stream/${currentStream.id}`, '_blank');
         });
-      }
-
-      function updateSizingOfIframe() {
-        // we manually set the max height of the iframe on creation so we don't get busted by android keyboard adjusting vh
-        // if the width is the same (i.e. it's just a keyboard open), don't bother updating.
-        if (initialPageWidth !== window.innerWidth) {
-          initialPageWidth = window.innerWidth;
-          document.querySelector('#twitch-embed > iframe').style.height = `${.7 * window.innerHeight}px`;
-        }
+        numberOfThumbnailsToFetch = 64
       }
 
       async function initPage() {
@@ -504,10 +494,6 @@
         });
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
         document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, { passive: true });
-
-        // we manually set the max height of the iframe on creation so we don't get busted by android keyboard adjusting vh
-        // but we need to set it to start with, and then reset it on page resize.
-        window.addEventListener('resize', updateSizingOfIframe);
 
         // populate buttons/filter UI/etc. from (localstorage || defaults (i.e. empty))
         setUIFromGlobalFilterObject();
@@ -540,6 +526,15 @@
 
         // note we can hit the end of this block with no stream running if our search params turned up nothing
         fetchAndRenderMOTD();
+
+        // janky hacking to make the soft keyboard not scuzz up our viewport height which will cramp the chat area
+        setTimeout(() => {
+          const viewport = document.querySelector('meta[name=viewport]');
+          viewport.setAttribute(
+            'content',
+            `height=${screen.height * 0.9}px, width=device-width, initial-scale=1.0, user-scalable=no`,
+          );
+        }, 300);
       }
 
       initPage();
