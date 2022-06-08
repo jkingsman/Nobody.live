@@ -133,10 +133,9 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script src="/static/micromodal.min.js"></script>
     <script>
-      /* global screen, Twitch, MicroModal */
+      /* global Twitch, MicroModal */
       /* eslint no-alert: "off", no-new: "off", no-param-reassign: "off" */
       MicroModal.init();
-
 
       let numberOfThumbnailsToFetch = 16;
       const server = document.location.origin;
@@ -475,7 +474,7 @@
         debugButton.addEventListener('touchstart', () => {
           window.open(`${server}/stream/${currentStream.id}`, '_blank');
         });
-        numberOfThumbnailsToFetch = 64
+        numberOfThumbnailsToFetch = 64;
       }
 
       async function initPage() {
@@ -532,7 +531,7 @@
           const viewport = document.querySelector('meta[name=viewport]');
           viewport.setAttribute(
             'content',
-            `height=${screen.height * 0.9}px, width=device-width, initial-scale=1.0, user-scalable=no`,
+            `height=${window.screen.height * 0.9}px, width=device-width, initial-scale=1.0, user-scalable=no`,
           );
         }, 300);
       }
