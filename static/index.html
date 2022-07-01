@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="canonical" href="https://nobody.live" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
@@ -38,7 +39,7 @@
   </head>
   <body class="skinny">
     <div id="page-container">
-      <div id="motd"></div>
+      <div id="motd" class="motd"></div>
       <div class="grid-container">
         <div class="left-pane">
           <h1>nobody.live</h1>
@@ -132,16 +133,13 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script src="/static/micromodal.min.js"></script>
     <script>
-      /* global MicroModal */
-      MicroModal.init();
-    </script>
-    <script>
       /* global Twitch, MicroModal */
       /* eslint no-alert: "off", no-new: "off", no-param-reassign: "off" */
-      const numberOfThumbnailsToFetch = 16;
+      MicroModal.init();
+
+      let numberOfThumbnailsToFetch = 16;
       const server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
-      let initialPageWidth = 0;
       const defaultStreamFilter = {
         include: '',
         exclude: '',
@@ -268,7 +266,6 @@
           theme: 'dark',
           parent: [window.location.hostname],
         });
-        updateSizingOfIframe();
 
         // load and append stream to historical streams
         const usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
@@ -388,7 +385,7 @@
           document.getElementById('new-streamer-button').setAttribute(
             'data-message',
             `new streamer ('${searchString}')`,
-    );
+          );
 
           if (!streamButton.disabled) {
             document.getElementById('new-streamer-button').innerText = `new streamer ('${searchString}')`;
@@ -477,15 +474,7 @@
         debugButton.addEventListener('touchstart', () => {
           window.open(`${server}/stream/${currentStream.id}`, '_blank');
         });
-      }
-
-      function updateSizingOfIframe() {
-        // we manually set the max height of the iframe on creation so we don't get busted by android keyboard adjusting vh
-        // if the width is the same (i.e. it's just a keyboard open), don't bother updating.
-        if (initialPageWidth !== window.innerWidth) {
-          initialPageWidth = window.innerWidth;
-          document.querySelector('#twitch-embed > iframe').style.height = `${.7 * window.innerHeight}px`;
-        }
+        numberOfThumbnailsToFetch = 64;
       }
 
       async function initPage() {
@@ -504,10 +493,6 @@
         });
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
         document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, { passive: true });
-
-        // we manually set the max height of the iframe on creation so we don't get busted by android keyboard adjusting vh
-        // but we need to set it to start with, and then reset it on page resize.
-        window.addEventListener('resize', updateSizingOfIframe);
 
         // populate buttons/filter UI/etc. from (localstorage || defaults (i.e. empty))
         setUIFromGlobalFilterObject();
@@ -531,13 +516,24 @@
         } else if (fetchedStreams) {
           fetchAndRenderRandomStream(null, fetchedStreams[0]);
           setInterval(setStreamRuntime, 30000);
+        }
 
+        if (fetchedStreams) {
           // render thumbs using the rest of the prefetch
           fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
         }
-        // note we can hit the end of this block with no stream running if our search params turned up nothing
 
+        // note we can hit the end of this block with no stream running if our search params turned up nothing
         fetchAndRenderMOTD();
+
+        // janky hacking to make the soft keyboard not scuzz up our viewport height which will cramp the chat area
+        setTimeout(() => {
+          const viewport = document.querySelector('meta[name=viewport]');
+          viewport.setAttribute(
+            'content',
+            `height=${window.screen.height * 0.9}px, width=device-width, initial-scale=1.0, user-scalable=no`,
+          );
+        }, 300);
       }
 
       initPage();

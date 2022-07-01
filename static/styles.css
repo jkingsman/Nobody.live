@@ -50,7 +50,7 @@ code {
   padding-top: 10px;
 }
 
-#motd {
+.motd {
   background-color: #5a0043;
   text-align: center;
   font-weight: bold;
@@ -58,8 +58,12 @@ code {
   padding: 10px;
 }
 
-#motd:empty {
+.motd:empty {
   display: none;
+}
+
+#twitch-embed > iframe {
+  min-height: 70vh;
 }
 
 @media only screen and (min-width: 600px) {
@@ -151,6 +155,12 @@ code {
 
   .stream_duration_container {
     text-align: center;
+  }
+}
+
+@media only screen and (min-width: 721px) {
+  .motd-mobile {
+    display: none;
   }
 }
 
