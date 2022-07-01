@@ -175,7 +175,7 @@ code {
 .loading-throbber {
   width: 17px;
   height: 17px;
-  margin-left: 4px;
+  filter: brightness(0.5);
 }
 
 .search-input {
@@ -221,6 +221,11 @@ code {
 #footer {
   text-align: center;
   margin-top: 13px;
+}
+
+.invisible {
+  /* throbber animation should run in background, so set to invisible instead of display: none */
+  visibility: hidden;
 }
 
 .hidden {
