@@ -222,7 +222,7 @@
           const newButton = document.getElementById('new-streamer-button');
           newButton.disabled = false;
           newButton.innerText = newButton.getAttribute('data-message');
-        }, 2000);
+        }, 3000);
       }
 
       function setStreamRuntime() {
@@ -339,13 +339,13 @@
         });
 
         // restore any height locking we did after the thumbs have had a chance to load
-        setTimeout(() => { container.style.height = 'auto'; }, 1000);
+        setTimeout(() => { container.style.height = 'auto'; }, 2000);
 
         // restore our button listener from our debounce with a bit of rate limit delay
         setTimeout(() => {
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.classList.remove('hidden'));
           document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.add('invisible'));
-        }, 2000);
+        }, 3000);
       }
 
       // populates the filter UI and sets thumbnail + new streamer button text if a filter is set
