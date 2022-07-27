@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="canonical" href="https://nobody.live" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
@@ -525,15 +525,6 @@
 
         // note we can hit the end of this block with no stream running if our search params turned up nothing
         fetchAndRenderMOTD();
-
-        // janky hacking to make the soft keyboard not scuzz up our viewport height which will cramp the chat area
-        setTimeout(() => {
-          const viewport = document.querySelector('meta[name=viewport]');
-          viewport.setAttribute(
-            'content',
-            `height=${window.screen.height * 0.9}px, width=device-width, initial-scale=1.0, user-scalable=no`,
-          );
-        }, 300);
       }
 
       initPage();
