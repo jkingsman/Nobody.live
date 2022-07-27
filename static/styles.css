@@ -63,7 +63,13 @@ code {
 }
 
 #twitch-embed > iframe {
-  min-height: max(70vh, 550);
+  min-height: max(70vh, 550px);
+}
+
+@media only screen and (min-width: 400px) {
+  #twitch-embed > iframe {
+    min-height: max(70vh, 650px);
+  }
 }
 
 @media only screen and (min-width: 600px) {
