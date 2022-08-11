@@ -361,6 +361,7 @@
       async function renderStream(stream) {
         if (Array.isArray(stream)) {
           // we were given an array; no biggy -- just pop the first off
+          // eslint-disable-next-line prefer-destructuring
           stream = stream[0];
         }
 
@@ -373,11 +374,7 @@
           newButton.innerText = newButton.getAttribute('data-message');
         }, 3000);
 
-        currentStream = stream || (await getStreams(1))[0];
-        if (!currentStream) {
-          // probably got rate limited or no results; bail out
-          return;
-        }
+        currentStream = stream;
 
         // clear and rerender the embed div
         document.getElementById('twitch-embed').innerHTML = '';
@@ -462,20 +459,6 @@
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.classList.remove('hidden'));
           document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.add('invisible'));
         }, 2000);
-      }
-
-      // populates the filter UI, executes UI changes if needed for UI experiment settings,
-      // and sets thumbnail + new streamer button text if a filter is set
-      function populateFilterFormFromStorage() {
-        // set search form with values from storage
-        document.getElementById('remember').checked = getStoredSetting('shouldRemember', true);
-        document.getElementById('include').value = getStoredSetting('include');
-        document.getElementById('exclude').value = getStoredSetting('exclude');
-        document.getElementById('min-age').value = getStoredSetting('minDuration', true);
-        document.getElementById('show_singles').checked = getStoredSetting('maxViewers', true) === 1;
-
-        document.getElementById('search_all').checked = getStoredSetting('searchOperator') === 'all';
-        document.getElementById('search_any').checked = getStoredSetting('searchOperator') === 'any';
       }
 
       function setInterfaceCustomizationFromStorage() {
@@ -620,9 +603,19 @@
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
         document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, { passive: true });
 
-        // populate buttons/filter UI/etc.
-        populateFilterFormFromStorage();
+        // populate filter UI with values from storage
+        document.getElementById('remember').checked = getStoredSetting('shouldRemember', true);
+        document.getElementById('include').value = getStoredSetting('include');
+        document.getElementById('exclude').value = getStoredSetting('exclude');
+        document.getElementById('min-age').value = getStoredSetting('minDuration', true);
+        document.getElementById('show_singles').checked = getStoredSetting('maxViewers', true) === 1;
+        document.getElementById('search_all').checked = getStoredSetting('searchOperator') === 'all';
+        document.getElementById('search_any').checked = getStoredSetting('searchOperator') === 'any';
+
+        // populate interface customizations with values from storage
         setInterfaceCustomizationFromStorage();
+
+        // populate information button text with data from form
         setButtonTextWithFilterDataFromForm();
 
         // prefetch 17 thumbs (main + 16 thumbnails)
