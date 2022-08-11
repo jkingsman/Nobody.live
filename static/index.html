@@ -142,34 +142,29 @@
     <script src="/static/micromodal.min.js"></script>
     <script src="/static/storage.js"></script>
     <script>
-      /* global Twitch, MicroModal */
+      /* global Twitch, MicroModal, Settings */
       /* eslint no-alert: "off", no-new: "off", no-param-reassign: "off" */
       MicroModal.init();
 
-      let numberOfThumbnailsToFetch = 16;
-      const server = document.location.origin;
-      let currentStream; // holds JSON blob of currently displayed stream
+      const settings = new Settings();
 
       // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
       function generateFilterString() {
-        const excludeString = document.getElementById('exclude').value.trim().split(' ').map((term) => (term ? `not:${term}` : '')).join(' ');
-        const timeString = Number(document.getElementById('min-age').value) > 0 ? `⏱>${document.getElementById('min-age').value}m` : '';
+        const excludeString = settings.get('exclude').trim().split(' ').map((term) => (term ? `not:${term}` : '')).join(' ');
+        const timeString = settings.get('minDuration') > 0 ? `⏱>${document.getElementById('min-age').value}m` : '';
 
-        return `${document.getElementById('include').value.trim()} ${excludeString} ${timeString}`.trim();
+        return `${settings.get('include').trim()} ${excludeString} ${timeString}`.trim();
       }
 
       // note that this uses the form data so we can ignore the "remember" button
       async function getStreams(count = 1) {
-        const streamEndpoint = new URL('/stream', server);
+        const streamEndpoint = new URL('/stream', settings.get('server'));
         streamEndpoint.searchParams.set('count', count);
-        streamEndpoint.searchParams.set('include', document.getElementById('include').value.trim());
-        streamEndpoint.searchParams.set('exclude', document.getElementById('exclude').value.trim());
-        streamEndpoint.searchParams.set('min_age', Number(document.getElementById('min-age').value));
-        streamEndpoint.searchParams.set('max_viewers', document.getElementById('show_singles').checked ? 1 : 0);
-        streamEndpoint.searchParams.set(
-          'search_operator',
-          document.querySelector('input[name="search_operator"]:checked').value,
-        );
+        streamEndpoint.searchParams.set('include', settings.get('include'));
+        streamEndpoint.searchParams.set('exclude', settings.get('exclude'));
+        streamEndpoint.searchParams.set('min_age', settings.get('minDuration', true));
+        streamEndpoint.searchParams.set('max_viewers', settings.get('maxViewers', true) ? 1 : 0);
+        streamEndpoint.searchParams.set('search_operator', settings.get('searchOperator'));
 
         const streamResponse = await fetch(streamEndpoint.href);
         if (streamResponse.status === 503) {
@@ -194,7 +189,7 @@
 
       function setStreamRuntime() {
         // show stream runtime
-        const streamRuntime = new Date() - new Date(currentStream.started_at);
+        const streamRuntime = new Date() - new Date(settings.get('currentStream', true).started_at);
         let streamRuntimeMinutes = Math.round(streamRuntime / (1000 * 60));
         const streamRuntimeHours = Math.floor(streamRuntimeMinutes / 60);
         streamRuntimeMinutes -= (streamRuntimeHours * 60);
@@ -233,22 +228,22 @@
           newButton.innerText = newButton.getAttribute('data-message');
         }, 3000);
 
-        currentStream = stream;
+        settings.set('currentStream', JSON.stringify(stream));
 
         // clear and rerender the embed div
         document.getElementById('twitch-embed').innerHTML = '';
         new Twitch.Embed('twitch-embed', {
           width: '100%',
-          channel: currentStream.user_name,
+          channel: stream.user_name,
           theme: 'dark',
           parent: [window.location.hostname],
         });
 
         // load and append stream to historical streams
-        const usernames = getStoredSetting('streamHistory', true);
-        usernames.push(currentStream.user_name);
+        const usernames = settings.get('streamHistory', true);
+        usernames.push(stream.user_name);
         const trimmedUsernames = usernames.slice(-5);
-        setStoredSetting({
+        settings.setBulk({
           streamHistory: JSON.stringify(trimmedUsernames),
         });
 
@@ -322,7 +317,7 @@
 
       function setInterfaceCustomizationFromStorage() {
         // set UI customization values and add/remove the classes
-        const isWidePageSet = getStoredSetting('widePage', true);
+        const isWidePageSet = settings.get('widePage', true);
         document.getElementById('wide_page').checked = isWidePageSet;
         if (isWidePageSet) {
           document.body.classList.add('wide');
@@ -330,7 +325,7 @@
           document.body.classList.remove('wide');
         }
 
-        const isMinimalPageSet = getStoredSetting('minimalPage', true);
+        const isMinimalPageSet = settings.get('minimalPage', true);
         document.getElementById('minimal_page').checked = isMinimalPageSet;
         if (isMinimalPageSet) {
           document.body.classList.add('minimal');
@@ -339,11 +334,11 @@
         }
       }
 
-      function setButtonTextWithFilterDataFromForm() {
+      function setButtonTextWithFilterDataFromStorage() {
         const streamButton = document.getElementById('new-streamer-button');
-        if (!document.getElementById('include').value.trim()
-              && !document.getElementById('exclude').value.trim()
-              && Number(document.getElementById('min-age').value) === 0
+        if (!settings.get('include').trim()
+              && !settings.get('exclude').trim()
+              && settings.get('minDuration', true) === 0
         ) {
           // we have no filter active; restore things to normal text
           document.querySelectorAll('.new-thumbnails').forEach((button) => {
@@ -383,30 +378,34 @@
         }
 
         // pull data from form
+        const shouldRemember = document.getElementById('remember').checked;
         const include = document.getElementById('include').value.trim();
         const exclude = document.getElementById('exclude').value.trim();
-        const shouldRemember = document.getElementById('remember').checked;
+        const maxViewers = document.getElementById('show_singles').checked ? 1 : 0;
+        const minDuration = Number(document.getElementById('min-age').value);
+        const searchOperator = document.querySelector('input[name="search_operator"]:checked').value;
 
-        const shouldReload = getStoredSetting('include') !== include
-               || getStoredSetting('exclude') !== exclude;
+        const shouldReload = settings.get('include') !== include
+               || settings.get('exclude') !== exclude;
 
         // shouldRemember always needs to go first so include/exclude/etc. get saved
-        setStoredSetting({
+        settings.setBulk({
           shouldRemember,
           include,
           exclude,
-          maxViewers: document.getElementById('show_singles').checked ? 1 : 0,
-          searchOperator: document.querySelector('input[name="search_operator"]:checked').value,
+          maxViewers,
+          minDuration,
+          searchOperator,
         });
 
         // set up interface customizations and button text
         setInterfaceCustomizationFromStorage();
-        setButtonTextWithFilterDataFromForm();
+        setButtonTextWithFilterDataFromStorage();
 
         // load new streams and thumbs if the criteria has changed or if we have no current stream
         // (no current stream means we got no results for the last query, so let's try again)
-        if (shouldReload || !currentStream) {
-          const fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
+        if (shouldReload || !settings.get('currentStream', true)) {
+          const fetchedStreams = await getStreams(settings.get('numberOfThumbnailsToFetch', true) + 1);
           if (fetchedStreams) {
             renderStream(fetchedStreams[0]);
             renderThumbnails(fetchedStreams.slice(1));
@@ -418,19 +417,19 @@
         document.getElementById('debug-menu').classList.remove('hidden');
         const debugButton = document.getElementById('stream-debug');
         debugButton.addEventListener('click', () => {
-          window.open(`${server}/stream/${currentStream.id}`, '_blank');
+          window.open(`${settings.get('server')}/stream/${settings.set('currentStream', true).id}`, '_blank');
         });
 
         debugButton.addEventListener('touchstart', () => {
-          window.open(`${server}/stream/${currentStream.id}`, '_blank');
+          window.open(`${settings.get('server')}/stream/${settings.set('currentStream', true).id}`, '_blank');
         });
-        numberOfThumbnailsToFetch = 64;
+        settings.set('numberOfThumbnailsToFetch', 64);
       }
 
       function immediateToggleInterfaceCustomization(settingsKey) {
         const settingsObj = {};
-        settingsObj[settingsKey] = !getStoredSetting(settingsKey, true);
-        setStoredSetting(settingsObj);
+        settingsObj[settingsKey] = !settings.get(settingsKey, true);
+        settings.setBulk(settingsObj);
         setInterfaceCustomizationFromStorage();
       }
 
@@ -438,7 +437,7 @@
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener(
           'click',
-          async () => renderStream(await getStreams(1)),
+          async () => renderStream(await getStreams()),
         );
         document.getElementById('save-filter').addEventListener('click', handleFormChange);
         document.getElementById('save-filter').addEventListener(
@@ -457,28 +456,28 @@
         );
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener(
           'click',
-          async () => renderThumbnails(await getStreams(numberOfThumbnailsToFetch)),
+          async () => renderThumbnails(await getStreams(settings.get('numberOfThumbnailsToFetch', true))),
         ));
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
         document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, { passive: true });
 
         // populate filter UI with values from storage
-        document.getElementById('remember').checked = getStoredSetting('shouldRemember', true);
-        document.getElementById('include').value = getStoredSetting('include');
-        document.getElementById('exclude').value = getStoredSetting('exclude');
-        document.getElementById('min-age').value = getStoredSetting('minDuration', true);
-        document.getElementById('show_singles').checked = getStoredSetting('maxViewers', true) === 1;
-        document.getElementById('search_all').checked = getStoredSetting('searchOperator') === 'all';
-        document.getElementById('search_any').checked = getStoredSetting('searchOperator') === 'any';
+        document.getElementById('remember').checked = settings.get('shouldRemember', true);
+        document.getElementById('include').value = settings.get('include');
+        document.getElementById('exclude').value = settings.get('exclude');
+        document.getElementById('min-age').value = settings.get('minDuration', true);
+        document.getElementById('show_singles').checked = settings.get('maxViewers', true) === 1;
+        document.getElementById('search_all').checked = settings.get('searchOperator') === 'all';
+        document.getElementById('search_any').checked = settings.get('searchOperator') === 'any';
 
         // populate interface customizations with values from storage
         setInterfaceCustomizationFromStorage();
 
         // populate information button text with data from form
-        setButtonTextWithFilterDataFromForm();
+        setButtonTextWithFilterDataFromStorage();
 
         // prefetch 17 thumbs (main + 16 thumbnails)
-        const fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
+        const fetchedStreams = await getStreams(settings.get('numberOfThumbnailsToFetch', true) + 1);
 
         // if we have /?stream=... then render the specified stream
         // otherwise grab a random one
@@ -503,7 +502,7 @@
         }
 
         // MOTD display
-        const motd = await fetch(`${server}/static/motd?cachebust=${Date.now()}`);
+        const motd = await fetch(`${settings.get('server')}/static/motd?cachebust=${Date.now()}`);
         // only render if one exists
         if (motd.status === 200) {
           const motdText = await motd.text();
@@ -513,7 +512,7 @@
         // note we can hit the end of this block with no stream running if our search params turned up nothing
       }
 
-      migrateData();
+      settings.migrateData();
       initPage();
     </script>
   </body>
