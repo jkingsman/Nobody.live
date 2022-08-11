@@ -462,27 +462,25 @@
       // toggle a given value in localstorage and set or unset the class on <body> as indicated
       // if the localstorage key is not set, init to default value (usually true, since this is
       // being invoked on a toggle press)
-      function initOrToggleLocalStorageBodyClassClosure(paramName, classname, defaultValue=true) {
-        return () => {
-          if (localStorage.getItem(paramName)) {
-            // true if the item is set
-            const shouldEnable = !JSON.parse(localStorage.getItem(paramName));
-            localStorage.setItem(paramName, shouldEnable);
-            if (shouldEnable) {
-              document.body.classList.add(classname);
-            } else {
-              document.body.classList.remove(classname);
-            }
+      function initOrToggleLocalStorageBodyClass(paramName, classname, defaultValue = true) {
+        if (localStorage.getItem(paramName)) {
+          // true if the item is set
+          const shouldEnable = !JSON.parse(localStorage.getItem(paramName));
+          localStorage.setItem(paramName, shouldEnable);
+          if (shouldEnable) {
+            document.body.classList.add(classname);
           } else {
-            // first time setting it
-            localStorage.setItem(paramName, defaultValue);
-            if (defaultValue) {
-              document.body.classList.add(classname);
-            } else {
-              document.body.classList.remove(classname);
-            }
+            document.body.classList.remove(classname);
           }
-        };
+        } else {
+          // first time setting it
+          localStorage.setItem(paramName, defaultValue);
+          if (defaultValue) {
+            document.body.classList.add(classname);
+          } else {
+            document.body.classList.remove(classname);
+          }
+        }
       }
 
       async function enableDebug() {
@@ -510,11 +508,11 @@
         document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
         document.getElementById('wide_page').addEventListener(
           'change',
-          initOrToggleLocalStorageBodyClassClosure('widePage', 'wide'),
+          () => initOrToggleLocalStorageBodyClass('widePage', 'wide'),
         );
         document.getElementById('minimal_page').addEventListener(
           'change',
-          initOrToggleLocalStorageBodyClassClosure('minimalPage', 'minimal'),
+          () => initOrToggleLocalStorageBodyClass('minimalPage', 'minimal'),
         );
         document.querySelectorAll('.new-thumbnails').forEach((button) => {
           button.addEventListener('click', fetchAndRenderThumbnails);
