@@ -121,17 +121,23 @@ function migrateData() {
   const shouldMigrate = localStorage.getItem('streamHistoryJSON') && !localStorage.getItem('hasMigrated');
   if (shouldMigrate) {
     const settingsObj = {};
-    settingsObj.widePage = JSON.parse(localStorage.getItem('widePage')) || false;
-    settingsObj.minimalPage = JSON.parse(localStorage.getItem('minimalPage')) || false;
-    settingsObj.streamHistory = JSON.stringify(JSON.parse(localStorage.getItem('streamHistoryJSON')) || []);
 
-    settingsObj.shouldRemember = JSON.parse(localStorage.getItem('streamFilterRemember')) || false;
-    if (settingsObj.shouldRemember) {
-      settingsObj.include = JSON.parse(localStorage.getItem('streamFilter')).include;
-      settingsObj.exclude = JSON.parse(localStorage.getItem('streamFilter')).exclude;
-      settingsObj.minDuration = JSON.parse(localStorage.getItem('streamFilter')).minAge;
-      settingsObj.maxViewers = JSON.parse(localStorage.getItem('streamFilter')).max_viewers;
-      settingsObj.searchOperator = JSON.parse(localStorage.getItem('streamFilter')).search_operator;
+    try {
+      settingsObj.widePage = JSON.parse(localStorage.getItem('widePage')) || false;
+      settingsObj.minimalPage = JSON.parse(localStorage.getItem('minimalPage')) || false;
+      settingsObj.streamHistory = JSON.stringify(JSON.parse(localStorage.getItem('streamHistoryJSON')) || []);
+
+      settingsObj.shouldRemember = JSON.parse(localStorage.getItem('streamFilterRemember')) || false;
+      if (settingsObj.shouldRemember) {
+        settingsObj.include = JSON.parse(localStorage.getItem('streamFilter')).include;
+        settingsObj.exclude = JSON.parse(localStorage.getItem('streamFilter')).exclude;
+        settingsObj.minDuration = JSON.parse(localStorage.getItem('streamFilter')).minAge;
+        settingsObj.maxViewers = JSON.parse(localStorage.getItem('streamFilter')).max_viewers;
+        settingsObj.searchOperator = JSON.parse(localStorage.getItem('streamFilter')).search_operator;
+      }
+    } catch (error) {
+      console.error("Migration has failed!")
+      console.error(error);
     }
 
     localStorage.clear();
