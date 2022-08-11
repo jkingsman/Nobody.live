@@ -148,6 +148,7 @@
       let numberOfThumbnailsToFetch = 16;
       const server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
+      let streamFilter; // holds current configuration of stream filters
       const defaultStreamFilter = {
         include: '',
         exclude: '',
@@ -159,7 +160,6 @@
       // use stored filters if we're supposed to remember; otherwise use defaults
       // don't get confused by the ||s since we want to fallback gracefully if in weird localstorage state
       let streamFilterRemember = JSON.parse(localStorage.getItem('streamFilterRemember')) || false;
-      let streamFilter;
       if (streamFilterRemember) {
         streamFilter = JSON.parse(localStorage.getItem('streamFilter')) || defaultStreamFilter;
 
