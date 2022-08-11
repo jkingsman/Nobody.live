@@ -53,13 +53,13 @@ class Settings {
       currentStream: null,
     };
 
-    this.debug = false;
+    this.debug_enabled = false;
 
     localStorage.setItem('storageVersion', '0.0.1');
   }
 
   debug(str) {
-    if (this.debug) {
+    if (this.debug_enabled) {
       console.log(str);
     }
   }
@@ -163,6 +163,7 @@ ${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
   migrateData() {
     const shouldMigrate = localStorage.getItem('streamHistoryJSON') && !localStorage.getItem('hasMigrated');
     if (shouldMigrate) {
+      console.log("MIGRATING")
       const settingsObj = {};
 
       try {
