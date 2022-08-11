@@ -150,7 +150,8 @@
 
       // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
       function generateFilterString() {
-        const excludeString = settings.get('exclude').trim().split(' ').map((term) => (term ? `not:${term}` : '')).join(' ');
+        const excludeString = settings.get('exclude').trim().split(' ').map((term) => (term ? `not:${term}` : ''))
+    .join(' ');
         const timeString = settings.get('minDuration') > 0 ? `⏱>${document.getElementById('min-age').value}m` : '';
 
         return `${settings.get('include').trim()} ${excludeString} ${timeString}`.trim();

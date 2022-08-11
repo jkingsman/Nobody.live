@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+// eslint-disable-next-line no-unused-vars
 class Settings {
   constructor() {
     this.KNOWN_SETTINGS = {
@@ -83,11 +84,11 @@ ${requestedSetting.allowedValues.join(', ')}`);
     if (requestedSetting.respectsRememberSetting) {
       if (this.constructor.shouldRemember()) {
         // this respects the remember setting, and we should set the remembered value
-      console.log(`7 Setting ${key} to localstorage (${value})`);
+        console.log(`7 Setting ${key} to localstorage (${value})`);
         localStorage.setItem(key, value);
       } else {
         // we are not remembering right now so store default long term and set it in ephemeral
-      console.log(`8 Setting ${key} to default in local storage and ephemeral to (${value})`);
+        console.log(`8 Setting ${key} to default in local storage and ephemeral to (${value})`);
         localStorage.setItem(key, requestedSetting.default);
         this.ephemeral[key] = value;
       }
@@ -102,7 +103,8 @@ ${requestedSetting.allowedValues.join(', ')}`);
     if (!this.KNOWN_SETTINGS[key]) {
       // if we haven't heard of it, get it ephemerally
       if (!this.ephemeral[key]) {
-        console.error(`Unknown key! ${key} is not one of ${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
+        console.error(`Unknown key! ${key} is not one of \
+${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
         return null;
       }
 
