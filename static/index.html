@@ -41,18 +41,18 @@
     <div id="page-container">
       <div id="motd" class="motd"></div>
       <div class="grid-container">
-        <div class="left-pane">
+        <div class="left-pane hide-on-minimal">
           <h1>nobody.live</h1>
           <span>streams with <span id="debug-trigger">nobody</span> watching <span id="debug-menu" class="hidden"> | <a id="stream-debug" href="#">show stream debug</a> | <a href="/static/stats.html" target="_blank">show site stats</a></span></span>
         </div>
         <div class="right-pane">
           <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br />
-          <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">filter streams</button>
+          <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">filters & settings</button>
         </div>
       </div>
       <div id="twitch-embed-wrapper" class="container">
         <div id="twitch-embed"></div>
-        <div class="even-grid-container">
+        <div class="even-grid-container hide-on-minimal">
           <div class="even-left-pane">
             <p class="stream_duration_container">Stream online for <span id="stream_duration"></span>.</p>
           </div>
@@ -61,12 +61,12 @@
           </div>
         </div>
       </div>
-      <div class="thumbnails container center-text">
+      <div class="thumbnails container center-text hide-on-minimal">
         <button class="new-thumbnails fake-link">Get new thumbnails</button><img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="loading-throbber invisible"></img>
         <div id="thumbnails" class="thumbnail-container"></div>
         <button class="new-thumbnails fake-link">Get new thumbnails</button><img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="loading-throbber invisible"></img>
       </div>
-      <div id="footer">
+      <div class="hide-on-minimal" id="footer">
         watched streams: <span id="stream-list"></span>
         <br><br>
         made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by jack kingsman, with much appreciation for carsten hoffrichter's <i>lonely streams</i>
@@ -119,6 +119,7 @@
 
                   <span class="grid-right field-config"><input type="checkbox" id="show_singles"><label for="show_singles">Include streams with one viewer</label></span>
                   <span class="grid-right field-config"><input type="checkbox" id="wide_page"><label for="wide_page">Wide page</label></span>
+                  <span class="grid-right field-config"><input type="checkbox" id="minimal_page"><label for="minimal_page">Minimal page</label></span>
                 </div>
               </details>
             </main>
@@ -367,7 +368,7 @@
           document.querySelectorAll('.new-thumbnails').forEach((button) => {
             button.innerText = 'Get new thumbnails';
           });
-          document.querySelector('#filter').innerText = 'filter streams';
+          document.querySelector('#filter').innerText = 'filters & settings';
           document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
 
           if (!streamButton.disabled) {
@@ -400,6 +401,16 @@
           } else {
             document.body.classList.remove('wide');
             document.getElementById('wide_page').checked = false;
+          }
+        }
+
+        if (localStorage.getItem('minimalPage')) {
+          if (JSON.parse(localStorage.getItem('minimalPage'))) {
+            document.body.classList.add('minimal');
+            document.getElementById('minimal_page').checked = true;
+          } else {
+            document.body.classList.remove('minimal');
+            document.getElementById('minimal_page').checked = false;
           }
         }
       }
@@ -466,6 +477,16 @@
         }
       }
 
+      function toggleMinimal() {
+        if (localStorage.getItem('minimalPage')) {
+          localStorage.setItem('minimalPage', !JSON.parse(localStorage.getItem('minimalPage')));
+          document.body.classList.toggle('minimal');
+        } else {
+          localStorage.setItem('minimalPage', true);
+          document.body.classList.add('minimal');
+        }
+      }
+
       async function enableDebug() {
         document.getElementById('debug-menu').classList.remove('hidden');
         const debugButton = document.getElementById('stream-debug');
@@ -490,6 +511,7 @@
         );
         document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
         document.getElementById('wide_page').addEventListener('change', toggleWide);
+        document.getElementById('minimal_page').addEventListener('change', toggleMinimal);
         document.querySelectorAll('.new-thumbnails').forEach((button) => {
           button.addEventListener('click', fetchAndRenderThumbnails);
         });

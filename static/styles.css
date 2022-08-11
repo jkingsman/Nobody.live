@@ -1,3 +1,7 @@
+html {
+  height: 100%;
+}
+
 body {
   margin: 10px;
   font-family: Arial, Helvetica, sans-serif;
@@ -64,12 +68,6 @@ code {
 
 #twitch-embed > iframe {
   min-height: max(70vh, 550px);
-}
-
-@media only screen and (min-width: 400px) {
-  #twitch-embed > iframe {
-    min-height: max(70vh, 650px);
-  }
 }
 
 @media only screen and (min-width: 600px) {
@@ -264,7 +262,7 @@ code {
   }
 
   /* wide mode */
-  .wide #page-container {
+  .wide #page-container, .minimal #page-container {
     max-width: none;
   }
 }
@@ -275,4 +273,22 @@ code {
 
 #new-streamer-button:active:hover {
   filter:brightness(.78);
+}
+
+#page-container {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto;
+}
+
+body.minimal {
+  height: calc(100% - 10px - 10px); /* Don't forget top and bottom! */
+}
+
+.minimal .hide-on-minimal {
+  display: none;
+}
+
+.minimal #twitch-embed, .minimal #twitch-embed > iframe {
+  height: 100%
 }
