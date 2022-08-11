@@ -253,13 +253,19 @@ code {
 }
 
 @media only screen and (min-width: 1200px) {
-  .skinny #page-container {
+  /* default mode (skinny) */
+  #page-container {
     max-width: 70vw;
     margin: auto;
   }
 
-  .skinny #twitch-embed, .skinny #twitch-embed > iframe {
+  #twitch-embed, #twitch-embed > iframe {
     min-height: 60vh;
+  }
+
+  /* wide mode */
+  .wide #page-container {
+    max-width: none;
   }
 }
 

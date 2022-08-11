@@ -37,7 +37,7 @@
     <link rel="preconnect" href="https://static.twitchcdn.net">
     <link rel="preconnect" href="https://gql.twitch.tv">
   </head>
-  <body class="skinny">
+  <body>
     <div id="page-container">
       <div id="motd" class="motd"></div>
       <div class="grid-container">
@@ -395,10 +395,10 @@
         // nowhere better to handle this
         if (localStorage.getItem('widePage')) {
           if (JSON.parse(localStorage.getItem('widePage'))) {
-            document.body.classList.remove('skinny');
+            document.body.classList.add('wide');
             document.getElementById('wide_page').checked = true;
           } else {
-            document.body.classList.add('skinny');
+            document.body.classList.remove('wide');
             document.getElementById('wide_page').checked = false;
           }
         }
@@ -456,11 +456,13 @@
 
       function toggleWide() {
         if (localStorage.getItem('widePage')) {
+          // true if the item is set
           localStorage.setItem('widePage', !JSON.parse(localStorage.getItem('widePage')));
-          document.body.classList.toggle('skinny');
+          document.body.classList.toggle('wide');
         } else {
+          // first time setting it
           localStorage.setItem('widePage', true);
-          document.body.classList.remove('skinny');
+          document.body.classList.add('wide');
         }
       }
 
