@@ -534,9 +534,13 @@
         }
       }
 
-      // called after the filter form is updated and persists or clears filters to localstorage
-      // returns whether or not the new criteria is different enough to require a reload of thumbs + stream
-      async function setStorageFromForm(e) {
+      // write form information to storage, update the UI as needed, and possibly refresh stream/thumbs
+      async function handleFormChange(e) {
+        if (e) {
+          e.preventDefault();
+        }
+
+        // pull data from form
         const include = document.getElementById('include').value.trim();
         const exclude = document.getElementById('exclude').value.trim();
         const shouldRemember = document.getElementById('remember').checked;
@@ -544,7 +548,7 @@
         const shouldReload = getStoredSetting('include') !== include
                || getStoredSetting('exclude') !== exclude;
 
-        // shouldRemeber always needs to go first so include/exclude/etc. get saved
+        // shouldRemember always needs to go first so include/exclude/etc. get saved
         setStoredSetting({
           shouldRemember,
           include,
@@ -553,16 +557,7 @@
           searchOperator: document.querySelector('input[name="search_operator"]:checked').value,
         });
 
-        return shouldReload;
-      }
-
-      // write form information to storage, update the UI as needed, and possibly refresh stream/thumbs
-      async function handleFormChange(e) {
-        if (e) {
-          e.preventDefault();
-        }
-
-        const shouldReload = setStorageFromForm();
+        // set up interface customizations and button text
         setInterfaceCustomizationFromStorage();
         setButtonTextWithFilterDataFromForm();
 
