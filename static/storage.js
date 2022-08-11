@@ -53,7 +53,15 @@ class Settings {
       currentStream: null,
     };
 
+    this.debug = false;
+
     localStorage.setItem('storageVersion', '0.0.1');
+  }
+
+  debug(str) {
+    if (this.debug) {
+      console.log(str);
+    }
   }
 
   static shouldRemember() {
@@ -69,7 +77,7 @@ class Settings {
   set(key, value) {
     // if we haven't heard of it, set it ephemerally
     if (!this.KNOWN_SETTINGS[key]) {
-      console.log(`7 Setting ${key} to ephemeral (${value})`);
+      this.debug(`1 Setting ${key} to ephemeral (${value})`);
       this.ephemeral[key] = value;
       return;
     }
@@ -84,18 +92,18 @@ ${requestedSetting.allowedValues.join(', ')}`);
     if (requestedSetting.respectsRememberSetting) {
       if (this.constructor.shouldRemember()) {
         // this respects the remember setting, and we should set the remembered value
-        console.log(`7 Setting ${key} to localstorage (${value})`);
+        this.debug(`2 Setting ${key} to localstorage (${value})`);
         localStorage.setItem(key, value);
       } else {
         // we are not remembering right now so store default long term and set it in ephemeral
-        console.log(`8 Setting ${key} to default in local storage and ephemeral to (${value})`);
+        this.debug(`3 Setting ${key} to default in local storage and ephemeral to (${value})`);
         localStorage.setItem(key, requestedSetting.default);
         this.ephemeral[key] = value;
       }
     } else {
       // doesn't respect remember setting; store what we're given
       localStorage.setItem(key, value);
-      console.log(`9 Setting ${key} to localstorage (${value})`);
+      this.debug(`9 Setting ${key} to localstorage (${value})`);
     }
   }
 
@@ -108,7 +116,7 @@ ${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
         return null;
       }
 
-      console.log(`0 Returning ${key} from ephemeral (${this.ephemeral[key]})`);
+      this.debug(`4 Returning ${key} from ephemeral (${this.ephemeral[key]})`);
       return this.ephemeral[key];
     }
 
@@ -118,16 +126,16 @@ ${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
       if (this.constructor.shouldRemember()) {
         // this setting respects remember and remember is set; return from storage
         rawSetting = localStorage.getItem(key);
-        console.log(`1 Returning ${key} from localstorage (${rawSetting})`);
+        this.debug(`5 Returning ${key} from localstorage (${rawSetting})`);
       } else {
         // this setting respects remember and but remember is not set; try for ephemeral or default
         rawSetting = this.ephemeral[key];
         if (!rawSetting) {
           // we don't have this stored; return default
           rawSetting = requestedSetting.default;
-          console.log(`3 Returning ${key} from default (${rawSetting})`);
+          this.debug(`6 Returning ${key} from default (${rawSetting})`);
         } else {
-          console.log(`2 Returning ${key} from ephemeral (${rawSetting})`);
+          this.debug(`7 Returning ${key} from ephemeral (${rawSetting})`);
         }
       }
     } else {
