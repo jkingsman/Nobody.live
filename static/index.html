@@ -140,6 +140,7 @@
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script src="/static/micromodal.min.js"></script>
+    <script src="/static/storage.js"></script>
     <script>
       /* global Twitch, MicroModal */
       /* eslint no-alert: "off", no-new: "off", no-param-reassign: "off" */
@@ -148,57 +149,27 @@
       let numberOfThumbnailsToFetch = 16;
       const server = document.location.origin;
       let currentStream; // holds JSON blob of currently displayed stream
-      let streamFilter; // holds current configuration of stream filters
-      const defaultStreamFilter = {
-        include: '',
-        exclude: '',
-        minAge: 0,
-        max_viewers: 0,
-        search_operator: 'all',
-      };
-
-      // use stored filters if we're supposed to remember; otherwise use defaults
-      // don't get confused by the ||s since we want to fallback gracefully if in weird localstorage state
-      let streamFilterRemember = JSON.parse(localStorage.getItem('streamFilterRemember')) || false;
-      if (streamFilterRemember) {
-        streamFilter = JSON.parse(localStorage.getItem('streamFilter')) || defaultStreamFilter;
-
-        // ensure loaded filter object contains all keys we expect it to
-        for (const searchKey in defaultStreamFilter) {
-          if (!streamFilter[searchKey]) {
-            streamFilter[searchKey] = defaultStreamFilter[searchKey];
-          }
-        }
-
-        localStorage.setItem('streamFilter', JSON.stringify(streamFilter));
-      } else {
-        streamFilter = defaultStreamFilter;
-      }
 
       // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
       function generateFilterString() {
-        let excludeString = '';
-        if (streamFilter.exclude) {
-          excludeString = streamFilter.exclude.split(' ').map((term) => `not:${term}`).join(' ');
-        }
+        const excludeString = document.getElementById('exclude').value.trim().split(' ').map((term) => (term ? `not:${term}` : '')).join(' ');
+        const timeString = Number(document.getElementById('min-age').value) > 0 ? `⏱>${document.getElementById('min-age').value}m` : '';
 
-        let timeString = '';
-        if (streamFilter.minAge > 0) {
-          timeString = `⏱>${streamFilter.minAge}m`;
-        }
-
-        return `${streamFilter.include} ${excludeString} ${timeString}`.trim();
+        return `${document.getElementById('include').value.trim()} ${excludeString} ${timeString}`.trim();
       }
 
-      // uses global scope streamFilter object to fetch filtered results
+      // note that this uses the form data so we can ignore the "remember" button
       async function getStreams(count = 1) {
         const streamEndpoint = new URL('/stream', server);
         streamEndpoint.searchParams.set('count', count);
-        streamEndpoint.searchParams.set('include', streamFilter.include);
-        streamEndpoint.searchParams.set('exclude', streamFilter.exclude);
-        streamEndpoint.searchParams.set('min_age', streamFilter.minAge);
-        streamEndpoint.searchParams.set('max_viewers', streamFilter.max_viewers);
-        streamEndpoint.searchParams.set('search_operator', streamFilter.search_operator);
+        streamEndpoint.searchParams.set('include', document.getElementById('include').value.trim());
+        streamEndpoint.searchParams.set('exclude', document.getElementById('exclude').value.trim());
+        streamEndpoint.searchParams.set('min_age', Number(document.getElementById('min-age').value));
+        streamEndpoint.searchParams.set('max_viewers', document.getElementById('show_singles').checked ? 1 : 0);
+        streamEndpoint.searchParams.set(
+          'search_operator',
+          document.querySelector('input[name="search_operator"]:checked').value,
+        );
 
         const streamResponse = await fetch(streamEndpoint.href);
         if (streamResponse.status === 503) {
@@ -246,7 +217,13 @@
 
       // performs stream fetch/new streamer button timeout
       // accepts an optional stream object if streams have been prefetched
-      async function fetchAndRenderRandomStream(_event, prefetchedStream = null) {
+      async function renderStream(stream) {
+        if (Array.isArray(stream)) {
+          // we were given an array; no biggy -- just pop the first off
+          // eslint-disable-next-line prefer-destructuring
+          stream = stream[0];
+        }
+
         // disables the new streamer button, then reenables after 2 seconds
         document.getElementById('new-streamer-button').disabled = true;
         document.getElementById('new-streamer-button').innerText = 'please wait...';
@@ -256,11 +233,7 @@
           newButton.innerText = newButton.getAttribute('data-message');
         }, 3000);
 
-        currentStream = prefetchedStream || (await getStreams(1))[0];
-        if (!currentStream) {
-          // probably got rate limited or no results; bail out
-          return;
-        }
+        currentStream = stream;
 
         // clear and rerender the embed div
         document.getElementById('twitch-embed').innerHTML = '';
@@ -272,10 +245,12 @@
         });
 
         // load and append stream to historical streams
-        const usernames = JSON.parse(localStorage.getItem('streamHistoryJSON')) || [];
+        const usernames = getStoredSetting('streamHistory', true);
         usernames.push(currentStream.user_name);
         const trimmedUsernames = usernames.slice(-5);
-        localStorage.setItem('streamHistoryJSON', JSON.stringify(trimmedUsernames));
+        setStoredSetting({
+          streamHistory: JSON.stringify(trimmedUsernames),
+        });
 
         // rerender list of historical streams
         document.getElementById('stream-list').innerHTML = trimmedUsernames.map((username) => {
@@ -295,14 +270,7 @@
 
       // fetches a given number of thumbnails and renders them into view
       // accepts an optional list of streams to draw from instead of making an API call
-      async function fetchAndRenderThumbnails(_event, thumbCount = numberOfThumbnailsToFetch, prefetchedStreamList = null) {
-        // fetch or use prefetched thumbs, clear existing thumbs, and render new ones
-        const thumbsJSON = prefetchedStreamList || await getStreams(thumbCount);
-        if (!thumbsJSON) {
-          // probably got rate limited or no results; bail out
-          return;
-        }
-
+      async function renderThumbnails(streamList) {
         const container = document.getElementById('thumbnails');
 
         // if this is not our first load, lock elem height so there's no reflow as we load new ones
@@ -316,7 +284,7 @@
 
         container.innerHTML = '';
 
-        thumbsJSON.forEach((stream) => {
+        streamList.forEach((stream) => {
           // embed inside of an a element so you can ctrl+click to open in a new tab
           const a = document.createElement('a');
           a.href = `${window.location.origin}/?stream=${encodeURIComponent(JSON.stringify(stream))}`;
@@ -324,7 +292,7 @@
           a.onclick = (event) => {
             if (!event.ctrlKey && !event.metaKey) {
               event.preventDefault();
-              fetchAndRenderRandomStream(null, stream);
+              renderStream(stream);
 
               document.body.scrollTop = 0; // For Safari
               document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
@@ -349,31 +317,42 @@
         setTimeout(() => {
           document.querySelectorAll('.new-thumbnails').forEach((button) => button.classList.remove('hidden'));
           document.querySelectorAll('.loading-throbber').forEach((throbber) => throbber.classList.add('invisible'));
-        }, 3000);
+        }, 2000);
       }
 
-      // populates the filter UI and sets thumbnail + new streamer button text if a filter is set
-      // values sourced from global streamFilter object
-      // which is either default/empty or populated from localstorage on page load
-      function setUIFromGlobalFilterObject() {
-        document.getElementById('remember').checked = streamFilterRemember;
-        document.getElementById('include').value = streamFilter.include;
-        document.getElementById('exclude').value = streamFilter.exclude;
-        document.getElementById('min-age').value = Number(streamFilter.minAge);
-        document.getElementById('show_singles').checked = streamFilter.max_viewers === 1;
+      function setInterfaceCustomizationFromStorage() {
+        // set UI customization values and add/remove the classes
+        const isWidePageSet = getStoredSetting('widePage', true);
+        document.getElementById('wide_page').checked = isWidePageSet;
+        if (isWidePageSet) {
+          document.body.classList.add('wide');
+        } else {
+          document.body.classList.remove('wide');
+        }
 
-        document.getElementById('search_all').checked = streamFilter.search_operator === 'all';
-        document.getElementById('search_any').checked = streamFilter.search_operator === 'any';
+        const isMinimalPageSet = getStoredSetting('minimalPage', true);
+        document.getElementById('minimal_page').checked = isMinimalPageSet;
+        if (isMinimalPageSet) {
+          document.body.classList.add('minimal');
+        } else {
+          document.body.classList.remove('minimal');
+        }
+      }
 
+      function setButtonTextWithFilterDataFromForm() {
         const streamButton = document.getElementById('new-streamer-button');
-        if (!streamFilter.include && !streamFilter.exclude && Number(streamFilter.minAge) === 0) {
+        if (!document.getElementById('include').value.trim()
+              && !document.getElementById('exclude').value.trim()
+              && Number(document.getElementById('min-age').value) === 0
+        ) {
           // we have no filter active; restore things to normal text
           document.querySelectorAll('.new-thumbnails').forEach((button) => {
             button.innerText = 'Get new thumbnails';
           });
           document.querySelector('#filter').innerText = 'filters & settings';
-          document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
 
+          // always set when-enabled text, but only bother with setting actual text if it's active
+          document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
           if (!streamButton.disabled) {
             document.getElementById('new-streamer-button').innerText = 'new streamer';
           }
@@ -395,90 +374,42 @@
             document.getElementById('new-streamer-button').innerText = `new streamer ('${searchString}')`;
           }
         }
-
-        // nowhere better to handle this
-        if (localStorage.getItem('widePage')) {
-          if (JSON.parse(localStorage.getItem('widePage'))) {
-            document.body.classList.add('wide');
-            document.getElementById('wide_page').checked = true;
-          } else {
-            document.body.classList.remove('wide');
-            document.getElementById('wide_page').checked = false;
-          }
-        }
-
-        if (localStorage.getItem('minimalPage')) {
-          if (JSON.parse(localStorage.getItem('minimalPage'))) {
-            document.body.classList.add('minimal');
-            document.getElementById('minimal_page').checked = true;
-          } else {
-            document.body.classList.remove('minimal');
-            document.getElementById('minimal_page').checked = false;
-          }
-        }
       }
 
-      // called after the filter form is updated and persists or clears filters to localstorage
-      async function setGlobalFilterObjectFromForm(e) {
+      // write form information to storage, update the UI as needed, and possibly refresh stream/thumbs
+      async function handleFormChange(e) {
         if (e) {
           e.preventDefault();
         }
 
+        // pull data from form
         const include = document.getElementById('include').value.trim();
         const exclude = document.getElementById('exclude').value.trim();
-        streamFilterRemember = document.getElementById('remember').checked;
+        const shouldRemember = document.getElementById('remember').checked;
 
-        const shouldReload = streamFilter.include !== include
-               || streamFilter.exclude !== exclude;
+        const shouldReload = getStoredSetting('include') !== include
+               || getStoredSetting('exclude') !== exclude;
 
-        streamFilter.include = include;
-        streamFilter.exclude = exclude;
-        streamFilter.minAge = Number(document.getElementById('min-age').value);
-        streamFilter.max_viewers = document.getElementById('show_singles').checked ? 1 : 0;
-        streamFilter.search_operator = document.querySelector('input[name="search_operator"]:checked').value;
+        // shouldRemember always needs to go first so include/exclude/etc. get saved
+        setStoredSetting({
+          shouldRemember,
+          include,
+          exclude,
+          maxViewers: document.getElementById('show_singles').checked ? 1 : 0,
+          searchOperator: document.querySelector('input[name="search_operator"]:checked').value,
+        });
 
-        if (streamFilterRemember) {
-          localStorage.setItem('streamFilter', JSON.stringify(streamFilter));
-          localStorage.setItem('streamFilterRemember', true);
-        } else {
-          localStorage.setItem('streamFilter', JSON.stringify(defaultStreamFilter));
-          localStorage.setItem('streamFilterRemember', false);
-        }
+        // set up interface customizations and button text
+        setInterfaceCustomizationFromStorage();
+        setButtonTextWithFilterDataFromForm();
 
-        setUIFromGlobalFilterObject();
-
-        // only fetch new streams and thumbs if something changed or if we're coming from a no-results situation
+        // load new streams and thumbs if the criteria has changed or if we have no current stream
+        // (no current stream means we got no results for the last query, so let's try again)
         if (shouldReload || !currentStream) {
           const fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
           if (fetchedStreams) {
-            fetchAndRenderRandomStream(null, fetchedStreams[0]);
-            fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
-          }
-        }
-
-        return false;
-      }
-
-      // toggle a given value in localstorage and set or unset the class on <body> as indicated
-      // if the localstorage key is not set, init to default value (usually true, since this is
-      // being invoked on a toggle press)
-      function initOrToggleLocalStorageBodyClass(paramName, classname, defaultValue = true) {
-        if (localStorage.getItem(paramName)) {
-          // true if the item is set
-          const shouldEnable = !JSON.parse(localStorage.getItem(paramName));
-          localStorage.setItem(paramName, shouldEnable);
-          if (shouldEnable) {
-            document.body.classList.add(classname);
-          } else {
-            document.body.classList.remove(classname);
-          }
-        } else {
-          // first time setting it
-          localStorage.setItem(paramName, defaultValue);
-          if (defaultValue) {
-            document.body.classList.add(classname);
-          } else {
-            document.body.classList.remove(classname);
+            renderStream(fetchedStreams[0]);
+            renderThumbnails(fetchedStreams.slice(1));
           }
         }
       }
@@ -496,32 +427,55 @@
         numberOfThumbnailsToFetch = 64;
       }
 
+      function immediateToggleInterfaceCustomization(settingsKey) {
+        const settingsObj = {};
+        settingsObj[settingsKey] = !getStoredSetting(settingsKey, true);
+        setStoredSetting(settingsObj);
+        setInterfaceCustomizationFromStorage();
+      }
+
       async function initPage() {
         // hook up all event listeners
-        document.getElementById('new-streamer-button').addEventListener('click', fetchAndRenderRandomStream);
-        document.getElementById('save-filter').addEventListener('click', setGlobalFilterObjectFromForm);
+        document.getElementById('new-streamer-button').addEventListener(
+          'click',
+          async () => renderStream(await getStreams(1)),
+        );
+        document.getElementById('save-filter').addEventListener('click', handleFormChange);
         document.getElementById('save-filter').addEventListener(
           'touchstart',
-          setGlobalFilterObjectFromForm,
+          handleFormChange,
           { passive: true },
         );
-        document.getElementById('search-form').addEventListener('submit', setGlobalFilterObjectFromForm);
+        document.getElementById('search-form').addEventListener('submit', handleFormChange);
         document.getElementById('wide_page').addEventListener(
           'change',
-          () => initOrToggleLocalStorageBodyClass('widePage', 'wide'),
+          () => immediateToggleInterfaceCustomization('widePage', 'wide'),
         );
         document.getElementById('minimal_page').addEventListener(
           'change',
-          () => initOrToggleLocalStorageBodyClass('minimalPage', 'minimal'),
+          () => immediateToggleInterfaceCustomization('minimalPage', 'minimal'),
         );
-        document.querySelectorAll('.new-thumbnails').forEach((button) => {
-          button.addEventListener('click', fetchAndRenderThumbnails);
-        });
+        document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener(
+          'click',
+          async () => renderThumbnails(await getStreams(numberOfThumbnailsToFetch)),
+        ));
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
         document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, { passive: true });
 
-        // populate buttons/filter UI/etc. from (localstorage || defaults (i.e. empty))
-        setUIFromGlobalFilterObject();
+        // populate filter UI with values from storage
+        document.getElementById('remember').checked = getStoredSetting('shouldRemember', true);
+        document.getElementById('include').value = getStoredSetting('include');
+        document.getElementById('exclude').value = getStoredSetting('exclude');
+        document.getElementById('min-age').value = getStoredSetting('minDuration', true);
+        document.getElementById('show_singles').checked = getStoredSetting('maxViewers', true) === 1;
+        document.getElementById('search_all').checked = getStoredSetting('searchOperator') === 'all';
+        document.getElementById('search_any').checked = getStoredSetting('searchOperator') === 'any';
+
+        // populate interface customizations with values from storage
+        setInterfaceCustomizationFromStorage();
+
+        // populate information button text with data from form
+        setButtonTextWithFilterDataFromForm();
 
         // prefetch 17 thumbs (main + 16 thumbnails)
         const fetchedStreams = await getStreams(numberOfThumbnailsToFetch + 1);
@@ -530,22 +484,22 @@
         // otherwise grab a random one
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('stream')) {
-          fetchAndRenderRandomStream(null, JSON.parse(urlParams.get('stream')));
+          renderStream(JSON.parse(urlParams.get('stream')));
           window.history.pushState({}, document.title, window.location.pathname);
         } else if (urlParams.has('force')) {
-          fetchAndRenderRandomStream(null, {
+          renderStream({
             user_name: urlParams.get('force'),
             id: `forcedstream-${urlParams.get('force')}`,
             started_at: new Date().toISOString(),
           });
         } else if (fetchedStreams) {
-          fetchAndRenderRandomStream(null, fetchedStreams[0]);
+          renderStream(fetchedStreams[0]);
           setInterval(setStreamRuntime, 30000);
         }
 
         if (fetchedStreams) {
           // render thumbs using the rest of the prefetch
-          fetchAndRenderThumbnails(null, numberOfThumbnailsToFetch, fetchedStreams.slice(1));
+          renderThumbnails(fetchedStreams.slice(1));
         }
 
         // MOTD display
@@ -559,6 +513,7 @@
         // note we can hit the end of this block with no stream running if our search params turned up nothing
       }
 
+      migrateData();
       initPage();
     </script>
   </body>
