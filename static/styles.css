@@ -217,6 +217,10 @@ code {
   grid-column: 2;
 }
 
+.grid-span {
+  grid-column: 1 / span 2;
+}
+
 .gird-right > input {
   margin-left: 0;
 }
@@ -275,10 +279,10 @@ code {
   filter:brightness(.78);
 }
 
-#page-container {
+.minimal #page-container {
   height: 100%;
-  display: grid;
-  grid-template-rows: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 body.minimal {
@@ -291,4 +295,8 @@ body.minimal {
 
 .minimal #twitch-embed, .minimal #twitch-embed > iframe {
   height: 100%
+}
+
+.minimal #twitch-embed-wrapper {
+  flex-grow: 1;
 }

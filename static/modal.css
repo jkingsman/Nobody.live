@@ -58,7 +58,7 @@
   }
 
   .modal__btn {
-    float: right;
+    width: 100%;
     font-size: 0.875rem;
     padding-left: 1rem;
     padding-right: 1rem;
