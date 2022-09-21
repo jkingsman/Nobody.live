@@ -108,6 +108,7 @@ ${requestedSetting.allowedValues.join(', ')}`);
   }
 
   get(key, parse = false) {
+    let rawSetting;
     if (!this.KNOWN_SETTINGS[key]) {
       // if we haven't heard of it, get it ephemerally
       if (!this.ephemeral[key]) {
@@ -117,33 +118,32 @@ ${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
       }
 
       this.debug(`4 Returning ${key} from ephemeral (${this.ephemeral[key]})`);
-      return this.ephemeral[key];
-    }
-
-    const requestedSetting = this.KNOWN_SETTINGS[key];
-    let rawSetting;
-    if (requestedSetting.respectsRememberSetting) {
-      if (this.constructor.shouldRemember()) {
-        // this setting respects remember and remember is set; return from storage
-        rawSetting = localStorage.getItem(key);
-        this.debug(`5 Returning ${key} from localstorage (${rawSetting})`);
+      rawSetting = this.ephemeral[key];
+    } else {
+      const requestedSetting = this.KNOWN_SETTINGS[key];
+      if (requestedSetting.respectsRememberSetting) {
+        if (this.constructor.shouldRemember()) {
+          // this setting respects remember and remember is set; return from storage
+          rawSetting = localStorage.getItem(key);
+          this.debug(`5 Returning ${key} from localstorage (${rawSetting})`);
+        } else {
+          // this setting respects remember and but remember is not set; try for ephemeral or default
+          rawSetting = this.ephemeral[key];
+          if (!rawSetting) {
+            // we don't have this stored; return default
+            rawSetting = requestedSetting.default;
+            this.debug(`6 Returning ${key} from default (${rawSetting})`);
+          } else {
+            this.debug(`7 Returning ${key} from ephemeral (${rawSetting})`);
+          }
+        }
       } else {
-        // this setting respects remember and but remember is not set; try for ephemeral or default
-        rawSetting = this.ephemeral[key];
+        // does not respect remembering; return from localstorage
+        rawSetting = localStorage.getItem(key);
         if (!rawSetting) {
           // we don't have this stored; return default
           rawSetting = requestedSetting.default;
-          this.debug(`6 Returning ${key} from default (${rawSetting})`);
-        } else {
-          this.debug(`7 Returning ${key} from ephemeral (${rawSetting})`);
         }
-      }
-    } else {
-      // does not respect remembering; return from localstorage
-      rawSetting = localStorage.getItem(key);
-      if (!rawSetting) {
-        // we don't have this stored; return default
-        rawSetting = requestedSetting.default;
       }
     }
 
