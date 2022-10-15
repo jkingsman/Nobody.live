@@ -502,8 +502,9 @@
           renderThumbnails(fetchedStreams.slice(1));
         }
 
-        // MOTD display
-        const motd = await fetch(`${settings.get('server')}/static/motd?cachebust=${Date.now()}`);
+        // MOTD display, with a reasonable cache bust so we don't get locked to 404
+        const cacheBustTime = Math.floor(Date.now() / 10000000) * 10000000;
+        const motd = await fetch(`${settings.get('server')}/static/motd?cachebust=${cacheBustTime}`);
         // only render if one exists
         if (motd.status === 200) {
           const motdText = await motd.text();

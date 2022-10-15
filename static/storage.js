@@ -163,7 +163,6 @@ ${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
   migrateData() {
     const shouldMigrate = localStorage.getItem('streamHistoryJSON') && !localStorage.getItem('hasMigrated');
     if (shouldMigrate) {
-      console.log("MIGRATING")
       const settingsObj = {};
 
       try {
