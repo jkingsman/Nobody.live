@@ -62,9 +62,11 @@
         </div>
       </div>
       <div class="thumbnails container center-text hide-on-minimal">
-        <button class="new-thumbnails fake-link">Get new thumbnails</button><img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="loading-throbber invisible"></img>
+        <button class="new-thumbnails fake-link">Get new thumbnails</button>
+        <img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="loading-throbber invisible"></img>
         <div id="thumbnails" class="thumbnail-container"></div>
-        <button class="new-thumbnails fake-link">Get new thumbnails</button><img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="loading-throbber invisible"></img>
+        <button class="new-thumbnails fake-link bottom-thumbnails-content">Get new thumbnails</button>
+        <img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="bottom-thumbnails-content loading-throbber invisible"></img>
       </div>
       <div class="hide-on-minimal" id="footer">
         watched streams: <span id="stream-list"></span>
@@ -214,6 +216,12 @@
       // performs stream fetch/new streamer button timeout
       // accepts an optional stream object if streams have been prefetched
       async function renderStream(stream) {
+        // no streams provided? Don't derender the current stream, as the fetching logic
+        // will handle requesting a search param update for us
+        if (!stream) {
+          return;
+        }
+
         if (Array.isArray(stream)) {
           // we were given an array; no biggy -- just pop the first off
           // eslint-disable-next-line prefer-destructuring
@@ -268,6 +276,13 @@
       // accepts an optional list of streams to draw from instead of making an API call
       async function renderThumbnails(streamList) {
         const container = document.getElementById('thumbnails');
+        if (!streamList) {
+          // we have no streams; likely a bad search term
+          document.querySelectorAll('.bottom-thumbnails-content').forEach((node) => node.classList.add('hidden'));
+          return;
+        }
+        // otherwise remove it in case we hid it
+        document.querySelectorAll('.bottom-thumbnails-content').forEach((node) => node.classList.remove('hidden'));
 
         // if this is not our first load, lock elem height so there's no reflow as we load new ones
         if (container.childNodes.length !== 0) {
