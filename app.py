@@ -69,7 +69,7 @@ async def get_streams(request):
     operator = request.args.get("search_operator", "all")
 
     # do a moderate approximation of not falling over
-    if count > 64 or len(include) + len(exclude) > 64:
+    if count > 65 or len(include) + len(exclude) > 65:
         return text("Filter too large! Please request fewer records.", 413)
 
     include_list = include.split()
