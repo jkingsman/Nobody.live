@@ -180,7 +180,7 @@ async def get_stream_details(request, stream_id):
         twitch_data["streamstart_mins_ago"] = str(
             round(start_age.total_seconds() / 60, 2)
         )
-        return text(pprint.pformat(twitch_data))
+        return sanic_json(twitch_data, dumps=json_dumps_pretty)
 
 
 @app.get("/stats/games")
