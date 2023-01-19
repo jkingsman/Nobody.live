@@ -20,7 +20,6 @@ app.ctx.cached_responses = {}
 QUERY_FILL_LIMIT = 5
 
 # use builtin json with unicode instead of sanic's
-json_dumps = partial(json.dumps, separators=(",", ":"), ensure_ascii=False)
 json_dumps_pretty = partial(json.dumps, separators=(", ", ": "), ensure_ascii=False, indent=4, sort_keys=True)
 
 
@@ -155,9 +154,9 @@ async def get_streams(request):
             extracted_streams = [json.loads(stream[0]) for stream in streams]
 
     if not extracted_streams:
-        return sanic_json([], dumps=json_dumps)
+        return sanic_json([], dumps=json_dumps_pretty)
 
-    return sanic_json(extracted_streams, dumps=json_dumps)
+    return sanic_json(extracted_streams, dumps=json_dumps_pretty)
 
 
 @app.get("/stream/<stream_id>")
