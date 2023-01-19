@@ -250,7 +250,7 @@ async def get_stats_streams_by_game(request):
 async def get_stats_counts(request):
     now = datetime.datetime.now().timestamp()
     cache_key = "counts"
-    cache_max_age = 300
+    cache_max_age = 60
 
     if cache_key not in app.ctx.cached_responses:
         app.ctx.cached_responses[cache_key] = {
