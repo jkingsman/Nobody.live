@@ -6,7 +6,6 @@ from functools import partial
 import json
 from operator import getitem
 import os
-import pprint
 
 from asyncpg import create_pool
 from sanic import Sanic
@@ -20,7 +19,9 @@ app.ctx.cached_responses = {}
 QUERY_FILL_LIMIT = 5
 
 # use builtin json with unicode instead of sanic's
-json_dumps_pretty = partial(json.dumps, separators=(", ", ": "), ensure_ascii=False, indent=4, sort_keys=True)
+json_dumps_pretty = partial(
+    json.dumps, separators=(", ", ": "), ensure_ascii=False, indent=4, sort_keys=True
+)
 
 
 def get_from_dict_as_int_or_default(obj, key, default=0):
@@ -236,7 +237,11 @@ async def get_stats_streams_by_game(request):
                 + (game["streams_zero_viewer"] or 0),
             }
 
-        games_list_dict = sorted(games_list_dict.items(), key=lambda game_name: getitem(game_name[1], 'total'), reverse=True)
+        games_list_dict = sorted(
+            games_list_dict.items(),
+            key=lambda game_name: getitem(game_name[1], "total"),
+            reverse=True,
+        )
 
         app.ctx.cached_responses[cache_key]["cached-since"] = now
         app.ctx.cached_responses[cache_key]["response"] = games_list_dict
@@ -362,11 +367,17 @@ async def get_stats_tags(request):
                     tag_count[tag]["one_viewer"] += 1
                 tag_count[tag]["total"] += 1
 
-        tag_count = sorted(tag_count.items(), key=lambda tag_name: getitem(tag_name[1], 'total'), reverse=True)
+        tag_count = sorted(
+            tag_count.items(),
+            key=lambda tag_name: getitem(tag_name[1], "total"),
+            reverse=True,
+        )
 
         app.ctx.cached_responses[cache_key]["cached-since"] = now
         app.ctx.cached_responses[cache_key]["response"] = tag_count
-        return sanic_json(tag_count, dumps=json_dumps_pretty, headers={"x-cached-since": now})
+        return sanic_json(
+            tag_count, dumps=json_dumps_pretty, headers={"x-cached-since": now}
+        )
 
 
 if __name__ == "__main__":
