@@ -81,6 +81,11 @@ code {
   flex: 1 1 0px;
 }
 
+.dual-column .thumbnail-container {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
 @media only screen and (min-width: 600px) {
   h1 {
     font-size: 2.7em;
