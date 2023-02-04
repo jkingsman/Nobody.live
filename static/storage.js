@@ -41,6 +41,11 @@ class Settings {
         default: false,
         allowedValues: [true, false],
       },
+      dualColumn: {
+        respectsRememberSetting: false,
+        default: false,
+        allowedValues: [true, false],
+      },
       streamHistory: {
         respectsRememberSetting: false,
         default: '[]',

@@ -1,7 +1,3 @@
-html {
-  height: 100%;
-}
-
 body {
   margin: 10px;
   font-family: Arial, Helvetica, sans-serif;
@@ -45,7 +41,7 @@ code {
   padding: 10px;
 }
 
-.thumbnails,
+.center-text,
 .filter {
   text-align: center;
 }
@@ -68,6 +64,21 @@ code {
 
 #twitch-embed > iframe {
   min-height: max(70vh, 550px);
+}
+
+.dual-column #content-container {
+  display: flex;
+  align-items: start;
+}
+
+.dual-column #twitch-embed-wrapper {
+  flex: 1.3 1 0px;
+  position: sticky;
+  top: 0;
+}
+
+.dual-column #thumbnail-wrapper {
+  flex: 1 1 0px;
 }
 
 @media only screen and (min-width: 600px) {
@@ -265,9 +276,13 @@ code {
     min-height: 60vh;
   }
 
-  /* wide mode */
+  /* wide and min mode should take up more room -- 80vh is decent until the screen gets weirdly short*/
   .wide #page-container, .minimal #page-container {
     max-width: none;
+  }
+
+  .wide #twitch-embed > iframe, .minimal #twitch-embed > iframe {
+    min-height: 80vh;
   }
 }
 

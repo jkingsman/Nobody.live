@@ -50,23 +50,25 @@
           <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">filters & settings</button>
         </div>
       </div>
-      <div id="twitch-embed-wrapper" class="container">
-        <div id="twitch-embed"></div>
-        <div class="even-grid-container hide-on-minimal">
-          <div class="even-left-pane">
-            <p class="stream_duration_container">Stream online for <span id="stream_duration"></span>.</p>
-          </div>
-          <div class="even-right-pane">
-            <p class="cookie-check">Trouble logging into chat? Try enabling third party cookies.</p>
+      <div id="content-container">
+        <div id="twitch-embed-wrapper" class="container">
+          <div id="twitch-embed"></div>
+          <div class="even-grid-container hide-on-minimal">
+            <div class="even-left-pane">
+              <p class="stream_duration_container">Stream online for <span id="stream_duration"></span>.</p>
+            </div>
+            <div class="even-right-pane">
+              <p class="cookie-check">Trouble logging into chat? Try enabling third party cookies.</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="thumbnails container center-text hide-on-minimal">
-        <button class="new-thumbnails fake-link">Get new thumbnails</button>
-        <img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="loading-throbber invisible"></img>
-        <div id="thumbnails" class="thumbnail-container"></div>
-        <button class="new-thumbnails fake-link bottom-thumbnails-content">Get new thumbnails</button>
-        <img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="bottom-thumbnails-content loading-throbber invisible"></img>
+        <div id="thumbnail-wrapper" class="container center-text hide-on-minimal">
+          <button class="new-thumbnails fake-link">Get new thumbnails</button>
+          <img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="loading-throbber invisible"></img>
+          <div id="thumbnails" class="thumbnail-container"></div>
+          <button class="new-thumbnails fake-link bottom-thumbnails-content">Get new thumbnails</button>
+          <img src="/static/tetris_dx_throbber.min.svg" width="38" height="38" class="bottom-thumbnails-content loading-throbber invisible"></img>
+        </div>
       </div>
       <div class="hide-on-minimal" id="footer">
         watched streams: <span id="stream-list"></span>
@@ -129,6 +131,7 @@
                 <div class="options-columns">
                   <span class="grid-span field-config"><input type="checkbox" id="wide_page"><label for="wide_page">Wide page</label></span>
                   <span class="grid-span field-config"><input type="checkbox" id="minimal_page"><label for="minimal_page">Minimal page</label></span>
+                  <span class="grid-span field-config"><input type="checkbox" id="dual_column"><label for="dual_column">Dual column (experimental; best with wide page)</label></span>
                 </div>
               </details>
             </main>
@@ -349,6 +352,14 @@
         } else {
           document.body.classList.remove('minimal');
         }
+
+        const isDualColumnSet = settings.get('dualColumn', true);
+        document.getElementById('dual_column').checked = isDualColumnSet;
+        if (isDualColumnSet) {
+          document.body.classList.add('dual-column');
+        } else {
+          document.body.classList.remove('dual-column');
+        }
       }
 
       function setButtonTextWithFilterDataFromStorage() {
@@ -470,6 +481,10 @@
         document.getElementById('minimal_page').addEventListener(
           'change',
           () => immediateToggleInterfaceCustomization('minimalPage', 'minimal'),
+        );
+        document.getElementById('dual_column').addEventListener(
+          'change',
+          () => immediateToggleInterfaceCustomization('dualColumn', 'dual-column'),
         );
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener(
           'click',
