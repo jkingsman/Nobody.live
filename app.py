@@ -357,15 +357,17 @@ async def get_stats_tags(request):
 
         tag_count = {}
         for stream in stream_data_list:
-            for tag in stream["tags"]:
-                if tag not in tag_count:
-                    tag_count[tag] = {"zero_viewer": 0, "one_viewer": 0, "total": 0}
+            if stream["tags"]:
+                # stream["tags"] can be None
+                for tag in stream["tags"]:
+                    if tag not in tag_count:
+                        tag_count[tag] = {"zero_viewer": 0, "one_viewer": 0, "total": 0}
 
-                if stream["viewer_count"] == 0:
-                    tag_count[tag]["zero_viewer"] += 1
-                else:
-                    tag_count[tag]["one_viewer"] += 1
-                tag_count[tag]["total"] += 1
+                    if stream["viewer_count"] == 0:
+                        tag_count[tag]["zero_viewer"] += 1
+                    else:
+                        tag_count[tag]["one_viewer"] += 1
+                    tag_count[tag]["total"] += 1
 
         tag_count = sorted(
             tag_count.items(),
