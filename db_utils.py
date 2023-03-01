@@ -44,18 +44,24 @@ def migrate():
 
 def bulk_insert_streams(streams, generation):
     if streams:
-        formatted_rows = [
-            (
-                stream["id"],
-                stream["game_name"],
-                f"{stream['game_name']} {' '.join(stream['tags']).strip()}",
-                stream["viewer_count"],
-                generation,
-                parser.parse(stream["started_at"]),
-                json.dumps(stream),
+        formatted_rows = []
+        for stream in streams:
+            # sometimes tags=None
+            joined_tags = ""
+            if stream["tags"]:
+                joined_tags = " ".join(stream["tags"]).strip()
+
+            formatted_rows.append(
+                (
+                    stream["id"],
+                    stream["game_name"],
+                    f"{stream['game_name']} {joined_tags}",
+                    stream["viewer_count"],
+                    generation,
+                    parser.parse(stream["started_at"]),
+                    json.dumps(stream),
+                )
             )
-            for stream in streams
-        ]
 
         insert_query = """
             INSERT INTO streams (id, game, title_block, viewer_count, generation, streamstart, data) values %s
