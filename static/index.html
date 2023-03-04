@@ -71,7 +71,7 @@
         </div>
       </div>
       <div class="hide-on-minimal" id="footer">
-        watched streams: <span id="stream-list"></span>
+        watch history: <span id="stream-list"></span>
         <br><br>
         made with <a href="https://github.com/jkingsman/Nobody.live" target="_blank" rel="noopener">open source</a> and love by jack kingsman, with much appreciation for carsten hoffrichter's <i>lonely streams</i>
         <br><br>
@@ -254,19 +254,21 @@
         // load and append stream to historical streams
         const usernames = settings.get('streamHistory', true);
         usernames.push(stream.user_name);
-        const trimmedUsernames = usernames.slice(-5);
-        settings.setBulk({
-          streamHistory: JSON.stringify(trimmedUsernames),
-        });
+        const trimmedUsernames = usernames.slice(-6);
+        settings.set('streamHistory', JSON.stringify(trimmedUsernames));
 
         // rerender list of historical streams
-        document.getElementById('stream-list').innerHTML = trimmedUsernames.map((username) => {
+        document.getElementById('stream-list').innerHTML = trimmedUsernames.reverse().map((username, idx) => {
           const a = document.createElement('a');
           const linkText = document.createTextNode(username);
           a.appendChild(linkText);
           a.href = `https://www.twitch.tv/${username}`;
           a.target = '_blank';
           a.rel = 'noopener';
+
+          if (idx === 0) {
+            return `${a.outerHTML} (current)`;
+          }
 
           return a.outerHTML;
         }).join(', ');
