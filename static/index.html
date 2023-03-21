@@ -526,10 +526,9 @@
         }
 
         fetch(`${settings.get('server')}/static/motd`)
-          .then((response) => {
-            if (response.ok) {
-              document.getElementById('motd').innerHTML = response.text();
-            }
+          .then((response) => response.text())
+          .then((text) => {
+            document.getElementById('motd').innerHTML = text;
           });
         // note we can hit the end of this block with no stream running if our search params turned up nothing
       }
