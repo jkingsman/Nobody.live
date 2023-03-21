@@ -159,6 +159,15 @@
 
       const settings = new Settings();
 
+      // set UI customization values and add/remove the classes
+      const uiSettings = [
+        // [setting_name, setting_checkbox_id, body_class]
+        ['widePage', 'wide_page', 'wide'],
+        ['minimalPage', 'minimal_page', 'minimal'],
+        ['dualColumn', 'dual_column', 'dual-column'],
+        ['texturedBackground', 'textured_background', 'background-textured'],
+      ];
+
       // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
       function generateFilterString() {
         const excludeString = settings.get('exclude').trim().split(' ').map((term) => (term ? `not:${term}` : ''))
@@ -344,15 +353,6 @@
       }
 
       function setInterfaceCustomizationFromStorage() {
-        // set UI customization values and add/remove the classes
-        const uiSettings = [
-          // [setting_name, setting_checkbox_id, body_class]
-          ['widePage', 'wide_page', 'wide'],
-          ['minimalPage', 'minimal_page', 'minimal'],
-          ['dualColumn', 'dual_column', 'dual-column'],
-          ['texturedBackground', 'textured_background', 'background-textured'],
-        ];
-
         for (const singleUISetting of uiSettings) {
           const isSet = settings.get(singleUISetting[0], true);
           document.getElementById(singleUISetting[1]).checked = isSet;
@@ -456,13 +456,6 @@
         settings.set('numberOfThumbnailsToFetch', 64);
       }
 
-      function immediateToggleInterfaceCustomization(settingsKey) {
-        const settingsObj = {};
-        settingsObj[settingsKey] = !settings.get(settingsKey, true);
-        settings.setBulk(settingsObj);
-        setInterfaceCustomizationFromStorage();
-      }
-
       async function initPage() {
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener(
@@ -476,18 +469,15 @@
           { passive: true },
         );
         document.getElementById('search-form').addEventListener('submit', handleFormChange);
-        document.getElementById('wide_page').addEventListener(
-          'change',
-          () => immediateToggleInterfaceCustomization('widePage', 'wide'),
-        );
-        document.getElementById('minimal_page').addEventListener(
-          'change',
-          () => immediateToggleInterfaceCustomization('minimalPage', 'minimal'),
-        );
-        document.getElementById('dual_column').addEventListener(
-          'change',
-          () => immediateToggleInterfaceCustomization('dualColumn', 'dual-column'),
-        );
+        for (const singleUISetting of uiSettings) {
+          document.getElementById(singleUISetting[1]).addEventListener(
+            'change',
+            () => {
+              settings.set(singleUISetting[0], !settings.get(singleUISetting[0], true));
+              setInterfaceCustomizationFromStorage();
+            },
+          );
+        }
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener(
           'click',
           async () => renderThumbnails(await getStreams(settings.get('numberOfThumbnailsToFetch', true))),
