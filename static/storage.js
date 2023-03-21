@@ -46,6 +46,11 @@ class Settings {
         default: false,
         allowedValues: [true, false],
       },
+      texturedBackground: {
+        respectsRememberSetting: false,
+        default: false,
+        allowedValues: [true, false],
+      },
       streamHistory: {
         respectsRememberSetting: false,
         default: '[]',

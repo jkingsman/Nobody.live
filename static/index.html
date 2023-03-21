@@ -137,6 +137,7 @@
                   <span class="grid-span field-config"><input type="checkbox" id="wide_page"><label for="wide_page">Wide page</label></span>
                   <span class="grid-span field-config"><input type="checkbox" id="minimal_page"><label for="minimal_page">Minimal page</label></span>
                   <span class="grid-span field-config"><input type="checkbox" id="dual_column"><label for="dual_column">Dual column (experimental; best with wide page)</label></span>
+                  <span class="grid-span field-config"><input type="checkbox" id="textured_background"><label for="textured_background">Textured Background</label></span>
                 </div>
               </details>
             </main>
@@ -344,28 +345,22 @@
 
       function setInterfaceCustomizationFromStorage() {
         // set UI customization values and add/remove the classes
-        const isWidePageSet = settings.get('widePage', true);
-        document.getElementById('wide_page').checked = isWidePageSet;
-        if (isWidePageSet) {
-          document.body.classList.add('wide');
-        } else {
-          document.body.classList.remove('wide');
-        }
+        const uiSettings = [
+          // [setting_name, setting_checkbox_id, body_class]
+          ['widePage', 'wide_page', 'wide'],
+          ['minimalPage', 'minimal_page', 'minimal'],
+          ['dualColumn', 'dual_column', 'dual-column'],
+          ['texturedBackground', 'textured_background', 'background-textured'],
+        ];
 
-        const isMinimalPageSet = settings.get('minimalPage', true);
-        document.getElementById('minimal_page').checked = isMinimalPageSet;
-        if (isMinimalPageSet) {
-          document.body.classList.add('minimal');
-        } else {
-          document.body.classList.remove('minimal');
-        }
-
-        const isDualColumnSet = settings.get('dualColumn', true);
-        document.getElementById('dual_column').checked = isDualColumnSet;
-        if (isDualColumnSet) {
-          document.body.classList.add('dual-column');
-        } else {
-          document.body.classList.remove('dual-column');
+        for (const singleUISetting of uiSettings) {
+          const isSet = settings.get(singleUISetting[0], true);
+          document.getElementById(singleUISetting[1]).checked = isSet;
+          if (isSet) {
+            document.body.classList.add(singleUISetting[2]);
+          } else {
+            document.body.classList.remove(singleUISetting[2]);
+          }
         }
       }
 
