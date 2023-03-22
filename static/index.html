@@ -525,7 +525,7 @@
           renderThumbnails(fetchedStreams.slice(1));
         }
 
-        fetch(`${settings.get('server')}/static/motd`, { cache: 'no-store' })
+        fetch(`${settings.get('server')}/static/motd?cachebust=0.0.1`, { cache: 'no-store' })
           .then((response) => response.text())
           .then((text) => {
             document.getElementById('motd').innerHTML = text;
