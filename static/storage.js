@@ -151,12 +151,4 @@ ${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
       return rawSetting;
     }
   }
-
-  // migrate from legacy storage versions
-  static migrateData() {
-    if (localStorage.getItem('streamHistoryJSON') && !localStorage.getItem('hasMigrated')) {
-      localStorage.clear();
-      localStorage.setItem('hasMigrated', true);
-    }
-  }
 }

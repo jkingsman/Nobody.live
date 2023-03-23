@@ -151,7 +151,7 @@
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script src="/static/micromodal.min.js"></script>
-    <script src="/static/storage.js?cache_bust=0.0.1"></script>
+    <script src="/static/storage.js?cache_bust=0.0.2"></script>
     <script>
       /* global Twitch, MicroModal, Settings */
       /* eslint no-alert: "off", no-new: "off", no-param-reassign: "off" */
@@ -533,7 +533,12 @@
         // note we can hit the end of this block with no stream running if our search params turned up nothing
       }
 
-      settings.migrateData();
+      // clear legacy storage if we have it
+      if (localStorage.getItem('streamHistoryJSON') && !localStorage.getItem('hasMigrated')) {
+        localStorage.clear();
+        localStorage.setItem('hasMigrated', true);
+      }
+
       initPage();
     </script>
   </body>
