@@ -237,7 +237,7 @@ code {
   grid-column: 1 / span 2;
 }
 
-.gird-right > input {
+.grid-right > input {
   margin-left: 0;
 }
 
