@@ -152,8 +152,14 @@
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     <script src="/static/micromodal.min.js"></script>
     <script src="/static/storage.js?cache_bust=0.0.2"></script>
+    <script defer data-domain="nobody.live" src="/js/script.js"></script>
     <script>
-      /* global Twitch, MicroModal, Settings */
+    /* eslint-disable */
+    window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }
+    /* eslint-enable */
+    </script>
+    <script>
+      /* global Twitch, MicroModal, Settings, plausible */
       /* eslint no-alert: "off", no-new: "off", no-param-reassign: "off" */
       MicroModal.init();
 
@@ -336,6 +342,7 @@
           thumb.title = thumb.alt;
           thumb.src = stream.thumbnail_url.replace('{width}', '440').replace('{height}', '248');
           thumb.loading = 'lazy';
+          thumb.onclick = () => {plausible('Thumbnail Clicked')};
 
           a.appendChild(thumb);
           container.appendChild(a);
@@ -441,6 +448,9 @@
             renderStream(fetchedStreams[0]);
             renderThumbnails(fetchedStreams.slice(1));
           }
+          plausible('Search Update', { props: { include, exclude } });
+        } else {
+          plausible('Non-Search Settings Update');
         }
       }
 
@@ -455,13 +465,17 @@
           window.open(`${settings.get('server')}/stream/${settings.set('currentStream', true).id}`, '_blank');
         });
         settings.set('numberOfThumbnailsToFetch', 64);
+        plausible('Debug Enable');
       }
 
       async function initPage() {
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener(
           'click',
-          async () => renderStream(await getStreams()),
+          async () => {
+            renderStream(await getStreams());
+            plausible('New Streamer Button');
+          },
         );
         document.getElementById('save-filter').addEventListener('click', handleFormChange);
         document.getElementById('save-filter').addEventListener(
@@ -481,7 +495,10 @@
         }
         document.querySelectorAll('.new-thumbnails').forEach((button) => button.addEventListener(
           'click',
-          async () => renderThumbnails(await getStreams(settings.get('numberOfThumbnailsToFetch', true))),
+          async () => {
+            renderThumbnails(await getStreams(settings.get('numberOfThumbnailsToFetch', true)));
+            plausible('Thumbnail Refresh');
+          },
         ));
         document.getElementById('debug-trigger').addEventListener('click', enableDebug);
         document.getElementById('debug-trigger').addEventListener('touchstart', enableDebug, { passive: true });
