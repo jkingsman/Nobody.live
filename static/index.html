@@ -484,6 +484,9 @@
           { passive: true },
         );
         document.getElementById('search-form').addEventListener('submit', handleFormChange);
+        // loop throgh the settings, adding an onchange listener to setting[1] (id of the form element for the setting)
+        // which sets setting[0], the settings object key for the setting. setInterfaceCustomizationFromStorage will
+        // apply setting[2] to the body element when it's enabled
         for (const singleUISetting of uiSettings) {
           document.getElementById(singleUISetting[1]).addEventListener(
             'change',
@@ -561,6 +564,25 @@
       }
 
       initPage();
+
+      // for temporary testing
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('forcebg')) {
+        const bg = urlParams.get('forcebg');
+        document.body.classList.remove('background-textured');
+
+        // 0 is nothing
+        if (bg === '0') {
+          console.log('Forcing no bg...');
+        } else if (bg === '1') {
+          // 1 is top choice
+          console.log('Forcing default .background-textured');
+          document.body.classList.add('background-textured');
+        } else {
+          console.log(`Forcing .background-textured-${bg}`);
+          document.body.classList.add(`background-textured-${bg}`);
+        }
+      }
     </script>
   </body>
 </html>
