@@ -231,8 +231,7 @@
         document.getElementById('stream_duration').innerText = streamRuntimeString;
       }
 
-      // performs stream fetch/new streamer button timeout
-      // accepts an optional stream object if streams have been prefetched
+      // renders a given stream and handles new-streamer button timeout, history update, etc.
       async function renderStream(stream) {
         // no streams provided? Don't derender the current stream, as the fetching logic
         // will handle requesting a search param update for us
@@ -292,8 +291,7 @@
         setStreamRuntime();
       }
 
-      // fetches a given number of thumbnails and renders them into view
-      // accepts an optional list of streams to draw from instead of making an API call
+      // render a given list of streams to draw thumbnails for
       async function renderThumbnails(streamList) {
         const container = document.getElementById('thumbnails');
         if (!streamList) {
@@ -352,6 +350,7 @@
         }, 2000);
       }
 
+      // load interface customizations from storage -- check the key, then add the class to the body as needed
       function setInterfaceCustomizationFromStorage() {
         for (const singleUISetting of uiSettings) {
           const isSet = settings.get(singleUISetting[0], true);
@@ -364,6 +363,7 @@
         }
       }
 
+      // update the new streamer and new thumbnails buttons with a description of search criteria when active
       function setButtonTextWithFilterDataFromStorage() {
         const streamButton = document.getElementById('new-streamer-button');
         if (!settings.get('include').trim()
@@ -401,7 +401,7 @@
         }
       }
 
-      // write form information to storage, update the UI as needed, and possibly refresh stream/thumbs
+      // write settings form information to storage, update the UI as needed, and possibly refresh stream/thumbs
       async function handleFormChange(e) {
         if (e) {
           e.preventDefault();
@@ -494,37 +494,40 @@
         document.getElementById('search_all').checked = settings.get('searchOperator') === 'all';
         document.getElementById('search_any').checked = settings.get('searchOperator') === 'any';
 
-        // populate interface customizations with values from storage
+        // add any interface customization classes to the body
         setInterfaceCustomizationFromStorage();
 
-        // populate information button text with data from storage
+        // populate new streamer and thumb button with seach criteria if active
         setButtonTextWithFilterDataFromStorage();
 
-        // prefetch 17 thumbs (main + 16 thumbnails)
         const fetchedStreams = await getStreams(settings.get('numberOfThumbnailsToFetch', true) + 1);
 
-        // if we have /?stream=... then render the specified stream
-        // otherwise grab a random one
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('stream')) {
+          // if we have /?stream=... with raw json then render the specified stream
           renderStream(JSON.parse(urlParams.get('stream')));
           window.history.pushState({}, document.title, window.location.pathname);
         } else if (urlParams.has('force')) {
+          // if we have a username, we can force Nobody.live to show it to us
           renderStream({
             user_name: urlParams.get('force'),
             id: `forcedstream-${urlParams.get('force')}`,
             started_at: new Date().toISOString(),
           });
         } else if (fetchedStreams) {
+          // nothing specific requested; display a fetched stream if we got any
           renderStream(fetchedStreams[0]);
+
+          // update our "this stream has been running for" every 30s
           setInterval(setStreamRuntime, 30000);
         }
 
-        if (fetchedStreams) {
+        if (fetchedStreams.length > 1) {
           // render thumbs using the rest of the prefetch
           renderThumbnails(fetchedStreams.slice(1));
         }
 
+        // fetch and render message of the day if we have it
         fetch(`${settings.get('server')}/static/motd?cachebust=0.0.1`, { cache: 'no-store' })
           .then((response) => response.text())
           .then((text) => {
