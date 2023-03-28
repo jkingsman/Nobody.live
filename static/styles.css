@@ -152,12 +152,14 @@ code {
 .thumbnail-container {
   display: grid;
   grid-template-columns: 25% 25% 25% 25%;
+  aspect-ratio: 1 / 1.6;
 }
 
 @media only screen and (max-width: 599px) {
   .thumbnail-container {
     display: grid;
     grid-template-columns: 50% 50%;
+    aspect-ratio: 1 / .3;
   }
 
   #new-streamer-button {
