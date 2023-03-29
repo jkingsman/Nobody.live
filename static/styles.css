@@ -1,5 +1,10 @@
+html {
+  height: 100%;
+}
+
 body {
   margin: 10px;
+  padding-bottom: 13px;
   font-family: Arial, Helvetica, sans-serif;
   background: #131313;
   color: #eeebff;
@@ -64,6 +69,14 @@ code {
 
 #twitch-embed > iframe {
   min-height: max(70vh, 550px);
+}
+
+.minimal #content-container, .wide #content-container {
+  height: 100%;
+}
+
+.minimal #twitch-embed-wrapper, .wide #twitch-embed-wrapper {
+  height: calc(100% - 40px);
 }
 
 .dual-column #content-container {
@@ -312,7 +325,7 @@ code {
 }
 
 body.minimal {
-  height: calc(100% - 10px - 10px); /* Don't forget top and bottom! */
+  height: calc(100% - 12px - 12px); /* Don't forget top and bottom! */
 }
 
 .minimal .hide-on-minimal {

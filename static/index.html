@@ -308,9 +308,9 @@
         // otherwise remove it in case we hid it
         document.querySelectorAll('.bottom-thumbnails-content').forEach((node) => node.classList.remove('hidden'));
 
-        // if this is not our first load, lock elem height so there's no reflow as we load new ones
+        // if this is not our first load and we're not dual column, lock elem height so there's no reflow as we load new ones
         // but don't bother if we're in debug mode and we're about to radically expand
-        if (container.childNodes.length !== 0 && streamList.length < 64) {
+        if (container.childNodes.length !== 0 && !settings.get('dualColumn', true) && streamList.length < 64) {
           container.style.height = `${container.offsetHeight}px`;
         }
 
