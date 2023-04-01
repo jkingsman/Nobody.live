@@ -468,6 +468,14 @@
         plausible('Debug Enable');
       }
 
+      function updateMOTD() {
+        fetch(`${settings.get('server')}/static/motd`, { cache: 'no-store' })
+          .then((response) => response.text())
+          .then((text) => {
+            document.getElementById('motd').innerHTML = text;
+          });
+      }
+
       async function initPage() {
         // hook up all event listeners
         document.getElementById('new-streamer-button').addEventListener(
@@ -549,11 +557,8 @@
         }
 
         // fetch and render message of the day if we have it
-        fetch(`${settings.get('server')}/static/motd?cachebust=0.0.1`, { cache: 'no-store' })
-          .then((response) => response.text())
-          .then((text) => {
-            document.getElementById('motd').innerHTML = text;
-          });
+        updateMOTD();
+        setInterval(updateMOTD, 3600 * 1000); // 1hr in ms
         // note we can hit the end of this block with no stream running if our search params turned up nothing
       }
 
