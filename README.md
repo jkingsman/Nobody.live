@@ -18,7 +18,7 @@ Environment variables to be set for the scanner only:
 
 Meanwhile, the Sanic app in `app.py` serves the index and the endpoint to get a random streamer.
 
-*Note that the database schema makes use of slightly unusual extensions, namely `pg_trgm` (trigram indices) and `tsm_system_rows`. You may need to install your operating system's flavor of `postgresql-contrib` in order for them to work correctly.*
+*Note that the database schema makes use of slightly unusual extensions, namely `pg_trgm` (trigram indices) and `tsm_system_rows`. You may need to install your operating system's flavor of `postgresql-contrib` in order for them to work correctly. Also, you may need to grant your service user superuser permissions OR remove the extension creation calls from the `db_utils.py` migration block.*
 
 ## Getting Up and Running
 
