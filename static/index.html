@@ -564,32 +564,13 @@
         localStorage.setItem('hasMigrated', true);
       }
 
-      // load temporary filter into storage if we have one and show heads up
+      // load temporary filter into storage if we have one
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('filter')) {
         settings.set('tempInclude', urlParams.get('filter'));
       }
 
       initPage();
-
-      // for temporary testing
-
-      if (urlParams.has('forcebg')) {
-        const bg = urlParams.get('forcebg');
-        document.body.classList.remove('background-textured');
-
-        // 0 is nothing
-        if (bg === '0') {
-          console.log('Forcing no bg...');
-        } else if (bg === '1') {
-          // 1 is top choice
-          console.log('Forcing default .background-textured');
-          document.body.classList.add('background-textured');
-        } else {
-          console.log(`Forcing .background-textured-${bg}`);
-          document.body.classList.add(`background-textured-${bg}`);
-        }
-      }
     </script>
   </body>
 </html>
