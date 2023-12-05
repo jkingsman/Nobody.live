@@ -105,13 +105,19 @@ ${requestedSetting.allowedValues.join(', ')}`);
     }
   }
 
-  get(key, parse = false) {
+  get(key, parse = false, defaultValue = null) {
     let rawSetting;
+    // this is such a mess; sorry
+    // if it's not a known key, check for it as an ephemeral key
+    // if we still don't have it, return the default or error out with null
     if (!this.KNOWN_SETTINGS[key]) {
       // if we haven't heard of it, get it ephemerally
       if (!this.ephemeral[key]) {
-        console.error(`Unknown key! ${key} is not one of \
-${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
+        if (defaultValue) {
+          return defaultValue;
+        }
+
+        console.error(`Unknown key! ${key} is not one of ${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
         return null;
       }
 

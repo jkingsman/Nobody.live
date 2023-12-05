@@ -55,6 +55,10 @@ code {
   padding-top: 10px;
 }
 
+.filter-active {
+  color: #ff9e9e;
+}
+
 .motd {
   background-color: #5a0043;
   text-align: center;

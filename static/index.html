@@ -51,7 +51,7 @@
         </div>
         <div class="right-pane">
           <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br />
-          <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">filters & settings</button>
+          <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">game filters & settings</button>
         </div>
       </div>
       <div id="content-container">
@@ -167,20 +167,31 @@
         ['texturedBackground', 'textured_background', 'background-textured'],
       ];
 
+      // we might have a temporary include, a regular include, or nothing
+      function getNormalizedInclude() {
+        // return the regular include if we don't have a temporary one
+        if (!settings.get('tempInclude', false, null)) {
+          return settings.get('include');
+        }
+
+        // if we have an include set, that should win. If we don't, return the tempInclude
+        return settings.get('include') ? settings.get('include') : settings.get('tempInclude');
+      }
+
       // create a nice single string to describe the search ('<include terms> not:<exclude> not:<terms>')
       function generateFilterString() {
         const excludeString = settings.get('exclude').trim().split(' ').map((term) => (term ? `not:${term}` : ''))
     .join(' ');
         const timeString = settings.get('minDuration') > 0 ? `⏱>${document.getElementById('min-age').value}m` : '';
 
-        return `${settings.get('include').trim()} ${excludeString} ${timeString}`.trim();
+        return `${getNormalizedInclude().trim()} ${excludeString} ${timeString}`.trim();
       }
 
       // note that this uses the form data so we can ignore the "remember" button
       async function getStreams(count = 1) {
         const streamEndpoint = new URL('/stream', settings.get('server'));
         streamEndpoint.searchParams.set('count', count);
-        streamEndpoint.searchParams.set('include', settings.get('include'));
+        streamEndpoint.searchParams.set('include', getNormalizedInclude());
         streamEndpoint.searchParams.set('exclude', settings.get('exclude'));
         streamEndpoint.searchParams.set('min_age', settings.get('minDuration', true));
         streamEndpoint.searchParams.set('max_viewers', settings.get('maxViewers', true) ? 1 : 0);
@@ -366,7 +377,7 @@
       // update the new streamer and new thumbnails buttons with a description of search criteria when active
       function setButtonTextWithFilterDataFromStorage() {
         const streamButton = document.getElementById('new-streamer-button');
-        if (!settings.get('include').trim()
+        if (!getNormalizedInclude().trim()
               && !settings.get('exclude').trim()
               && settings.get('minDuration', true) === 0
         ) {
@@ -374,7 +385,8 @@
           document.querySelectorAll('.new-thumbnails').forEach((button) => {
             button.innerText = 'Get new thumbnails';
           });
-          document.querySelector('#filter').innerText = 'filters & settings';
+          document.querySelector('#filter').innerText = 'game filters & settings';
+          document.querySelector('#filter').classList.remove('filter-active');
 
           // always set when-enabled text, but only bother with setting actual text if it's active
           document.getElementById('new-streamer-button').setAttribute('data-message', 'new streamer');
@@ -389,7 +401,9 @@
           document.querySelectorAll('.new-thumbnails').forEach((button) => {
             button.innerText = `Get new thumbnails ('${searchString}')`;
           });
-          document.querySelector('#filter').innerText = 'filter active';
+          document.querySelector('#filter').innerText = 'game filter active';
+          document.querySelector('#filter').classList.add('filter-active');
+
           document.getElementById('new-streamer-button').setAttribute(
             'data-message',
             `new streamer ('${searchString}')`,
@@ -498,7 +512,7 @@
 
         // populate filter UI with values from storage
         document.getElementById('remember').checked = settings.get('shouldRemember', true);
-        document.getElementById('include').value = settings.get('include');
+        document.getElementById('include').value = getNormalizedInclude();
         document.getElementById('exclude').value = settings.get('exclude');
         document.getElementById('min-age').value = settings.get('minDuration', true);
         document.getElementById('show_singles').checked = settings.get('maxViewers', true) === 1;
@@ -550,10 +564,16 @@
         localStorage.setItem('hasMigrated', true);
       }
 
+      // load temporary filter into storage if we have one and show heads up
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('filter')) {
+        settings.set('tempInclude', urlParams.get('filter'));
+      }
+
       initPage();
 
       // for temporary testing
-      const urlParams = new URLSearchParams(window.location.search);
+
       if (urlParams.has('forcebg')) {
         const bg = urlParams.get('forcebg');
         document.body.classList.remove('background-textured');
