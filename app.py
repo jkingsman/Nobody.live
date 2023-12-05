@@ -31,6 +31,32 @@ def get_from_dict_as_int_or_default(obj, key, default=0):
         return default
 
 
+def get_from_cache(cache_key):
+    if cache_key not in app.ctx.cached_responses:
+        return None
+
+    print(app.ctx.cached_responses[cache_key])
+    if (
+        datetime.datetime.now().timestamp() - app.ctx.cached_responses[cache_key]["cached-since"]
+    ) < app.ctx.cached_responses[cache_key]["max_age"]:
+        response = app.ctx.cached_responses[cache_key]["response"]
+        return sanic_json(
+            response,
+            dumps=json_dumps_pretty,
+            headers={
+                "x-cached-since": app.ctx.cached_responses[cache_key]["cached-since"]
+            },
+        )
+    return None
+
+def save_to_cache(cache_key, data, max_age):
+    app.ctx.cached_responses[cache_key] = {
+        "cached-since": datetime.datetime.now().timestamp(),
+        "max_age": max_age,
+        "response": data,
+    }
+
+
 @app.listener("before_server_start")
 async def register_db(app_handle, loop):
     app_handle.config["pool"] = await create_pool(
@@ -186,27 +212,9 @@ async def get_stream_details(request, stream_id):
 
 @app.get("/stats/games")
 async def get_stats_streams_by_game(request):
-    now = datetime.datetime.now().timestamp()
-    cache_key = "streams_by_game"
-    cache_max_age = 300
-
-    if cache_key not in app.ctx.cached_responses:
-        app.ctx.cached_responses[cache_key] = {
-            "cached-since": 0,
-            "max_age": cache_max_age,
-            "response": None,
-        }
-    if (
-        now - app.ctx.cached_responses[cache_key]["cached-since"]
-    ) < app.ctx.cached_responses[cache_key]["max_age"]:
-        response = app.ctx.cached_responses[cache_key]["response"]
-        return sanic_json(
-            response,
-            dumps=json_dumps_pretty,
-            headers={
-                "x-cached-since": app.ctx.cached_responses[cache_key]["cached-since"]
-            },
-        )
+    cache_response = get_from_cache("streams_by_game")
+    if cache_response:
+        return cache_response
 
     pool = request.app.config["pool"]
     async with pool.acquire() as conn:
@@ -243,37 +251,18 @@ async def get_stats_streams_by_game(request):
             reverse=True,
         )
 
-        app.ctx.cached_responses[cache_key]["cached-since"] = now
-        app.ctx.cached_responses[cache_key]["response"] = games_list_dict
+        save_to_cache("streams_by_game", games_list_dict, 15)
 
         return sanic_json(
-            games_list_dict, dumps=json_dumps_pretty, headers={"x-cached-since": now}
+            games_list_dict, dumps=json_dumps_pretty, headers={"x-cached-since": datetime.datetime.now().timestamp()}
         )
 
 
 @app.get("/stats/counts")
 async def get_stats_counts(request):
-    now = datetime.datetime.now().timestamp()
-    cache_key = "counts"
-    cache_max_age = 60
-
-    if cache_key not in app.ctx.cached_responses:
-        app.ctx.cached_responses[cache_key] = {
-            "cached-since": 0,
-            "max_age": cache_max_age,
-            "response": None,
-        }
-    if (
-        now - app.ctx.cached_responses[cache_key]["cached-since"]
-    ) < app.ctx.cached_responses[cache_key]["max_age"]:
-        response = app.ctx.cached_responses[cache_key]["response"]
-        return sanic_json(
-            response,
-            dumps=json_dumps_pretty,
-            headers={
-                "x-cached-since": app.ctx.cached_responses[cache_key]["cached-since"]
-            },
-        )
+    cache_response = get_from_cache("counts")
+    if cache_response:
+        return cache_response
 
     pool = request.app.config["pool"]
     async with pool.acquire() as conn:
@@ -318,36 +307,17 @@ async def get_stats_counts(request):
             ] = generation_object_without_generation_number
         counts_query["generations"] = generations_result
 
-        app.ctx.cached_responses[cache_key]["cached-since"] = now
-        app.ctx.cached_responses[cache_key]["response"] = counts_query
+        save_to_cache("counts", counts_query, 60)
         return sanic_json(
-            counts_query, dumps=json_dumps_pretty, headers={"x-cached-since": now}
+            counts_query, dumps=json_dumps_pretty, headers={"x-cached-since": datetime.datetime.now().timestamp()}
         )
 
 
 @app.get("/stats/tags")
 async def get_stats_tags(request):
-    now = datetime.datetime.now().timestamp()
-    cache_key = "tags"
-    cache_max_age = 300
-
-    if cache_key not in app.ctx.cached_responses:
-        app.ctx.cached_responses[cache_key] = {
-            "cached-since": 0,
-            "max_age": cache_max_age,
-            "response": None,
-        }
-    if (
-        now - app.ctx.cached_responses[cache_key]["cached-since"]
-    ) < app.ctx.cached_responses[cache_key]["max_age"]:
-        response = app.ctx.cached_responses[cache_key]["response"]
-        return sanic_json(
-            response,
-            dumps=json_dumps_pretty,
-            headers={
-                "x-cached-since": app.ctx.cached_responses[cache_key]["cached-since"]
-            },
-        )
+    cache_response = get_from_cache("tags")
+    if cache_response:
+        return cache_response
 
     pool = request.app.config["pool"]
     async with pool.acquire() as conn:
@@ -375,10 +345,9 @@ async def get_stats_tags(request):
             reverse=True,
         )
 
-        app.ctx.cached_responses[cache_key]["cached-since"] = now
-        app.ctx.cached_responses[cache_key]["response"] = tag_count
+        save_to_cache("tags", tag_count, 300)
         return sanic_json(
-            tag_count, dumps=json_dumps_pretty, headers={"x-cached-since": now}
+            tag_count, dumps=json_dumps_pretty, headers={"x-cached-since": datetime.datetime.now().timestamp()}
         )
 
 
