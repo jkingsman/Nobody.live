@@ -215,7 +215,7 @@ code {
 
 #new-streamer-button:disabled,
 #new-streamer-button[disabled] {
-  background-color: #efefef;
+  background-color: #6d6d6d;
 }
 
 .loading-throbber {
@@ -342,6 +342,10 @@ body.minimal {
 
 .minimal .hide-on-minimal {
   display: none;
+}
+
+.minimal .dim-on-minimal {
+  filter: brightness(.2);
 }
 
 .minimal #twitch-embed, .minimal #twitch-embed > iframe {
