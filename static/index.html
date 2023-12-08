@@ -51,7 +51,7 @@
         </div>
         <div class="right-pane">
           <button id="new-streamer-button" data-message="new streamer" disabled>please wait... </button><br />
-          <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">game filters & settings</button>
+          <button class="fake-link filter" id="filter" data-micromodal-trigger="filter-modal">stream filters & settings</button>
         </div>
       </div>
       <div id="content-container">
@@ -374,7 +374,7 @@
           document.querySelectorAll('.new-thumbnails').forEach((button) => {
             button.innerText = 'Get new thumbnails';
           });
-          document.querySelector('#filter').innerText = 'game filters & settings';
+          document.querySelector('#filter').innerText = 'stream filters & settings';
           document.querySelector('#filter').classList.remove('filter-active');
 
           // always set when-enabled text, but only bother with setting actual text if it's active
@@ -390,7 +390,7 @@
           document.querySelectorAll('.new-thumbnails').forEach((button) => {
             button.innerText = `Get new thumbnails ('${searchString}')`;
           });
-          document.querySelector('#filter').innerText = 'game filter active';
+          document.querySelector('#filter').innerText = 'stream filter active';
           document.querySelector('#filter').classList.add('filter-active');
 
           document.getElementById('new-streamer-button').setAttribute(
