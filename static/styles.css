@@ -263,6 +263,7 @@ code {
   overflow: hidden;
   cursor: pointer;
   width: 90%;
+  aspect-ratio: auto 440 / 248;
   justify-self: center;
 }
 
@@ -303,6 +304,10 @@ code {
   .wide #twitch-embed > iframe, .minimal #twitch-embed > iframe {
     min-height: 80vh;
   }
+}
+
+#twitch-embed {
+  min-height: 60vh;
 }
 
 .thumbnail-item:hover {
