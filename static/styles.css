@@ -65,7 +65,7 @@ code {
 
 #twitch-embed-wrapper, #twitch-embed, #twitch-embed > iframe {
   /* to prevent layout shift */
-  min-height: max(70vh, 550px);
+  min-height: max(70vh, 500px);
 }
 
 .minimal #content-container, .wide #content-container {
