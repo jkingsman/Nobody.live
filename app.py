@@ -37,7 +37,8 @@ def get_from_cache(cache_key):
 
     print(app.ctx.cached_responses[cache_key])
     if (
-        datetime.datetime.now().timestamp() - app.ctx.cached_responses[cache_key]["cached-since"]
+        datetime.datetime.now().timestamp()
+        - app.ctx.cached_responses[cache_key]["cached-since"]
     ) < app.ctx.cached_responses[cache_key]["max_age"]:
         response = app.ctx.cached_responses[cache_key]["response"]
         return sanic_json(
@@ -48,6 +49,7 @@ def get_from_cache(cache_key):
             },
         )
     return None
+
 
 def save_to_cache(cache_key, data, max_age):
     app.ctx.cached_responses[cache_key] = {
@@ -254,7 +256,9 @@ async def get_stats_streams_by_game(request):
         save_to_cache("streams_by_game", games_list_dict, 15)
 
         return sanic_json(
-            games_list_dict, dumps=json_dumps_pretty, headers={"x-cached-since": datetime.datetime.now().timestamp()}
+            games_list_dict,
+            dumps=json_dumps_pretty,
+            headers={"x-cached-since": datetime.datetime.now().timestamp()},
         )
 
 
@@ -309,7 +313,9 @@ async def get_stats_counts(request):
 
         save_to_cache("counts", counts_query, 60)
         return sanic_json(
-            counts_query, dumps=json_dumps_pretty, headers={"x-cached-since": datetime.datetime.now().timestamp()}
+            counts_query,
+            dumps=json_dumps_pretty,
+            headers={"x-cached-since": datetime.datetime.now().timestamp()},
         )
 
 
@@ -347,7 +353,9 @@ async def get_stats_tags(request):
 
         save_to_cache("tags", tag_count, 300)
         return sanic_json(
-            tag_count, dumps=json_dumps_pretty, headers={"x-cached-since": datetime.datetime.now().timestamp()}
+            tag_count,
+            dumps=json_dumps_pretty,
+            headers={"x-cached-since": datetime.datetime.now().timestamp()},
         )
 
 

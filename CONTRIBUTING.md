@@ -18,5 +18,5 @@ npm install eslint eslint-config-airbnb-base eslint-plugin-html eslint-plugin-im
 # lint
 black *.py
 pylint *.py
-./node_modules/.bin/eslint --fix --ext .html,.js static/*.html static/storage.js
+./node_modules/.bin/eslint --fix --ext .html,.js static/*.html static/storage.js static/app.js
 ```
