@@ -163,6 +163,10 @@ code {
   grid-template-columns: 25% 25% 25% 25%;
 }
 
+.thumbnail-placeholder {
+  color: rgba(128, 128, 128, 0.3);
+}
+
 @media only screen and (max-width: 599px) {
   .thumbnail-container {
     display: grid;
@@ -311,7 +315,8 @@ code {
 }
 
 #twitch-embed {
-  min-height: 60vh;
+  /* to prevent layout shift */
+  min-height: max(70vh, 550px);
 }
 
 .thumbnail-item:hover {
