@@ -63,7 +63,8 @@ code {
   display: none;
 }
 
-#twitch-embed > iframe {
+#twitch-embed-wrapper, #twitch-embed, #twitch-embed > iframe {
+  /* to prevent layout shift */
   min-height: max(70vh, 550px);
 }
 
@@ -300,7 +301,8 @@ code {
     margin: auto;
   }
 
-  #twitch-embed, #twitch-embed > iframe {
+  #twitch-embed-wrapper, #twitch-embed, #twitch-embed > iframe {
+    /* to prevent layout shift */
     min-height: 60vh;
   }
 
@@ -312,11 +314,6 @@ code {
   .wide #twitch-embed > iframe, .minimal #twitch-embed > iframe {
     min-height: 80vh;
   }
-}
-
-#twitch-embed {
-  /* to prevent layout shift */
-  min-height: max(70vh, 550px);
 }
 
 .thumbnail-item:hover {
