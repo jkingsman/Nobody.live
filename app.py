@@ -12,7 +12,6 @@ from sanic import Sanic
 from sanic.response import json as sanic_json, text
 
 app = Sanic(__name__)
-app.ctx.cached_responses = {}
 
 # the optimized query flow not guaranteed to return enough results
 # how many queries should we make to try to hit our requested count before giving up
@@ -29,34 +28,6 @@ def get_from_dict_as_int_or_default(obj, key, default=0):
         return int(obj.get(key, default))
     except ValueError:
         return default
-
-
-def get_from_cache(cache_key):
-    if cache_key not in app.ctx.cached_responses:
-        return None
-
-    print(app.ctx.cached_responses[cache_key])
-    if (
-        datetime.datetime.now().timestamp()
-        - app.ctx.cached_responses[cache_key]["cached-since"]
-    ) < app.ctx.cached_responses[cache_key]["max_age"]:
-        response = app.ctx.cached_responses[cache_key]["response"]
-        return sanic_json(
-            response,
-            dumps=json_dumps_pretty,
-            headers={
-                "x-cached-since": app.ctx.cached_responses[cache_key]["cached-since"]
-            },
-        )
-    return None
-
-
-def save_to_cache(cache_key, data, max_age):
-    app.ctx.cached_responses[cache_key] = {
-        "cached-since": datetime.datetime.now().timestamp(),
-        "max_age": max_age,
-        "response": data,
-    }
 
 
 @app.listener("before_server_start")
@@ -214,10 +185,6 @@ async def get_stream_details(request, stream_id):
 
 @app.get("/stats/games")
 async def get_stats_streams_by_game(request):
-    cache_response = get_from_cache("streams_by_game")
-    if cache_response:
-        return cache_response
-
     pool = request.app.config["pool"]
     async with pool.acquire() as conn:
         games_list_query = """
@@ -253,8 +220,6 @@ async def get_stats_streams_by_game(request):
             reverse=True,
         )
 
-        save_to_cache("streams_by_game", games_list_dict, 15)
-
         return sanic_json(
             games_list_dict,
             dumps=json_dumps_pretty,
@@ -264,10 +229,6 @@ async def get_stats_streams_by_game(request):
 
 @app.get("/stats/counts")
 async def get_stats_counts(request):
-    cache_response = get_from_cache("counts")
-    if cache_response:
-        return cache_response
-
     pool = request.app.config["pool"]
     async with pool.acquire() as conn:
         counts_query = """
@@ -311,7 +272,6 @@ async def get_stats_counts(request):
             ] = generation_object_without_generation_number
         counts_query["generations"] = generations_result
 
-        save_to_cache("counts", counts_query, 60)
         return sanic_json(
             counts_query,
             dumps=json_dumps_pretty,
@@ -321,10 +281,6 @@ async def get_stats_counts(request):
 
 @app.get("/stats/tags")
 async def get_stats_tags(request):
-    cache_response = get_from_cache("tags")
-    if cache_response:
-        return cache_response
-
     pool = request.app.config["pool"]
     async with pool.acquire() as conn:
         data_query = "SELECT data from streams;"
@@ -351,7 +307,6 @@ async def get_stats_tags(request):
             reverse=True,
         )
 
-        save_to_cache("tags", tag_count, 300)
         return sanic_json(
             tag_count,
             dumps=json_dumps_pretty,
