@@ -33,10 +33,7 @@
 
     <title>Nobody.live | Lonely streams and streamers with zero viewers</title>
     <link rel="stylesheet" href="/static/styles.css?cache_bust=0.0.7" type="text/css">
-
-    <!-- optimize modal loading for later per https://web.dev/articles/defer-non-critical-css-->
-    <link rel="preload" href="/static/modal.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="/static/modal.css"></noscript>
+    <link rel="stylesheet" href="/static/modal.css" type="text/css">
 
     <link rel="preconnect" href="https://embed.twitch.tv">
     <link rel="preconnect" href="https://static-cdn.jtvnw.net">
@@ -172,9 +169,9 @@
       </div>
     </div>
 
-    <script src="https://embed.twitch.tv/embed/v1.js"></script>
-    <script src="/static/micromodal.min.js"></script>
-    <script src="/static/storage.js?cache_bust=0.0.2"></script>
-    <script src="/static/app.js?cache_bust=0.0.1"></script>
+    <script nonce="to-be-replaced" src="https://embed.twitch.tv/embed/v1.js"></script>
+    <script nonce="to-be-replaced" src="/static/micromodal.min.js"></script>
+    <script nonce="to-be-replaced" src="/static/storage.js?cache_bust=0.0.2"></script>
+    <script nonce="to-be-replaced" src="/static/app.js?cache_bust=0.0.1"></script>
   </body>
 </html>
