@@ -219,6 +219,7 @@ code {
 #new-streamer-button:disabled,
 #new-streamer-button[disabled] {
   background-color: #6d6d6d;
+  cursor: default;
 }
 
 .thumbnail-update-container {
@@ -320,7 +321,7 @@ code {
   filter:brightness(1.25);
 }
 
-#new-streamer-button:hover {
+#new-streamer-button:enabled:hover {
   filter: brightness(1.1);
 }
 
