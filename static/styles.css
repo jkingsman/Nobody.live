@@ -161,14 +161,12 @@ code {
 .thumbnail-container {
   display: grid;
   grid-template-columns: 25% 25% 25% 25%;
-  aspect-ratio: 1.6 / 1;
 }
 
 @media only screen and (max-width: 599px) {
   .thumbnail-container {
     display: grid;
     grid-template-columns: 50% 50%;
-    aspect-ratio: .3 / 1;
   }
 
   #new-streamer-button {
@@ -218,10 +216,16 @@ code {
   background-color: #6d6d6d;
 }
 
+.thumbnail-update-container {
+  height: 30px;
+}
+
 .loading-throbber {
   width: 17px;
   height: 17px;
   filter: brightness(0.5);
+  position: relative;
+  top: 4px;
 }
 
 .search-input {
@@ -334,6 +338,10 @@ code {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.new-thumbnails {
+  line-height: 30px;
 }
 
 body.minimal {
