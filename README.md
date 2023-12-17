@@ -34,5 +34,5 @@ Update direct dependencies in `requirements.in`; use `pip-compile` to compile th
 
 ## Components
 
-* [Loading throbber Copyright (c) 2014 Sam Herbert](https://github.com/SamHerbert/SVG-Loaders)
 * [Micromodal Copyright (c) 2017 Indrashish Ghosh](https://github.com/Ghosh/micromodal)
+* Backgound image CC BY 4.0 [SVGBackgrounds.com](https://www.svgbackgrounds.com/)
