@@ -362,5 +362,26 @@
       nonce="to-be-replaced"
       src="/static/app.js?cache_bust=0.0.1"
     ></script>
+    <script nonce="to-be-replaced">
+      /* global Sentry */
+      /* eslint-disable func-names */
+      window.sentryOnLoad = function () {
+        Sentry.init({
+          integrations: [new Sentry.Integrations.HttpClient()],
+          sendDefaultPii: true,
+        });
+      };
+    </script>
+    <script
+      src="https://js.sentry-cdn.com/74efce1cc8dab6bedc3c428fef1503fd.min.js"
+      nonce="to-be-replaced"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://browser.sentry-cdn.com/7.88.0/httpclient.min.js"
+      integrity="sha384-cUSj9+2H2xt4y720Jo/+DolyhOu8TfYkz10QRqwCq1FG3QLg6OPVtHsb0bM1Gktc"
+      nonce="to-be-replaced"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
