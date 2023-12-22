@@ -10,11 +10,11 @@ class Settings {
       },
       include: {
         respectsRememberSetting: true,
-        default: '',
+        default: "",
       },
       exclude: {
         respectsRememberSetting: true,
-        default: '',
+        default: "",
       },
       minDuration: {
         respectsRememberSetting: true,
@@ -28,8 +28,8 @@ class Settings {
       },
       searchOperator: {
         respectsRememberSetting: true,
-        default: 'all',
-        allowedValues: ['all', 'any'],
+        default: "all",
+        allowedValues: ["all", "any"],
       },
       widePage: {
         respectsRememberSetting: false,
@@ -53,7 +53,7 @@ class Settings {
       },
       streamHistory: {
         respectsRememberSetting: false,
-        default: '[]',
+        default: "[]",
       },
     };
 
@@ -67,7 +67,7 @@ class Settings {
   }
 
   static shouldRemember() {
-    return JSON.parse(localStorage.getItem('shouldRemember')) || false;
+    return JSON.parse(localStorage.getItem("shouldRemember")) || false;
   }
 
   setBulk(settingsObj) {
@@ -84,9 +84,12 @@ class Settings {
     }
 
     const requestedSetting = this.KNOWN_SETTINGS[key];
-    if (requestedSetting.allowedValues && !requestedSetting.allowedValues.includes(value)) {
+    if (
+      requestedSetting.allowedValues &&
+      !requestedSetting.allowedValues.includes(value)
+    ) {
       console.error(`Illegal value! Key '${key}' has value '${value}' is not one of \
-${requestedSetting.allowedValues.join(', ')}`);
+${requestedSetting.allowedValues.join(", ")}`);
       return;
     }
 
@@ -111,7 +114,7 @@ ${requestedSetting.allowedValues.join(', ')}`);
       // if we haven't heard of it, get it ephemerally
       if (!this.ephemeral[key]) {
         console.error(`Unknown key! ${key} is not one of \
-${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
+${Object.keys(this.KNOWN_SETTINGS).join(", ")} nor found in ephemera.`);
         return null;
       }
 
@@ -144,7 +147,9 @@ ${Object.keys(this.KNOWN_SETTINGS).join(', ')} nor found in ephemera.`);
       try {
         return JSON.parse(rawSetting);
       } catch (error) {
-        console.error(`Parse failure! Could not parse key '${key}' with value '${rawSetting}'.`);
+        console.error(
+          `Parse failure! Could not parse key '${key}' with value '${rawSetting}'.`,
+        );
         return rawSetting;
       }
     } else {

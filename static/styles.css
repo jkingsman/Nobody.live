@@ -63,16 +63,20 @@ code {
   display: none;
 }
 
-#twitch-embed-wrapper, #twitch-embed, #twitch-embed > iframe {
+#twitch-embed-wrapper,
+#twitch-embed,
+#twitch-embed > iframe {
   /* to prevent layout shift */
   min-height: max(70vh, 500px);
 }
 
-.minimal #content-container, .wide #content-container {
+.minimal #content-container,
+.wide #content-container {
   height: 100%;
 }
 
-.minimal #twitch-embed-wrapper, .wide #twitch-embed-wrapper {
+.minimal #twitch-embed-wrapper,
+.wide #twitch-embed-wrapper {
   height: calc(100% - 40px);
 }
 
@@ -92,8 +96,8 @@ code {
 }
 
 .dual-column .thumbnail-container {
-    display: grid;
-    grid-template-columns: 50% 50%;
+  display: grid;
+  grid-template-columns: 50% 50%;
 }
 
 @media only screen and (min-width: 600px) {
@@ -302,23 +306,27 @@ code {
     margin: auto;
   }
 
-  #twitch-embed-wrapper, #twitch-embed, #twitch-embed > iframe {
+  #twitch-embed-wrapper,
+  #twitch-embed,
+  #twitch-embed > iframe {
     /* to prevent layout shift */
     min-height: 60vh;
   }
 
   /* wide and min mode should take up more room -- 80vh is decent until the screen gets weirdly short*/
-  .wide #page-container, .minimal #page-container {
+  .wide #page-container,
+  .minimal #page-container {
     max-width: none;
   }
 
-  .wide #twitch-embed > iframe, .minimal #twitch-embed > iframe {
+  .wide #twitch-embed > iframe,
+  .minimal #twitch-embed > iframe {
     min-height: 80vh;
   }
 }
 
 .thumbnail-item:hover {
-  filter:brightness(1.25);
+  filter: brightness(1.25);
 }
 
 #new-streamer-button:enabled:hover {
@@ -357,11 +365,12 @@ body.minimal {
 }
 
 .minimal .dim-on-minimal {
-  filter: brightness(.2);
+  filter: brightness(0.2);
 }
 
-.minimal #twitch-embed, .minimal #twitch-embed > iframe {
-  height: 100%
+.minimal #twitch-embed,
+.minimal #twitch-embed > iframe {
+  height: 100%;
 }
 
 .minimal #twitch-embed-wrapper {
@@ -370,7 +379,7 @@ body.minimal {
 
 /* background by SVGBackgrounds.com */
 .background-textured {
-  background-color: #0C000C !important;
+  background-color: #0c000c !important;
   background-image: url("/static/bg.svg") !important;
 }
 
