@@ -13,10 +13,13 @@ Please install eslint and associated packages (outlined below) and ensure all JS
 ```bash
 # install requirements
 pip install -r requirements.txt
-npm install eslint eslint-config-airbnb-base eslint-plugin-html eslint-plugin-import
+npm install --save-dev eslint eslint-config-airbnb-base eslint-plugin-html eslint-plugin-import eslint-config-prettier
 
 # lint
-black *.py
 pylint *.py
-./node_modules/.bin/eslint --fix --ext .html,.js static/*.html static/storage.js static/app.js
+npx eslint --fix --ext .html,.js static/*.html static/storage.js static/app.js
+
+# format
+black *.py
+npx prettier ./static --write
 ```

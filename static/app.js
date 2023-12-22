@@ -328,8 +328,10 @@ async function handleFormChange(e) {
 
 async function enableDebug() {
   // put this here so google stops showing it since apparently the data-nosnippet and display:none does nothing does nothing >.>
+  /* eslint-disable max-len */
   document.getElementById("debug-menu").innerHTML =
     ' | <a id="stream-debug" href="#">show stream debug</a> | <a href="/stats/counts" target="_blank">fill stats</a> | <a href="/stats/games" target="_blank">game stats</a> | <a href="/stats/tags" target="_blank">tag stats</a>';
+  /* eslint-enable max-len */
   const debugButton = document.getElementById("stream-debug");
   debugButton.addEventListener("click", () => {
     window.open(

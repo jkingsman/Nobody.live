@@ -1,5 +1,8 @@
 {
-  "extends": "airbnb-base",
+  "extends": [
+    "airbnb-base",
+    "prettier"
+  ],
   "env" : {
     "browser": true,
     "jquery": true
@@ -12,6 +15,6 @@
   ],
   "rules": {
     "no-restricted-syntax": ["error", "LabeledStatement", "WithStatement"],
-    "max-len": ["error", { "code": 120 }]
+    "max-len": ["error", { "code": 128 }]
   }
 }
