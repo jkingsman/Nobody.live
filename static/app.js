@@ -477,4 +477,19 @@ if (urlParams.has("filter")) {
   window.history.replaceState({}, document.title, window.location.pathname);
 }
 
-initPage();
+if (Twitch) {
+  initPage();
+} else {
+  // some clients don't load the Twitch client in time
+  // loop until they do
+  const id = setInterval(() => {
+    if (Twitch) {
+      initPage();
+      clearInterval(id);
+    } else {
+      /* eslint-disable no-console */
+      console.log("Twitch client still not available; trying again in 500ms");
+      /* eslint-enable no-console */
+    }
+  }, 100);
+}
