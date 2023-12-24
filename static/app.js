@@ -205,8 +205,8 @@ async function renderThumbnails(streamList) {
     thumb.alt = `${stream.user_name}: ${stream.title || "[No title]"}`;
     thumb.title = thumb.alt;
     thumb.src = stream.thumbnail_url
-      .replace("{width}", "440")
-      .replace("{height}", "248");
+      .replace("{width}", "298")
+      .replace("{height}", "168");
 
     a.appendChild(thumb);
     container.appendChild(a);
