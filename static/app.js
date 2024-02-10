@@ -479,6 +479,14 @@ if (urlParams.has("filter")) {
 
 if (Twitch) {
   initPage();
+
+  // no sleeping on our watch!
+  try {
+    navigator.wakeLock.request('screen');
+  }
+  catch(err) {
+    console.error(err);
+  }
 } else {
   // some clients don't load the Twitch client in time
   // loop until they do
