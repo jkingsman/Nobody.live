@@ -36,3 +36,20 @@ Update direct dependencies in `requirements.in`; use `pip-compile` to compile th
 
 * [Micromodal Copyright (c) 2017 Indrashish Ghosh](https://github.com/Ghosh/micromodal)
 * Backgound image CC BY 4.0 [SVGBackgrounds.com](https://www.svgbackgrounds.com/)
+
+
+## Cite this work
+
+If you reference Nobody.live in a paper, check out the CITATION.cff file for the correct citation.
+
+```bibtex
+@misc{Nobody.live,
+url={https://nobody.live/},
+journal={Nobody.live},
+publisher={Jack Kingsman},
+author={Kingsman, Jack},
+year={2020},
+month={Nov},
+note={{\url{https://github.com/jkingsman/Nobody.live}}}
+}
+```

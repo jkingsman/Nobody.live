@@ -1,0 +1,28 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Nobody.live
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Jack
+    family-names: Kingsman
+    email: jack.kingsman@gmail.com
+    orcid: 'https://orcid.org/0009-0003-7942-8922'
+identifiers:
+  - type: url
+    value: 'https://nobody.live'
+    description: Primary nobody.live service website
+repository-code: 'https://github.com/jkingsman/Nobody.live'
+url: 'https://nobody.live'
+abstract: >-
+  Service to display Twitch streams with zero viewers.
+  Customized search is available.
+keywords:
+  - Twitch.tv
+  - streaming
+  - streams with no viewers
+license: MIT
