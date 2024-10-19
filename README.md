@@ -50,6 +50,7 @@ publisher={Jack Kingsman},
 author={Kingsman, Jack},
 year={2020},
 month={Nov},
+doi="10.13140/RG.2.2.15356.55682",
 note={{\url{https://github.com/jkingsman/Nobody.live}}}
 }
 ```

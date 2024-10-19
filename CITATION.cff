@@ -16,6 +16,8 @@ identifiers:
   - type: url
     value: 'https://nobody.live'
     description: Primary nobody.live service website
+  - type: doi
+    value: 10.13140/RG.2.2.15356.55682
 repository-code: 'https://github.com/jkingsman/Nobody.live'
 url: 'https://nobody.live'
 abstract: >-
