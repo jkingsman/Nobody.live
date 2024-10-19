@@ -477,27 +477,33 @@ if (urlParams.has("filter")) {
   window.history.replaceState({}, document.title, window.location.pathname);
 }
 
-if (Twitch) {
+if (typeof Twitch !== "undefined") {
   initPage();
 
   // no sleeping on our watch!
   try {
-    navigator.wakeLock.request('screen');
-  }
-  catch(err) {
+    navigator.wakeLock.request("screen");
+  } catch (err) {
     console.error(err);
   }
 } else {
   // some clients don't load the Twitch client in time
   // loop until they do
+  let connect_failures = 0;
   const id = setInterval(() => {
-    if (Twitch) {
+    if (typeof Twitch !== "undefined") {
       initPage();
       clearInterval(id);
     } else {
       /* eslint-disable no-console */
-      console.log("Twitch client still not available; trying again in 500ms");
+      console.log("Twitch client still not available; trying again in 250ms");
       /* eslint-enable no-console */
+      connect_failures++;
+      // every 20th failure after the first 19
+      if (connect_failures > 1 && connect_failures % 20 == 0) {
+        console.log(connect_failures);
+        alert("We're having trouble loading the Twitch API. We'll keep trying, but please check on any ad blockers/privacy plugins that may block the Twitch embed scripts.")
+      }
     }
-  }, 100);
+  }, 250);
 }
